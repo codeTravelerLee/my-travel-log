@@ -129,3 +129,17 @@ export const logOut = (req, res) => {
     res.status(500).json({ error: "internal server error" });
   }
 };
+
+//현재 로그인된 계정 정보 반환
+//protectedRoute.js의 protectedRoute함수 먼저 수행 후 next()에 의해 getCurrentUser컨트롤러 수행
+export const getCurrentUser = async (req, res) => {
+  try {
+    //protectedRoute에서 req에 user데이터 추가
+    //user는 password를 제외한 User데이터
+    const user = await User.findById(req.user._id).select("-password");
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(`error while getting current user data.. ${error.messaage}`);
+    res.status(500).json({ error: "internal server error" });
+  }
+};
