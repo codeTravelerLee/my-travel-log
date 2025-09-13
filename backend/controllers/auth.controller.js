@@ -79,8 +79,42 @@ export const signUp = async (req, res) => {
 };
 
 //로그인
-export const logIn = (req, res) => {
-  res.send("login page");
+export const logIn = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = User.findOne({ email: email });
+    const isPasswordCorrect = await bcrypt.compare(
+      password,
+      user?.password || ""
+    ); //일치하는 user가 없을 경우를 대비
+
+    //해당 이메일을 사용하는 유저가 없거나 비밀번호가 틀린 경우
+    if (!user || !isPasswordCorrect) {
+      return res
+        .status(400)
+        .json({ error: "존재하지 않는 이메일이거나 비밀번호가 틀립니다." });
+    }
+
+    //이메일과 비밀번호가 일치한다면
+    //로그인 진행
+    //토큰 발급
+    generateTokenAndSetCookie(newUser._id, res);
+
+    res.status(201).json({
+      message: `${userName}님, 환영해요!`,
+      _id: newUser._id,
+      fullName: newUser.fullName,
+      username: newUser.username,
+      email: newUser.email,
+      followers: newUser.followers,
+      following: newUser.following,
+      profileImg: newUser.profileImg,
+      coverImg: newUser.coverImg,
+    });
+  } catch (error) {
+    console.error(`error while logging in.. ${error.messaage}`);
+    res.status(500).json({ error: "internal server error" });
+  }
 };
 
 //로그아웃
