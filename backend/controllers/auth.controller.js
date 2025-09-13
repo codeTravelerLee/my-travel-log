@@ -89,27 +89,29 @@ export const logIn = async (req, res) => {
     ); //일치하는 user가 없을 경우를 대비
 
     //해당 이메일을 사용하는 유저가 없거나 비밀번호가 틀린 경우
-    if (!user || !isPasswordCorrect) {
-      return res
-        .status(400)
-        .json({ error: "존재하지 않는 이메일이거나 비밀번호가 틀립니다." });
+    if (!user) {
+      return res.status(400).json({ error: "존재하지 않는 이메일입니다." });
+    }
+
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
     }
 
     //이메일과 비밀번호가 일치한다면
     //로그인 진행
     //토큰 발급
-    generateTokenAndSetCookie(newUser._id, res);
+    generateTokenAndSetCookie(user._id, res);
 
     res.status(201).json({
-      message: `${userName}님, 환영해요!`,
-      _id: newUser._id,
-      fullName: newUser.fullName,
-      username: newUser.username,
-      email: newUser.email,
-      followers: newUser.followers,
-      following: newUser.following,
-      profileImg: newUser.profileImg,
-      coverImg: newUser.coverImg,
+      message: `${user.userName}님, 환영해요!`,
+      _id: user._id,
+      fullName: user.fullName,
+      userName: user.userName,
+      email: user.email,
+      followers: user.followers,
+      following: user.following,
+      profileImg: user.profileImg,
+      coverImg: user.coverImg,
     });
   } catch (error) {
     console.error(`error while logging in.. ${error.messaage}`);
