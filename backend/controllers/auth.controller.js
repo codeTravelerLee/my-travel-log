@@ -82,7 +82,7 @@ export const signUp = async (req, res) => {
 export const logIn = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = User.findOne({ email: email });
+    const user = await User.findOne({ email: email });
     const isPasswordCorrect = await bcrypt.compare(
       password,
       user?.password || ""
@@ -121,5 +121,11 @@ export const logIn = async (req, res) => {
 
 //로그아웃
 export const logOut = (req, res) => {
-  res.send("logout page");
+  try {
+    res.cookie("jwt", "", { maxAge: 0 }); //maxAge를 0으로 함 -> 즉시 만료 == 로그아웃
+    res.status(200).json({ message: "로그아웃 되었어요." });
+  } catch (error) {
+    console.error(`error while logging out.. ${error.messaage}`);
+    res.status(500).json({ error: "internal server error" });
+  }
 };
