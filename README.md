@@ -9,6 +9,10 @@
 여행지에서의 추억들을 잊지 않고 영원히 간직하며 언제든 꺼내볼 수 있도록! </br>
 지금 바로 MyTravelLog에 기록해보세요. 
 
+MERN CRASH COURSE를 공부하며 연습용으로 제작한 비상업적 서비스입니다!
+(this is a non-profit service, which was made just for studying purpose)
+
+source: https://www.youtube.com/watch?v=MDZC8VDZnV8&list=LL 
 </div>
 
 ---
