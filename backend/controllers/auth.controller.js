@@ -114,7 +114,7 @@ export const logIn = async (req, res) => {
       coverImg: user.coverImg,
     });
   } catch (error) {
-    console.error(`error while logging in.. ${error.messaage}`);
+    console.error(`error while logging in.. error: ${error.messaage}`);
     res.status(500).json({ error: "internal server error" });
   }
 };

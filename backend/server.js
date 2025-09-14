@@ -3,7 +3,9 @@ import connectMongoDB from "./db/connectMongo.js";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+
 import authRoutes from "./routes/auth.route.js";
+import userRoutes from "./routes/user.route.js";
 
 dotenv.config();
 
@@ -13,10 +15,11 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json()); //json형태 데이터 주고받기
 app.use(express.urlencoded({ extended: true })); //x-www-url-encoded형태로 데이터 송수신 가능
-app.use(cookieParser()); //req.cookie로 쿠키값 받아오기 위함
+app.use(cookieParser()); //req.cookies로 쿠키값 받아오기 위함
 
 //routing
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 
 app.listen(PORT, () => {
   console.log(`server is running on port: ${PORT}`);
