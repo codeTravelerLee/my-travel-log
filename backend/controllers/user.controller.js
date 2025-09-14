@@ -1,3 +1,4 @@
+import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
 
 //특정 userName의 프로필 정보를 가져옴
@@ -85,7 +86,17 @@ export const followOrUnfollowUser = async (req, res) => {
       );
 
       //모두 성공이라면
-      res
+      //팔로우 요청을 받은 애한테 요청 왔다고 알람을 쏴주자
+      const newNotification = new Notification({
+        from: req.user._id,
+        to: targetUser._id, //id로 해도 되는데 그럼 문자열이라 objectId로 바꿔줘야 함. 번거로우니 그냥 targetUser._id로!
+        type: "follow",
+      });
+
+      //알림을 DB에 저장 -> 나중에 특정 유저한테 온 알람들 쭉 리스트업 해서 보여주기 위함
+      await newNotification.save();
+
+      await res
         .status(200)
         .json({ message: `이제 ${targetUser.userName}님을 팔로우 합니다!` });
     }
