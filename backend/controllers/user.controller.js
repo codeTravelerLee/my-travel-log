@@ -105,3 +105,57 @@ export const followOrUnfollowUser = async (req, res) => {
     res.status(500).json({ error: "internal server error" });
   }
 };
+
+//유저 추천
+export const getRecommendedUser = async (req, res) => {
+  //로그인 되어있는 유저id
+  const currentUserId = req.user._id;
+
+  //현재 로그인중인 유저가 팔로우중인 id들이 담긴 배열 following을 가진 객체.
+  //진짜 id배열 데이터에 접근하려면 usersFollwedByCurrentUser.following
+  const usersFollowedbyCurrentUser = await User.findById({
+    _id: currentUserId,
+  }).select("following");
+
+  //자기 자신을 제외하고 선별된 랜덤한 10명의 사용자
+  //aggregate => find계열과 달리 바로 배열 반환. SO, 그냥 이 자체로 바로 id담긴 배열임
+  const randomlySelectedUsers = await User.aggregate([
+    { $match: { _id: { $ne: currentUserId } } },
+    { $sample: { size: 10 } },
+  ]);
+
+  //뽑힌 랜덤한 사용자중, 이미 팔로우중인 애들은 제외
+  //filter. 포함하지 않는 애들만 골라라!
+  const alreadyFollowingExcludedRandomUsers = randomlySelectedUsers.filter(
+    //randomUser각각은 이미 팔로우중인 id
+    (randomUser) =>
+      //포함되어 있지 않은 애만 남겨라!
+      !usersFollowedbyCurrentUser.following //currentUser가 이미 팔로우중인 id가 담긴 배열
+        .map((id) => id.toString()) //ObjectId타입을 문자열로 변환 for 정확한 비교
+        .includes(randomUser._id.toString())
+  );
+
+  //선발된 애들 데이터 넘겨주기 전에 비밀번호 제거
+  alreadyFollowingExcludedRandomUsers.forEach((user) => (user.password = null));
+
+  //현재 로그인된 유저의 이름 (res응답메세지에 보내줄 용도)
+  const currentUserName = await User.findById({ _id: currentUserId }).select(
+    "userName"
+  );
+
+  //클라이언트로 보내주자
+  res
+    .status(200)
+    .json({
+      message: `${currentUserName}님, 이런 친구들은 어떠세요?`,
+      recommended: alreadyFollowingExcludedRandomUsers,
+    });
+
+  try {
+  } catch (error) {
+    console.log(
+      `error happened while recommending users profile: ${error.message}`
+    );
+    res.status(500).json({ error: "internal server error" });
+  }
+};
