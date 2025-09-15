@@ -181,6 +181,7 @@ export const updateProfile = async (req, res) => {
 
     //비밀번호 변경 로직
     //기존 비번이랑 새 비번중 하나라도 입력 안했으면 입력하라 해주기
+    //비밀번호를 바꾸고자 하는 경우에만 수행되도록 분기
     if (newPassword) {
       if (!currentPassword || !newPassword)
         return res
