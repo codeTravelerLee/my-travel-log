@@ -174,34 +174,36 @@ export const updateProfile = async (req, res) => {
     const currentUser = await User.findById(currentUserId);
 
     //없는 사용자 프로필이라면
-    if (!user)
+    if (!currentUser)
       return res
         .status(404)
         .json({ error: "일치하는 사용자를 찾을 수 없어요." });
 
     //비밀번호 변경 로직
     //기존 비번이랑 새 비번중 하나라도 입력 안했으면 입력하라 해주기
-    if (!currentPassword || !newPassword)
-      return res
-        .status(400)
-        .json({ error: "기존 비밀번호와 새 비밀번호를 모두 입력해주세요" });
+    if (newPassword) {
+      if (!currentPassword || !newPassword)
+        return res
+          .status(400)
+          .json({ error: "기존 비밀번호와 새 비밀번호를 모두 입력해주세요" });
 
-    //기존 비번 입력한거 맞는지 쳌
-    //prettier-ignore
-    const isCurrentPasswordCorrect = await bcrypt.compare(currentPassword, currentUser._id);
+      //기존 비번 입력한거 맞는지 쳌
+      //prettier-ignore
+      const isCurrentPasswordCorrect = await bcrypt.compare(currentPassword, currentUser._id);
 
-    //prettier-ignore
-    if(!isCurrentPasswordCorrect) return res.status(400).json({error: "기존 비밀번호가 일치하지 않아요"});
+      //prettier-ignore
+      if(!isCurrentPasswordCorrect) return res.status(400).json({error: "기존 비밀번호가 일치하지 않아요"});
 
-    //신규 비밀번호가 8글자 이상인지 쳌
-    //prettier-ignore
-    if(newPassword.length < 8) return res.status(400).json({error: "비밀번호는 8글자 이상이어야 해요"});
+      //신규 비밀번호가 8글자 이상인지 쳌
+      //prettier-ignore
+      if(newPassword.length < 8) return res.status(400).json({error: "비밀번호는 8글자 이상이어야 해요"});
 
-    //모든 검증이 끝나고 ~> 신규 비번 해싱
-    const salt = await bcrypt.genSalt(10);
-    const hashedNewPassword = await bcrypt.hash(newPassword, salt);
+      //모든 검증이 끝나고 ~> 신규 비번 해싱
+      const salt = await bcrypt.genSalt(10);
+      const hashedNewPassword = await bcrypt.hash(newPassword, salt);
 
-    currentUser.password = hashedNewPassword; //당연한 소리지만 이건 db저장이 아님. 나중에 한번에 프로필 이미지 등등 바뀐거 종합해서 db에 올릴거임 망각 ㄴㄴ
+      currentUser.password = hashedNewPassword; //당연한 소리지만 이건 db저장이 아님. 나중에 한번에 프로필 이미지 등등 바뀐거 종합해서 db에 올릴거임 망각 ㄴㄴ
+    }
 
     //프로필 이미지 변경
     //사용자가 req에서 입력한 profileImg값이 있다면 === 수정하려고 새거 올리면
