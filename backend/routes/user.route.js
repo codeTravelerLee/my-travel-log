@@ -4,6 +4,7 @@ import {
   followOrUnfollowUser,
   getRecommendedUser,
   getUserProfile,
+  updateProfile,
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -14,5 +15,7 @@ router.get("/profile/:userName", protectedRoute, getUserProfile);
 router.get("/recommend", protectedRoute, getRecommendedUser);
 //팔로우 & 언팔로우
 router.post("/follow/:id", protectedRoute, followOrUnfollowUser);
+//프로필 수정
+router.post("/update", protectedRoute, updateProfile);
 
 export default router;

@@ -1,6 +1,9 @@
 import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
 
+import bcrypt from "bcryptjs";
+import { v2 as cloudinary } from "cloudinary";
+
 //특정 userName의 프로필 정보를 가져옴
 export const getUserProfile = async (req, res) => {
   const { userName } = req.params;
@@ -144,18 +147,118 @@ export const getRecommendedUser = async (req, res) => {
   );
 
   //클라이언트로 보내주자
-  res
-    .status(200)
-    .json({
-      message: `${currentUserName}님, 이런 친구들은 어떠세요?`,
-      recommended: alreadyFollowingExcludedRandomUsers,
-    });
+  res.status(200).json({
+    message: `${currentUserName}님, 이런 친구들은 어떠세요?`,
+    recommended: alreadyFollowingExcludedRandomUsers,
+  });
 
   try {
   } catch (error) {
     console.log(
       `error happened while recommending users profile: ${error.message}`
     );
+    res.status(500).json({ error: "internal server error" });
+  }
+};
+
+//프로필 업데이트
+export const updateProfile = async (req, res) => {
+  // prettier-ignore
+  const { email, fullName, userName, bio, link, currentPassword, newPassword } = req.body;
+  let { profileImg, coverImg } = req.body;
+
+  const currentUserId = req.user._id;
+
+  try {
+    //현재 사용자 데이터
+    const currentUser = await User.findById(currentUserId);
+
+    //없는 사용자 프로필이라면
+    if (!user)
+      return res
+        .status(404)
+        .json({ error: "일치하는 사용자를 찾을 수 없어요." });
+
+    //비밀번호 변경 로직
+    //기존 비번이랑 새 비번중 하나라도 입력 안했으면 입력하라 해주기
+    if (!currentPassword || !newPassword)
+      return res
+        .status(400)
+        .json({ error: "기존 비밀번호와 새 비밀번호를 모두 입력해주세요" });
+
+    //기존 비번 입력한거 맞는지 쳌
+    //prettier-ignore
+    const isCurrentPasswordCorrect = await bcrypt.compare(currentPassword, currentUser._id);
+
+    //prettier-ignore
+    if(!isCurrentPasswordCorrect) return res.status(400).json({error: "기존 비밀번호가 일치하지 않아요"});
+
+    //신규 비밀번호가 8글자 이상인지 쳌
+    //prettier-ignore
+    if(newPassword.length < 8) return res.status(400).json({error: "비밀번호는 8글자 이상이어야 해요"});
+
+    //모든 검증이 끝나고 ~> 신규 비번 해싱
+    const salt = await bcrypt.genSalt(10);
+    const hashedNewPassword = await bcrypt.hash(newPassword, salt);
+
+    currentUser.password = hashedNewPassword; //당연한 소리지만 이건 db저장이 아님. 나중에 한번에 프로필 이미지 등등 바뀐거 종합해서 db에 올릴거임 망각 ㄴㄴ
+
+    //프로필 이미지 변경
+    //사용자가 req에서 입력한 profileImg값이 있다면 === 수정하려고 새거 올리면
+    if (profileImg) {
+      //기존 사진이 있는 경우 - 기존거 먼저 지워주기
+      if (currentUser.profileImg) {
+        // cloudinary이미지 url은 아래와 같은 형식을 가지고, 특정 사진을 지우려면 id값을 destoy에 전달해야함
+        // 따라서, 각 이미지 url에서 각 사진의 아이디만 추출하기 위한 코드임
+        // https://res.cloudinary.com/dyfqon1v6/image/upload/v1712997552/zmxorcxexpdbh8r0bkjb.png
+        await cloudinary.uploader.destroy(
+          currentUser.profileImg.split("/").pop().split(".")[0]
+        );
+      }
+      //기존 사진이 없는 경우 - 바로 올리기
+      const result = await cloudinary.uploader.upload(profileImg);
+      //ProfileImg에는 cloudinary에서 접근할 수 있는 url을 string형태로 저장
+      profileImg = result.secure_url;
+    }
+
+    //커버사진 변경
+    if (coverImg) {
+      //기존 사진 있는 경우
+      if (currentUser.coverImg) {
+        await cloudinary.uploader.destroy(
+          currentUser.coverImg.split("/").pop().split(".")[0]
+        );
+      }
+
+      //기존 사진 없는 경우
+      const result = await cloudinary.uploader.upload(coverImg);
+      coverImg = result.secure_url;
+    }
+
+    //DB저장 전에 변경된 정보들을 전부 취합해주자
+    //로그인된 현재 유저의 정보를 담은 객체인 currentUser의 각 속성들을 업뎃
+    //유저가 request에서 변경을 요청한 값이 있으면 그걸로, 없으면 기존값으로
+    currentUser.fullName = fullName || currentUser.fullName;
+    currentUser.email = email || currentUser.email;
+    currentUser.userName = userName || currentUser.userName;
+    currentUser.bio = bio || currentUser.bio;
+    currentUser.link = link || currentUser.link;
+    currentUser.profileImg = profileImg || currentUser.profileImg;
+    currentUser.coverImg = coverImg || currentUser.coverImg;
+    //password는 line 204에서 이미 수정함
+
+    //바뀐정보 DB최종저장
+    const updatedProfile = await currentUser.save();
+
+    //클라이언트로 응답 보내주기 전에 password는 빼주기
+    updatedProfile.password = null; //당연한 소리지만 이건 DB에선 안바뀜 망각 ㄴㄴ
+
+    res.status(200).json({
+      message: "프로필 업데이트 성공",
+      updatedProfile: updatedProfile,
+    });
+  } catch (error) {
+    console.log(`error happened while updating profile...: ${error.message}`);
     res.status(500).json({ error: "internal server error" });
   }
 };
