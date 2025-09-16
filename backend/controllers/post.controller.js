@@ -43,7 +43,36 @@ export const uploadPost = async (req, res) => {
 
 export const likePost = async (req, res) => {};
 
-export const commentPost = async (req, res) => {};
+//댓글달기
+export const commentPost = async (req, res) => {
+  try {
+    const { id: toBeCommentedPostId } = req.params; //삭제할 게시물의 id
+    const currentUserId = req.user._id; //댓글 남길 사용자의 id
+
+    const { text } = req.body; //사용자가 작성한 댓글 본문
+
+    const toBeCommentedPost = await Post.findById(toBeCommentedPostId);
+    //prettier-ignore
+    //존재하지 않는 게시물이면
+    if(!toBeCommentedPost) return res.status(404).json({error: "존재하지 않는 게시물입니다"});
+
+    //prettier-ignore
+    //댓글을 아무것도 안쓰면
+    if(!text) return res.status(400).json({error: "한 글자 이상 작성해주세요"});
+
+    //DB에 댓글 저장
+    const newComment = { writer: currentUserId, text: text };
+    toBeCommentedPost.comments.push(newComment);
+    const savedComment = await toBeCommentedPost.save();
+
+    res
+      .status(200)
+      .json({ message: "댓글이 작성되었습니다!", comment: savedComment });
+  } catch (error) {
+    console.log(`error happended while uploading comment: ${error.message}`);
+    res.status(500).json({ error: "intetnal server error" });
+  }
+};
 
 export const updatePost = async (req, res) => {};
 
