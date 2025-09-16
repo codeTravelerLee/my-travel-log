@@ -64,8 +64,16 @@ export const deletePost = async (req, res) => {
     //prettier-ignore
     if(postToBeDeleted.writer.toString() !== req.user._id.toString()) return res.status(401).json({error: "삭제할 권한이 없습니다."})
 
+    //해당 게시글에 img가 있다면 cloudinary에서도 지워주자
+    if (postToBeDeleted.img) {
+      await cloudinary.uploader.destroy(
+        postToBeDeleted.img.split("/").pop().split(".")[0]
+      );
+    }
+
     //본인 글도 맞고, 해당 글도 존재한다면 지우자
     await Post.findByIdAndDelete(id);
+
     res.status(200).json({ message: "게시물 삭제 완료" });
   } catch (error) {
     console.log(`error happended while deleting post: ${error.message}`);
