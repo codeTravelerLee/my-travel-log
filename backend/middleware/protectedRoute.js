@@ -1,5 +1,4 @@
-
-
+//로그인 한 사용자만 특정 기능에 접근할 수 있도록 하는 용도
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 

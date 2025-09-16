@@ -7,6 +7,7 @@ import { v2 as cloudinary } from "cloudinary";
 
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
+import postRoutes from "./routes/post.route.js"
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use(cookieParser()); //req.cookies로 쿠키값 받아오기 위함
 //routing
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/posts", postRoutes)
 
 app.listen(PORT, () => {
   console.log(`server is running on port: ${PORT}`);
