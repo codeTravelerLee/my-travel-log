@@ -7,7 +7,10 @@ import { v2 as cloudinary } from "cloudinary";
 //모든 게시글 가져오기
 export const getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find().sort({ createdAt: -1 }); //최신글 먼저
+    const posts = await Post.find()
+      .sort({ createdAt: -1 }) //최신글 먼저
+      .populate({ path: "writer", select: "-password" }) //게시글 writer의 _id와 일치하는 mongoose다큐먼트 연결(User의 프로필 사진, 유저네임 등 정보)
+      .populate({ path: "comments.writer", select: "-password" }); //댓글도
 
     //게시글이 암것도 없다면 빈 배열 전달
     //빈 배열도 truthy하기에 length사용
