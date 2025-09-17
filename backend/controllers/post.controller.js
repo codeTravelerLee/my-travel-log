@@ -247,5 +247,35 @@ export const getFollowingPosts = async (req, res) => {
       message: "팔로우하는 사람들 게시글 가져오기 완료",
       followingPosts: followingPosts,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(
+      `error happended while fetching following posts...: ${error.message}`
+    );
+    res.status(500).json({ error: "intetnal server error" });
+  }
+};
+
+//유저 자신이 작성한 게시글만 모아오기 (프로필에 리스트업할 용도)
+export const getProfilePosts = async (req, res) => {
+  const currentUserId = req.user._id;
+
+  try {
+    const user = await User.findById(currentUserId);
+
+    if (!user)
+      return res.status(404).json({ error: "일치하는 사용자를 찾을 수 없음 " });
+
+    const profilePosts = await Post.find({ writer: currentUserId })
+      .sort({ createdAt: -1 })
+      .populate({ path: "writer", select: "-password" })
+      .populate({ path: "comments.writer", select: "-password" });
+
+    res.status(200).json({
+      message: "자신이 작성한 글 가져오기 성공",
+      profilePosts: profilePosts,
+    });
+  } catch (error) {
+    console.log(`error happended while profile posts...: ${error.message}`);
+    res.status(500).json({ error: "intetnal server error" });
+  }
 };

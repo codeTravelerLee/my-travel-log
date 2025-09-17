@@ -1,7 +1,16 @@
 import express from "express";
 import { protectedRoute } from "../middleware/protectedRoute.js";
-//prettier-ignore
-import { commentPost, deletePost, getAllPosts, getFollowingPosts, getLikedPosts, likePost, updatePost, uploadPost } from "../controllers/post.controller.js";
+import {
+  commentPost,
+  deletePost,
+  getAllPosts,
+  getFollowingPosts,
+  getLikedPosts,
+  getProfilePosts,
+  likePost,
+  updatePost,
+  uploadPost,
+} from "../controllers/post.controller.js";
 
 const router = express.Router();
 
@@ -11,6 +20,7 @@ router.get("/all", getAllPosts); //모든 게시글 가져오기 -> 로그인 �
 //아래의 두 liked, following의 경우, protectedRoute를 통해 설정된 req.user._id를 컨트롤러 안에서 받아오기에 dynamic파라미터 설정 안함
 router.get("/liked", protectedRoute, getLikedPosts); //특정 사용자가 좋아요 누른 게시글들만 가져옴
 router.get("/following", protectedRoute, getFollowingPosts); //특정 유저가 팔로우하는 사람들의 게시글만 가져오기
+router.get("/profile", protectedRoute, getProfilePosts); //프로필에 리스트업 할 자신이 작성한 글들 가져오기
 
 router.post("", protectedRoute, uploadPost); //게시물 업로드
 router.post("/like/:id", protectedRoute, likePost); //게시물 좋아요
