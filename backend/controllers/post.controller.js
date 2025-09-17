@@ -85,10 +85,16 @@ export const likePost = async (req, res) => {
     //해당 게시글을 이미 좋아요 누른 적이 있다면 취소
     if (isLikedAlready) {
       await Post.findByIdAndUpdate(postId, { $pull: { likes: currentUserId } });
+      await User.findByIdAndUpdate(currentUserId, {
+        $pull: { likedPosts: postId },
+      });
       res.status(200).json({ message: "좋아요 취소 완료" });
     } else {
       //기존에 좋아요 안눌렀으면 이번에 추가
       await Post.findByIdAndUpdate(postId, { $push: { likes: currentUserId } });
+      await User.findByIdAndUpdate(currentUserId, {
+        $push: { likedPosts: postId },
+      });
 
       //게시글 작성자한테 좋아요 알람도 보내주기
       const newNotification = new Notification({
@@ -184,6 +190,34 @@ export const deletePost = async (req, res) => {
     res.status(200).json({ message: "게시물 삭제 완료" });
   } catch (error) {
     console.log(`error happended while deleting post: ${error.message}`);
+    res.status(500).json({ error: "intetnal server error" });
+  }
+};
+
+//특정 사용자가 좋아요 누른 게시글만 가져오기
+export const getLikedPosts = async (req, res) => {
+  const { id: currentUserId } = req.params;
+
+  try {
+    const currentUser = await User.findById(currentUserId);
+
+    if (!currentUser)
+      return res.status(404).json({ error: "사용자를 찾을 수 없습니다." });
+
+    const likedPosts = await Post.find({
+      _id: { $in: currentUser.likedPosts },
+    })
+      .populate({ path: "writer", select: "-password" })
+      .populate({ path: "comments.writer", select: "-password" });
+
+    res.status(200).json({
+      message: "좋아요 누른 게시글 불러오기 성공",
+      likedPosts: likedPosts,
+    });
+  } catch (error) {
+    console.log(
+      `error happended while fetching liked posts...: ${error.message}`
+    );
     res.status(500).json({ error: "intetnal server error" });
   }
 };
