@@ -196,7 +196,7 @@ export const deletePost = async (req, res) => {
 
 //특정 사용자가 좋아요 누른 게시글만 가져오기
 export const getLikedPosts = async (req, res) => {
-  const { id: currentUserId } = req.params;
+  const currentUserId = req.user._id;
 
   try {
     const currentUser = await User.findById(currentUserId);
@@ -220,4 +220,32 @@ export const getLikedPosts = async (req, res) => {
     );
     res.status(500).json({ error: "intetnal server error" });
   }
+};
+
+//특정 사용자가 팔로우하는 사람들의 게시글만 가져오기
+export const getFollowingPosts = async (req, res) => {
+  const currentUserId = req.user._id;
+
+  try {
+    const currentUser = await User.findById(currentUserId);
+
+    //존재하지 않으면
+    if (!currentUser)
+      return res
+        .status(404)
+        .json({ error: "일치하는 사용자를 찾을 수 없습니다." });
+
+    //currentUser가 존재하면
+    const followingPosts = await Post.find({
+      writer: { $in: currentUser.following },
+    })
+      .sort({ createdAt: -1 })
+      .populate({ path: "writer", select: "-password" })
+      .populate({ path: "comments.writer", select: "-password" });
+
+    res.status(200).json({
+      message: "팔로우하는 사람들 게시글 가져오기 완료",
+      followingPosts: followingPosts,
+    });
+  } catch (error) {}
 };
