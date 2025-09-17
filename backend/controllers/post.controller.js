@@ -1,5 +1,7 @@
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
+import Notification from "../models/notification.model.js";
+
 import { v2 as cloudinary } from "cloudinary";
 
 //게시글 업로드
@@ -41,7 +43,62 @@ export const uploadPost = async (req, res) => {
   }
 };
 
-export const likePost = async (req, res) => {};
+//게시물 좋아요 기능
+export const likePost = async (req, res) => {
+  const { id: postId } = req.params;
+  const currentUserId = req.user._id;
+
+  try {
+    const post = await Post.findById(postId);
+
+    //해당 게시글이 없다면
+    //prettier-ignore
+    if(!post) return res.status(404).json({error: "존재하지 않는 게시물입니다. "})
+
+    //로그인 되어있지 않다면(protectedRoute에서 잡아주지만 한번더)
+    //prettier-ignore
+    if(!post) return res.status(404).json({error: "먼저 로그인 해주세요! "})
+
+    const isLikedAlready = post.likes.includes(currentUserId);
+
+    //해당 게시글을 이미 좋아요 누른 적이 있다면 취소
+    if (isLikedAlready) {
+      await Post.findByIdAndUpdate(postId, { $pull: { likes: currentUserId } });
+      res.status(200).json({ message: "좋아요 취소 완료" });
+    } else {
+      //기존에 좋아요 안눌렀으면 이번에 추가
+      await Post.findByIdAndUpdate(postId, { $push: { likes: currentUserId } });
+
+      //게시글 작성자한테 좋아요 알람도 보내주기
+      const newNotification = new Notification({
+        from: currentUserId,
+        to: post.writer,
+        type: "like",
+      });
+
+      //notification에 보내줄 좋아요를 누른 사용자의 이름
+      //prettier-ignore
+      const currentUser = await User.findById(currentUserId).select("-password");
+
+      const currentUserName = currentUser.userName;
+
+      //새로운 알람 객체 생성
+      const createdNotification = await newNotification.save();
+
+      //좋아요 누르기, 취소 및 알람 생성 모두 성공시
+      res.status(200).json({
+        message: "좋아요 누르기 성공",
+        notiMessage: `회원님의 게시글을 ${currentUserName}님이 좋아합니다.`,
+        notification: createdNotification,
+      });
+    }
+  } catch (error) {
+    console.error(
+      `error happened while (un)liking the post...: ${error.message}`
+    );
+    res.status(500).json({ error: "internal server error" });
+  }
+};
 
 //댓글달기
 export const commentPost = async (req, res) => {
