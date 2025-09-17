@@ -4,6 +4,24 @@ import Notification from "../models/notification.model.js";
 
 import { v2 as cloudinary } from "cloudinary";
 
+//모든 게시글 가져오기
+export const getAllPosts = async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ createdAt: -1 }); //최신글 먼저
+
+    //게시글이 암것도 없다면 빈 배열 전달
+    //빈 배열도 truthy하기에 length사용
+    //findById등등은 객체를 반환하고, 찾는게 없으면 null반환. BUT find()는 항상 배열을 반환하고, 찾는게 없으면 null이 아닌 빈 배열을 전달. SO (!posts)는 안됨
+    if (posts.length === 0) return res.status(200).json({ posts: [] });
+
+    //게시글 있다면
+    res.status(200).json({ posts: posts });
+  } catch (error) {
+    console.log(`error happended while fetching all posts: ${error.message}`);
+    res.status(500).json({ error: "intetnal server error" });
+  }
+};
+
 //게시글 업로드
 export const uploadPost = async (req, res) => {
   try {
