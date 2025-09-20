@@ -10,7 +10,7 @@ import NotificationPage from "./pages/notification/NotificationPage";
 
 function App() {
   return (
-    <>
+    <div className="flex max-w-6xl mx-auto">
       <Sidebar />
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -20,7 +20,7 @@ function App() {
         <Route path="/notifications" element={<NotificationPage />} />
       </Routes>
       <RightPanel />
-    </>
+    </div>
   );
 }
 
