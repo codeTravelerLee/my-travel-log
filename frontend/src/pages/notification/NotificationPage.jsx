@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
+import LoadingSpinner from "../../components/commons/LoadingSpinner";
 
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
@@ -12,7 +12,7 @@ const NotificationPage = () => {
       _id: "1",
       from: {
         _id: "1",
-        username: "johndoe",
+        userName: "johndoe",
         profileImg: "/avatars/boy2.png",
       },
       type: "follow",
@@ -21,7 +21,7 @@ const NotificationPage = () => {
       _id: "2",
       from: {
         _id: "2",
-        username: "janedoe",
+        userName: "janedoe",
         profileImg: "/avatars/girl1.png",
       },
       type: "like",
