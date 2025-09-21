@@ -59,21 +59,23 @@ export const signUp = async (req, res) => {
       await newUser.save();
 
       res.status(201).json({
-        message: "회원가입이 완료되었습니다! 환영해요.",
-        _id: newUser._id,
-        fullName: newUser.fullName,
-        username: newUser.username,
-        email: newUser.email,
-        followers: newUser.followers,
-        following: newUser.following,
-        profileImg: newUser.profileImg,
-        coverImg: newUser.coverImg,
+        data: {
+          message: "회원가입이 완료되었습니다! 환영해요.",
+          _id: newUser._id,
+          fullName: newUser.fullName,
+          userName: newUser.userName,
+          email: newUser.email,
+          followers: newUser.followers,
+          following: newUser.following,
+          profileImg: newUser.profileImg,
+          coverImg: newUser.coverImg,
+        },
       });
     } else {
       res.status(400).json({ error: "올바르지 않은 형태의 데이터입니다" });
     }
   } catch (error) {
-    console.error(`error while siging up.. ${error.messaage}`);
+    console.error(`error while siging up.. ${error}`);
     res.status(500).json({ error: "internal server error" });
   }
 };
