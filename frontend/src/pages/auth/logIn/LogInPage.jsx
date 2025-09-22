@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import XSvg from "../../../components/svgs/X";
 
@@ -16,6 +16,8 @@ const LoginPage = () => {
   });
 
   const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
 
   const { mutate, isPending, isError, error } = useMutation({
     mutationFn: async ({ email, password }) => {
@@ -45,12 +47,23 @@ const LoginPage = () => {
         throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      //로그인 등 인증이 새롭게 될때마다, authUser키를 가진 쿼리의 기존 값은 무효화되고, 재수행되어 컴포넌트들이 최신 인증 정보를 갱신
+      //queryClient.invalidateQueries({ queryKey: ["authUser"] });
+
+      //위에꺼 하니까 navigate가 동작을 안함(authUser가 null이라 app.jsx에서 계속 로그인 화면에 머물게됨)
+      queryClient.setQueryData(["authUser"], response);
+
       toast.success("로그인 성공!");
+
       navigate("/");
+
       toast("환영해요!", {
         icon: "👏",
       });
+    },
+    onError: () => {
+      toast.error("다시 시도해주세요");
     },
   });
 

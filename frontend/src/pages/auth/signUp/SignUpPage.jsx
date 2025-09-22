@@ -81,7 +81,10 @@ const SignUpPage = () => {
           onSubmit={handleSubmit}
         >
           <XSvg className="w-24 lg:hidden fill-white" />
-          <h1 className="text-4xl font-extrabold text-white">Join today.</h1>
+          <h1 className="text-4xl font-extrabold text-white">
+            My Travel Log, <br /> <br />
+            나만의 여행 아카이브
+          </h1>
           <label className="input input-bordered rounded flex items-center gap-2">
             <MdOutlineMail />
             <input
