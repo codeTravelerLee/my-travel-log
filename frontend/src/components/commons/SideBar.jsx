@@ -21,6 +21,7 @@ const Sidebar = () => {
           `${import.meta.env.VITE_SERVER_URI}/api/auth/logOut`,
           {
             method: "POST",
+            credentials: "include", //쿠키를 주고받기 때문(로그아웃은 쿠키의 유효기간을 0으로 하는 것)
           }
         );
 
@@ -37,7 +38,7 @@ const Sidebar = () => {
 
       toast.success("로그아웃 되었습니다.");
 
-      navigate("/signUp");
+      // navigate("/signUp"); //어차피 App.jsx에서 자동이동되도록 설정
     },
     onError: () => {
       toast.error("다시 시도해 주세요.");
