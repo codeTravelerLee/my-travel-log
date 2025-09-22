@@ -23,7 +23,7 @@ function App() {
         const res = await fetch(
           `${import.meta.env.VITE_SERVER_URI}/api/auth/getCurrentUser`,
           {
-            method: "POST",
+            credentials: "include",
           }
         );
 

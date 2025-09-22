@@ -5,13 +5,13 @@ import { IoNotifications } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
-import { QueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 const Sidebar = () => {
   const navigate = useNavigate();
 
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
 
   const { mutate: logOutMutate } = useMutation({
     //로그아웃
@@ -33,7 +33,7 @@ const Sidebar = () => {
     },
     onSuccess: () => {
       //로그아웃 했으니 인증정보 무효화(authUser키를 가진 query를 재수행함)
-      queryClient.invalidateQueries({ queryKey: "authUser" });
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
 
       toast.success("로그아웃 되었습니다.");
 

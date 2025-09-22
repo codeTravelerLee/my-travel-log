@@ -47,12 +47,9 @@ const LoginPage = () => {
         throw error;
       }
     },
-    onSuccess: (response) => {
+    onSuccess: () => {
       //로그인 등 인증이 새롭게 될때마다, authUser키를 가진 쿼리의 기존 값은 무효화되고, 재수행되어 컴포넌트들이 최신 인증 정보를 갱신
-      //queryClient.invalidateQueries({ queryKey: ["authUser"] });
-
-      //위에꺼 하니까 navigate가 동작을 안함(authUser가 null이라 app.jsx에서 계속 로그인 화면에 머물게됨)
-      queryClient.setQueryData(["authUser"], response);
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
 
       toast.success("로그인 성공!");
 
