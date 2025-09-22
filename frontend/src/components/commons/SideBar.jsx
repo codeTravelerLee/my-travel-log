@@ -1,4 +1,4 @@
-import XSvg from "../svgs/X";
+import LogoSvg from "../svgs/LogoSvg";
 
 import { MdHomeFilled } from "react-icons/md";
 import { IoNotifications } from "react-icons/io5";
@@ -9,7 +9,7 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 const Sidebar = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); //app.jsx의 조건부 렌더링으로 대체
 
   const queryClient = useQueryClient();
 
@@ -55,7 +55,7 @@ const Sidebar = () => {
     <div className="md:flex-[2_2_0] w-18 max-w-52">
       <div className="sticky top-0 left-0 h-screen flex flex-col border-r border-gray-700 w-20 md:w-full">
         <Link to="/" className="flex justify-center md:justify-start">
-          <XSvg className="px-2 w-12 h-12 rounded-full fill-white hover:bg-stone-900" />
+          <p className="text-center font-bold pt-4">MY TRAVEL LOG</p>
         </Link>
         <ul className="flex flex-col gap-3 mt-4">
           <li className="flex justify-center md:justify-start">

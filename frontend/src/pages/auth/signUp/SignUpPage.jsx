@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { useMutation, QueryClient } from "@tanstack/react-query";
 
-import XSvg from "../../../components/svgs/X";
+import LogoSvg from "../../../components/svgs/LogoSvg";
 
 import { MdOutlineMail } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
@@ -73,14 +73,14 @@ const SignUpPage = () => {
   return (
     <div className="max-w-screen-xl mx-auto flex h-screen px-10">
       <div className="flex-1 hidden lg:flex items-center  justify-center">
-        <XSvg className=" lg:w-2/3 fill-white" />
+        <LogoSvg className=" lg:w-2/3 fill-white" />
       </div>
       <div className="flex-1 flex flex-col justify-center items-center">
         <form
           className="lg:w-2/3  mx-auto md:mx-20 flex gap-4 flex-col"
           onSubmit={handleSubmit}
         >
-          <XSvg className="w-24 lg:hidden fill-white" />
+          <LogoSvg className="w-80 lg:hidden fill-white" />
           <h1 className="text-4xl font-extrabold text-white">
             My Travel Log, <br /> <br />
             나만의 여행 아카이브
@@ -137,7 +137,9 @@ const SignUpPage = () => {
           {isError && <p className="text-red-500">{error.message}</p>}
         </form>
         <div className="flex flex-col lg:w-2/3 gap-2 mt-4">
-          <p className="text-white text-lg">이미 계정이 있으신가요?</p>
+          <p className="text-white text-lg text-center">
+            이미 계정이 있으신가요?
+          </p>
           <Link to="/logIn">
             <button className="btn rounded-full btn-primary text-white btn-outline w-full">
               로그인 하러 가기
