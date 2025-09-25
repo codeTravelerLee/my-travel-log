@@ -14,13 +14,13 @@ const Posts = ({ feedType }) => {
     }
   };
 
-  //홈페이지의 상단 탭에서 [모든글 보기, 팔로잉 글 보기]의 값에 따라 각각의 api경로로 요청
-  const POST_ENDPOINT = fetchPostEndpoint();
-
   const { data, isLoading } = useQuery({
-    queryKey: ["posts"],
+    queryKey: ["posts", feedType],
     queryFn: async () => {
       try {
+        //홈페이지의 상단 탭에서 [모든글 보기, 팔로잉 글 보기]의 값에 따라 각각의 api경로로 요청
+        const POST_ENDPOINT = fetchPostEndpoint();
+
         const res = await fetch(
           `${import.meta.env.VITE_SERVER_URI}${POST_ENDPOINT}`
         );
@@ -50,7 +50,7 @@ const Posts = ({ feedType }) => {
         </div>
       )}
       {!isLoading &&
-        data.posts?.length === 0 &&
+        data?.posts?.length === 0 &&
         feedType === "모든 글 보기" && (
           <p className="text-center my-4">
             아직 아무런 글이 없어요. 최초로 추억을 남겨보세요!

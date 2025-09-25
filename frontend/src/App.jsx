@@ -13,33 +13,13 @@ import RightPanel from "./components/commons/RightPannel";
 import { Toaster } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "./components/commons/LoadingSpinner";
+import { getCurrentUser } from "./utils/tanstack/getCurrentUser";
 
 function App() {
   //프론트엔드에서 protected route를 위한 <현재 로그인된 유저 정보 받아오기>
   const { data: authUser, isLoading } = useQuery({
     queryKey: ["authUser"],
-    queryFn: async () => {
-      try {
-        const res = await fetch(
-          `${import.meta.env.VITE_SERVER_URI}/api/auth/getCurrentUser`,
-          {
-            credentials: "include",
-          }
-        );
-
-        const response = await res.json();
-
-        if (response.error) return null;
-
-        //prettier-ignore
-        if(!res.ok || response.error) throw new Error(response.error || "알 수 없는 에러가 발생했습니다.");
-
-        return response;
-      } catch (error) {
-        console.log(`error getting current user data: ${error.message}`);
-        throw error;
-      }
-    },
+    queryFn: getCurrentUser,
     retry: false, //fetching 실패해도 재요청 안보냄
   });
 

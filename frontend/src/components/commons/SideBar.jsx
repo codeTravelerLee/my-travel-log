@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
 
 const Sidebar = () => {
   // const navigate = useNavigate(); //app.jsx의 조건부 렌더링으로 대체
@@ -46,7 +47,10 @@ const Sidebar = () => {
   });
 
   //전역 상태에서 데이터 가져오기
-  const { data: authUser } = useQuery({ queryKey: ["authUser"] });
+  const { data: authUser } = useQuery({
+    queryKey: ["authUser"],
+    queryFn: getCurrentUser,
+  });
 
   return (
     <div className="md:flex-[2_2_0] w-18 max-w-52">

@@ -82,7 +82,8 @@ const Post = ({ post }) => {
                   {post.comments.length}
                 </span>
               </div>
-              {/* We're using Modal Component from DaisyUI */}
+
+              {/* 모달창 */}
               <dialog
                 id={`comments_modal${post._id}`}
                 className="modal border-none outline-none"
@@ -92,7 +93,7 @@ const Post = ({ post }) => {
                   <div className="flex flex-col gap-3 max-h-60 overflow-auto">
                     {post.comments.length === 0 && (
                       <p className="text-sm text-slate-500">
-                        No comments yet 🤔 Be the first one 😉
+                        아직 댓글이 없습니다.
                       </p>
                     )}
                     {post.comments.map((comment) => (
@@ -127,7 +128,7 @@ const Post = ({ post }) => {
                   >
                     <textarea
                       className="textarea w-full p-1 rounded text-md resize-none border focus:outline-none  border-gray-800"
-                      placeholder="Add a comment..."
+                      placeholder="댓글을 입력해주세요"
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                     />
@@ -135,7 +136,7 @@ const Post = ({ post }) => {
                       {isCommenting ? (
                         <span className="loading loading-spinner loading-md"></span>
                       ) : (
-                        "Post"
+                        "댓글 남기기"
                       )}
                     </button>
                   </form>
@@ -144,12 +145,14 @@ const Post = ({ post }) => {
                   <button className="outline-none">close</button>
                 </form>
               </dialog>
+              {/* 리포스트 */}
               <div className="flex gap-1 items-center group cursor-pointer">
                 <BiRepost className="w-6 h-6  text-slate-500 group-hover:text-green-500" />
                 <span className="text-sm text-slate-500 group-hover:text-green-500">
                   0
                 </span>
               </div>
+              {/* 좋아요 */}
               <div
                 className="flex gap-1 items-center group cursor-pointer"
                 onClick={handleLikePost}
@@ -170,6 +173,7 @@ const Post = ({ post }) => {
                 </span>
               </div>
             </div>
+            {/* 게시글 저장하기 */}
             <div className="flex w-1/3 justify-end gap-2 items-center">
               <FaRegBookmark className="w-4 h-4 text-slate-500 cursor-pointer" />
             </div>
