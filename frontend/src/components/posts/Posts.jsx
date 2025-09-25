@@ -19,7 +19,7 @@ const Posts = ({ feedType }) => {
   const POST_ENDPOINT = fetchPostEndpoint();
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
-    queryKey: ["posts"],
+    queryKey: ["posts", feedType],
     queryFn: async () => {
       try {
         const res = await fetch(
@@ -79,7 +79,7 @@ const Posts = ({ feedType }) => {
       {!isLoading && !isRefetching && postArray && (
         <div>
           {postArray.map((post) => (
-            <Post key={post._id} post={post} />
+            <Post key={post._id} post={post} feedType={feedType} />
           ))}
         </div>
       )}

@@ -10,7 +10,7 @@ import { toast } from "react-hot-toast";
 import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
 import LoadingSpinner from "../commons/LoadingSpinner.jsx";
 
-const Post = ({ post }) => {
+const Post = ({ post, feedType }) => {
   const [comment, setComment] = useState("");
   const postOwner = post.writer;
   const isLiked = false;
@@ -28,7 +28,7 @@ const Post = ({ post }) => {
 
   const isCommenting = false;
 
-  const queryClient = useQueryClient;
+  const queryClient = useQueryClient();
 
   //게시글 삭제
   const { mutate: deletePost, isPending: isDeleting } = useMutation({
@@ -55,7 +55,7 @@ const Post = ({ post }) => {
     },
     onSuccess: () => {
       toast.success("게시물 삭제 성공!");
-      queryClient.invalidateQueries({ queryKey: ["posts"] }); //DB에서 지운 게시글을 UI에서도 지우기 위함
+      queryClient.invalidateQueries({ queryKey: ["posts", feedType] }); //DB에서 지운 게시글을 UI에서도 지우기 위함
     },
   });
 

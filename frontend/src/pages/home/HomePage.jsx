@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import Posts from "../../components/posts/Posts";
-import CreatePost from "../post/CreatePost";
+import CreatePost from "../../components/posts/CreatePost";
 
 const HomePage = () => {
   const [feedType, setFeedType] = useState("모든 글 보기");
@@ -33,10 +33,10 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/*  CREATE POST INPUT */}
+        {/* 게시물 작성  */}
         <CreatePost />
 
-        {/* POSTS */}
+        {/* 게시물 피드에 display */}
         <Posts feedType={feedType} />
       </div>
     </>
