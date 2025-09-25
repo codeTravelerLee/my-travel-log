@@ -5,19 +5,63 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
+import LoadingSpinner from "../commons/LoadingSpinner.jsx";
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
   const postOwner = post.writer;
   const isLiked = false;
 
-  const isMyPost = true;
+  //현재 로그인된 계정 정보 가져옴
+  const { data: currentUser } = useQuery({
+    queryKey: ["authUser"],
+    queryFn: getCurrentUser,
+  });
+
+  //내 게시글이 맞는지 체크
+  const isMyPost = currentUser._id === post.writer._id;
 
   const formattedDate = post.createdAt;
 
   const isCommenting = false;
 
-  const handleDeletePost = () => {};
+  const queryClient = useQueryClient;
+
+  //게시글 삭제
+  const { mutate: deletePost, isPending: isDeleting } = useMutation({
+    mutationFn: async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URI}/api/posts/${post._id}`,
+          {
+            method: "DELETE",
+            credentials: "include",
+          }
+        );
+
+        const response = await res.json();
+
+        if (!res.ok || response.error)
+          throw new Error(response.error || "에러발생");
+
+        return response;
+      } catch (error) {
+        console.error(`error happened deleting the post...${error.message}`);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success("게시물 삭제 성공!");
+      queryClient.invalidateQueries({ queryKey: ["posts"] }); //DB에서 지운 게시글을 UI에서도 지우기 위함
+    },
+  });
+
+  const handleDeletePost = () => {
+    deletePost(); //mutate:deletepost
+  };
 
   const handlePostComment = (e) => {
     e.preventDefault();
@@ -48,12 +92,18 @@ const Post = ({ post }) => {
               <span>·</span>
               <span>{formattedDate}</span>
             </span>
+            {/* 게시글 삭제 */}
             {isMyPost && (
               <span className="flex justify-end flex-1">
-                <FaTrash
-                  className="cursor-pointer hover:text-red-500"
-                  onClick={handleDeletePost}
-                />
+                {/* 삭제 완료시 다시 삭제 버튼 보여주기 */}
+                {!isDeleting && (
+                  <FaTrash
+                    className="cursor-pointer hover:text-red-500"
+                    onClick={handleDeletePost}
+                  />
+                )}
+                {/* 삭제가 진행중이면 삭제버튼 가리고 로딩스피너 */}
+                {isDeleting && <LoadingSpinner />}
               </span>
             )}
           </div>

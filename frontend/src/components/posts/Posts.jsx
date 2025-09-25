@@ -19,7 +19,7 @@ const Posts = ({ feedType }) => {
   const POST_ENDPOINT = fetchPostEndpoint();
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
-    queryKey: ["posts", feedType],
+    queryKey: ["posts"],
     queryFn: async () => {
       try {
         const res = await fetch(
@@ -49,7 +49,7 @@ const Posts = ({ feedType }) => {
 
   //백엔드에서 all, following각각 게시글 배열의 이름이 달라서 클라이언트 렌더링시 통일된 이름으로 사용하기 위함
   //prettier-ignore
-  const postArray = feedType === "모든 글 보기" ? data?.posts : data?.followingPosts;
+  const postArray = feedType === "모든 글 보기" ? data?.posts || [] : data?.followingPosts || [];
 
   return (
     <>
