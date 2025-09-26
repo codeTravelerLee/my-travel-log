@@ -78,7 +78,7 @@ export const likePost = async (req, res) => {
 
     //로그인 되어있지 않다면(protectedRoute에서 잡아주지만 한번더)
     //prettier-ignore
-    if(!post) return res.status(404).json({error: "먼저 로그인 해주세요! "})
+    if(!currentUserId) return res.status(404).json({error: "먼저 로그인 해주세요! "})
 
     const isLikedAlready = post.likes.includes(currentUserId);
 

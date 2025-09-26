@@ -59,15 +59,53 @@ const Post = ({ post, feedType }) => {
     },
   });
 
+  //게시글 좋아요
+  const { mutate: likePost, isPending: isLiking } = useMutation({
+    mutationFn: async ({ post }) => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URI}/api/posts/like/${post._id}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
+
+        const response = await res.json();
+
+        if (!res.ok || response.error)
+          throw new Error(response.error || "에러발생");
+
+        return response;
+      } catch (error) {
+        console.error(
+          `error happened while liking the post...:${error.message}`
+        );
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+    onError: () => {
+      toast.error("다시 시도해주세요.");
+    },
+  });
+
   const handleDeletePost = () => {
-    deletePost(); //mutate:deletepost
+    if (confirm("정말로 삭제하시겠습니까?")) deletePost(); //mutate:deletepost
   };
 
   const handlePostComment = (e) => {
     e.preventDefault();
   };
 
-  const handleLikePost = () => {};
+  const handleLikePost = () => {
+    likePost({ post }); //mutate: likePost
+  };
 
   return (
     <>
@@ -207,10 +245,10 @@ const Post = ({ post, feedType }) => {
                 className="flex gap-1 items-center group cursor-pointer"
                 onClick={handleLikePost}
               >
-                {!isLiked && (
+                {!isLiked && !isLiking && (
                   <FaRegHeart className="w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500" />
                 )}
-                {isLiked && (
+                {isLiked && !isLiking && (
                   <FaRegHeart className="w-4 h-4 cursor-pointer text-pink-500 " />
                 )}
 
