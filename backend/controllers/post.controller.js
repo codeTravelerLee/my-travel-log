@@ -133,7 +133,7 @@ export const commentPost = async (req, res) => {
     const { id: toBeCommentedPostId } = req.params; //삭제할 게시물의 id
     const currentUserId = req.user._id; //댓글 남길 사용자의 id
 
-    const { text } = req.body; //사용자가 작성한 댓글 본문
+    const { comment: text } = req.body; //사용자가 작성한 댓글 본문
 
     const toBeCommentedPost = await Post.findById(toBeCommentedPostId);
     //prettier-ignore

@@ -26,8 +26,6 @@ const Post = ({ post, feedType }) => {
 
   const formattedDate = post.createdAt;
 
-  const isCommenting = false;
-
   const queryClient = useQueryClient();
 
   //게시글 삭제
@@ -95,12 +93,54 @@ const Post = ({ post, feedType }) => {
     },
   });
 
+  //게시글에 댓글달기
+  const {
+    mutate: commentPost,
+    isPending: isCommenting,
+    error: commentError,
+  } = useMutation({
+    mutationFn: async (comment) => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URI}/api/posts/comment/${post._id}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ comment }),
+            credentials: "include",
+          }
+        );
+
+        const response = await res.json();
+
+        if (!res.ok || response.error)
+          throw new Error(response.error || "에러 발생");
+
+        return response;
+      } catch (error) {
+        console.error(
+          `error happened while commenting the post...:${error.message}`
+        );
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success("댓글을 남겼어요!");
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+    onError: () => {
+      toast.error("다시 시도해주세요");
+    },
+  });
   const handleDeletePost = () => {
     if (confirm("정말로 삭제하시겠습니까?")) deletePost(); //mutate:deletepost
   };
 
   const handlePostComment = (e) => {
     e.preventDefault();
+    commentPost(comment); //mutate:commentPost
   };
 
   const handleLikePost = () => {
