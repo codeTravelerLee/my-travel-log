@@ -37,6 +37,8 @@ const useFollow = () => {
     },
     onSuccess: () => {
       toast.success("팔로우 성공!");
+
+      //하나라도 실패하면 전체 실패시켜버리기
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ["authUser"] }),
         queryClient.invalidateQueries({ queryKey: ["suggestedUsers"] }),

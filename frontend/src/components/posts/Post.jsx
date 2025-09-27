@@ -13,13 +13,15 @@ import LoadingSpinner from "../commons/LoadingSpinner.jsx";
 const Post = ({ post, feedType }) => {
   const [comment, setComment] = useState("");
   const postOwner = post.writer;
-  const isLiked = false;
 
   //현재 로그인된 계정 정보 가져옴
   const { data: currentUser } = useQuery({
     queryKey: ["authUser"],
     queryFn: getCurrentUser,
   });
+
+  //내가 이 글에 좋아요를 눌렀는지 체크
+  const isLiked = currentUser ? post.likes.includes(currentUser._id) : false;
 
   //내 게시글이 맞는지 체크
   const isMyPost = currentUser._id === post.writer._id;
