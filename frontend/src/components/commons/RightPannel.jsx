@@ -1,16 +1,45 @@
 import { Link } from "react-router-dom";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton";
-import { USERS_FOR_RIGHT_PANEL } from "../../utils/db/dummy";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 
 const RightPanel = () => {
-  const isLoading = false;
+  const queryClient = useQueryClient();
+
+  const { data: suggestedUSers, isLoading } = useQuery({
+    queryKey: ["suggestedUsers"],
+    queryFn: async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URI}/api/user/recommend`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        const response = await res.json();
+
+        if (!res.ok || response.error)
+          throw new Error(response.error || "에러 발생");
+
+        return response.recommended; //서버에서 보내는 응답객체 구조에서 recommend에 추천유저 배열 넣음
+      } catch (error) {
+        console.error(
+          `error happened while getting suggested users...:${error.message}`
+        );
+        throw error;
+      }
+    },
+  });
+
+  if (suggestedUSers?.length === 0) return <div className="md:w-64 w-0"></div>;
 
   return (
     <div className="hidden lg:block my-4 mx-2">
       <div className="bg-[#16181C] p-4 rounded-md sticky top-2">
-        <p className="font-bold">Who to follow</p>
+        <p className="font-bold">이런 친구들은 어떠세요?</p>
         <div className="flex flex-col gap-4">
-          {/* item */}
+          {/* 추천 사용자 띄워줌 */}
           {isLoading && (
             <>
               <RightPanelSkeleton />
@@ -20,9 +49,9 @@ const RightPanel = () => {
             </>
           )}
           {!isLoading &&
-            USERS_FOR_RIGHT_PANEL?.map((user) => (
+            suggestedUSers?.map((user) => (
               <Link
-                to={`/profile/${user.username}`}
+                to={`/profile/${user.userName}`}
                 className="flex items-center justify-between gap-4"
                 key={user._id}
               >
@@ -37,7 +66,7 @@ const RightPanel = () => {
                       {user.fullName}
                     </span>
                     <span className="text-sm text-slate-500">
-                      @{user.username}
+                      @{user.userName}
                     </span>
                   </div>
                 </div>
@@ -46,7 +75,7 @@ const RightPanel = () => {
                     className="btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm"
                     onClick={(e) => e.preventDefault()}
                   >
-                    Follow
+                    팔로우하기
                   </button>
                 </div>
               </Link>
