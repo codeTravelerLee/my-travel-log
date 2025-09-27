@@ -6,24 +6,31 @@ import toast from "react-hot-toast";
 const useFollow = () => {
   const queryClient = useQueryClient();
 
-  const { data: currentUser } = useQuery({
-    queryKey: ["authUser"],
-    queryFn: getCurrentUser,
-  });
+  // const { data: currentUser } = useQuery({
+  //   queryKey: ["authUser"],
+  //   queryFn: getCurrentUser,
+  // });
 
   const {
     mutate: follow,
     isPending: isFollowing,
     error,
   } = useMutation({
-    mutationFn: async () => {
+    //팔로우 하고싶은 유저의 id
+    mutationFn: async (id) => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_SERVER_URI}/api/user/follow/${
-            currentUser._id
-          }`,
+          //팔로우 할 사람
+          `${import.meta.env.VITE_SERVER_URI}/api/user/follow/${id}`,
           { method: "POST", credentials: "include" }
         );
+
+        const response = await res.json();
+
+        if (!res.ok || response.error)
+          throw new Error(error.message || "error!");
+
+        return response;
       } catch (error) {
         throw new Error(error.message);
       }

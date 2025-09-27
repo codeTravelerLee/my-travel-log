@@ -78,7 +78,7 @@ const RightPanel = () => {
                     className="btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm"
                     onClick={(e) => {
                       e.preventDefault();
-                      follow(); //custom hook
+                      follow(user._id); //custom hook
                     }}
                   >
                     {isFollowing ? <LoadingSpinner size="md" /> : "팔로우하기"}
