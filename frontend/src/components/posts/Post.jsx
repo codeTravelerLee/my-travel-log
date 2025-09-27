@@ -87,10 +87,33 @@ const Post = ({ post, feedType }) => {
         throw error;
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    //첫 인자로 response전달
+    onSuccess: (response) => {
+      // queryClient.invalidateQueries({ queryKey: ["posts"] });
+
+      console.log(
+        "캐시에 저장된 데이터의 형태:",
+        queryClient.getQueryData(["posts", feedType])
+      ); //이 값이 currentCacheData
+
+      //좋아요 하나 눌렀다고 전체 refetch하면 UX구짐.. 좋아요만 업뎃
+      queryClient.setQueryData(["posts", feedType], (currentCacheData) => {
+        if (!currentCacheData) return currentCacheData; // 캐시가 없으면 그대로 반환 -> 변화가 없으므로 queryFn은 재실행 X
+
+        const key = feedType === "모든 글 보기" ? "posts" : "followingPosts";
+
+        //QueryKey:["posts", feedType]인 useQuery로 전달할 새 캐시. 변동이 있으므로 queryFn은 재수행 될 것임
+        return {
+          ...currentCacheData,
+          [key]: currentCacheData[key].map((p) =>
+            p._id === post._id ? { ...p, likes: response.updatedLikes } : p
+          ),
+        };
+      });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error(`좋아요 중 에러발생: ${error.message}`);
+      console.log(queryClient.getQueryData(["posts", feedType])); //이 값이 currentCacheData
       toast.error("다시 시도해주세요.");
     },
   });

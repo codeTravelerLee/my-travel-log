@@ -88,7 +88,15 @@ export const likePost = async (req, res) => {
       await User.findByIdAndUpdate(currentUserId, {
         $pull: { likedPosts: postId },
       });
-      res.status(200).json({ message: "좋아요 취소 완료" });
+
+      //프론트에 보내줄 업데이트된 좋아요 배열 전달(프론트에서 setQueryData로 refetching없이 캐시만 수정)
+      const updatedLikes = post.likes.filter(
+        (id) => id.toString() !== currentUserId.toString()
+      );
+
+      res
+        .status(200)
+        .json({ message: "좋아요 취소 완료", updatedLikes: updatedLikes });
     } else {
       //기존에 좋아요 안눌렀으면 이번에 추가
       await Post.findByIdAndUpdate(postId, { $push: { likes: currentUserId } });
@@ -112,11 +120,16 @@ export const likePost = async (req, res) => {
       //새로운 알람 객체 생성
       const createdNotification = await newNotification.save();
 
+      //프론트에 보내줄 업데이트된 좋아요 배열 전달(프론트에서 setQueryData로 refetching없이 캐시만 수정)
+      const newPost = await Post.findById(postId);
+      const updatedLikes = newPost.likes;
+
       //좋아요 누르기, 취소 및 알람 생성 모두 성공시
       res.status(200).json({
         message: "좋아요 누르기 성공",
         notiMessage: `회원님의 게시글을 ${currentUserName}님이 좋아합니다.`,
         notification: createdNotification,
+        updatedLikes: updatedLikes,
       });
     }
   } catch (error) {
