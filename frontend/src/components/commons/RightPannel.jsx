@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
+import useFollow from "../../hooks/useFollow";
+import LoadingSpinner from "./LoadingSpinner";
 
 const RightPanel = () => {
-  const queryClient = useQueryClient();
+  const { follow, isFollowing } = useFollow();
 
   const { data: suggestedUSers, isLoading } = useQuery({
     queryKey: ["suggestedUsers"],
@@ -32,6 +34,7 @@ const RightPanel = () => {
     },
   });
 
+  //없어도 자리는 차지하게 div줘야 나머지 UI안깨짐
   if (suggestedUSers?.length === 0) return <div className="md:w-64 w-0"></div>;
 
   return (
@@ -73,9 +76,12 @@ const RightPanel = () => {
                 <div>
                   <button
                     className="btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm"
-                    onClick={(e) => e.preventDefault()}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      follow(); //custom hook
+                    }}
                   >
-                    팔로우하기
+                    {isFollowing ? <LoadingSpinner size="md" /> : "팔로우하기"}
                   </button>
                 </div>
               </Link>
