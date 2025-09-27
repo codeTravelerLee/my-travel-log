@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
+import { formatDateForPost } from "../../utils/date/formatDateForPost.js";
 import LoadingSpinner from "../commons/LoadingSpinner.jsx";
 
 const Post = ({ post, feedType }) => {
@@ -26,7 +27,7 @@ const Post = ({ post, feedType }) => {
   //내 게시글이 맞는지 체크
   const isMyPost = currentUser._id === post.writer._id;
 
-  const formattedDate = post.createdAt;
+  const formattedDate = formatDateForPost(post.createdAt);
 
   const queryClient = useQueryClient();
 
