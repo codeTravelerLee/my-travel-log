@@ -5,8 +5,10 @@ import { formatDateForPost } from "../../utils/date/formatDateForPost";
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
+import { MdDeleteOutline } from "react-icons/md";
 
-import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const NotificationPage = () => {
   const queryClient = useQueryClient();
@@ -36,13 +38,81 @@ const NotificationPage = () => {
     },
   });
 
-  //알림 전체 삭제 
+  //알림 전체 삭제 mutation
+  const { mutate: deleteAllNotifications } = useMutation({
+    mutationFn: async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URI}/api/notification`,
+          {
+            method: "DELETE",
+            credentials: "include",
+          }
+        );
 
-  //알림 하나 삭제
+        const response = await res.json();
 
-  const deleteNotifications = () => {
+        if (!res.ok || response.error)
+          throw new Error(response.error || "알림을 삭제할 수 없어요");
+
+        return response;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("모든 알림을 지웠어요");
+    },
+    onError: (error) => {
+      toast.error("다시 시도해주세요");
+    },
+  });
+
+  //알림 하나 삭제 mutation
+  const { mutate: deleteOneNotification } = useMutation({
+    mutationFn: async (notificationId) => {
+      try {
+        const res = await fetch(
+          `${
+            import.meta.env.VITE_SERVER_URI
+          }/api/notification/${notificationId}`,
+          {
+            method: "DELETE",
+            credentials: "include",
+          }
+        );
+
+        const response = await res.json();
+
+        if (!res.ok || response.error)
+          throw new Error(response.error || "알림을 삭제할 수 없어요");
+
+        return response;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("알림을 지웠어요");
+    },
+    onError: () => {
+      toast.error("다시 시도해주세요");
+    },
+  });
+
+  //알림 전체지우기 이벤트 핸들러
+  const handleDeleteEveryNotifications = () => {
     if (confirm("정말 모든 알림을 지울까요?")) {
-      //delete logic here
+      deleteAllNotifications(); //mutate: deleteAllNotifications
+    }
+  };
+
+  //알림 하나 지우기 이벤트 핸들러
+  const handleDeleteOneNotification = (notificiationId) => {
+    if (confirm("정말 이 알림을 지울까요?")) {
+      deleteOneNotification(notificiationId);
     }
   };
 
@@ -60,7 +130,7 @@ const NotificationPage = () => {
               className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
             >
               <li>
-                <a onClick={deleteNotifications}>모든 알림 지우기</a>
+                <a onClick={handleDeleteEveryNotifications}>모든 알림 지우기</a>
               </li>
             </ul>
           </div>
@@ -78,36 +148,44 @@ const NotificationPage = () => {
         {/* 알림이 있는 경우 */}
         {notifications?.map((notification) => (
           <div className="border-b border-gray-700" key={notification._id}>
-            <div className="flex gap-2 p-4">
-              {/* 팔로우 알림인 경우 */}
-              {notification.type === "follow" && (
-                <FaUser className="w-7 h-7 text-primary" />
-              )}
-              {/* 좋아요 알림인 경우 */}
-              {notification.type === "like" && (
-                <FaHeart className="w-7 h-7 text-red-500" />
-              )}
-              <Link to={`/profile/${notification.from.userName}`}>
-                <div className="avatar">
-                  <div className="w-8 rounded-full">
-                    <img
-                      src={
-                        notification.from.profileImg ||
-                        "/avatar-placeholder.png"
-                      }
-                    />
+            <div className="flex place-content-between gap-2 p-4">
+              <div className="flex gap-2">
+                {/* 팔로우 알림인 경우 */}
+                {notification.type === "follow" && (
+                  <FaUser className="w-7 h-7 text-primary" />
+                )}
+                {/* 좋아요 알림인 경우 */}
+                {notification.type === "like" && (
+                  <FaHeart className="w-7 h-7 text-red-500" />
+                )}
+                <Link to={`/profile/${notification.from.userName}`}>
+                  <div className="avatar">
+                    <div className="w-8 rounded-full">
+                      <img
+                        src={
+                          notification.from.profileImg ||
+                          "/avatar-placeholder.png"
+                        }
+                      />
+                    </div>
+                    <span>{formatDateForPost(notification.createdAt)}</span>
                   </div>
-                  <span>{formatDateForPost(notification.createdAt)}</span>
-                </div>
-                <div className="flex gap-1">
-                  <span className="font-bold">
-                    @{notification.from.userName}
-                  </span>{" "}
-                  {notification.type === "follow"
-                    ? "님이 회원님을 팔로우했어요."
-                    : "님이 회원님의 게시물을 좋아합니다!"}
-                </div>
-              </Link>
+                  <div className="flex gap-1">
+                    <span className="font-bold">
+                      @{notification.from.userName}
+                    </span>{" "}
+                    {notification.type === "follow"
+                      ? "님이 회원님을 팔로우했어요."
+                      : "님이 회원님의 게시물을 좋아합니다!"}
+                  </div>
+                </Link>
+              </div>
+              <MdDeleteOutline
+                className=""
+                onClick={() => {
+                  handleDeleteOneNotification(notification._id);
+                }}
+              />
             </div>
           </div>
         ))}
