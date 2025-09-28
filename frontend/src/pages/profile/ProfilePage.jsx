@@ -1,39 +1,26 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import Posts from "../../components/posts/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "./EditProfileModal";
 
-import { POSTS } from "../../utils/db/dummy";
-
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
+import toast from "react-hot-toast";
+import { formatDateForProfileJoinDate } from "../../utils/date/formatDateForProfile";
 
 const ProfilePage = () => {
   const [coverImg, setCoverImg] = useState(null);
   const [profileImg, setProfileImg] = useState(null);
-  const [feedType, setFeedType] = useState("posts");
+  const [feedType, setFeedType] = useState("posts"); //프로필 탭 내에서, 프로필 주인이 작성한 글, 좋아요 누른 글을 구분해서 보여주는 탭에 사용
 
   const coverImgRef = useRef(null);
   const profileImgRef = useRef(null);
-
-  const isLoading = false;
-  const isMyProfile = true;
-
-  const user = {
-    _id: "1",
-    fullName: "John Doe",
-    username: "johndoe",
-    profileImg: "/avatars/boy2.png",
-    coverImg: "/cover.png",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    link: "https://youtube.com/@asaprogrammer_",
-    following: ["1", "2", "3"],
-    followers: ["1", "2", "3"],
-  };
 
   const handleImgChange = (e, state) => {
     const file = e.target.files[0];
@@ -47,13 +34,53 @@ const ProfilePage = () => {
     }
   };
 
+  const queryClient = useQueryClient();
+
+  const { userName } = useParams();
+
+  //특정 userName에 해당하는 사용자 정보를 가져옴
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["userProfile", userName], //userName이 바뀌면 새로운 사용자 정보로 refetch됨
+    queryFn: async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URI}/api/user/profile/${userName}`,
+          {
+            credentials: "include",
+          }
+        );
+
+        const response = await res.json();
+        if (!res.ok)
+          throw new Error(
+            response.error || "userName에 해당하는 사용자 정보 불러오기 실패"
+          );
+
+        return response.user;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+  });
+
+  //현재 로그인된 사용자 정보 가져옴
+  const { data: authUser } = useQuery({
+    queryKey: ["authUser"],
+    queryFn: getCurrentUser,
+  });
+
+  //현재 로그인된 사용자가 프로필 페이지의 주인인지 확인
+  const isMyProfile = authUser?._id === user?._id;
+
   return (
     <>
       <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
         {/* HEADER */}
         {isLoading && <ProfileHeaderSkeleton />}
         {!isLoading && !user && (
-          <p className="text-center text-lg mt-4">User not found</p>
+          <p className="text-center text-lg mt-4">
+            존재하지 않는 사용자입니다.
+          </p>
         )}
         <div className="flex flex-col">
           {!isLoading && user && (
@@ -64,9 +91,7 @@ const ProfilePage = () => {
                 </Link>
                 <div className="flex flex-col">
                   <p className="font-bold text-lg">{user?.fullName}</p>
-                  <span className="text-sm text-slate-500">
-                    {POSTS?.length} posts
-                  </span>
+                  <span className="text-sm text-slate-500"></span>
                 </div>
               </div>
               {/* COVER IMG */}
@@ -76,6 +101,7 @@ const ProfilePage = () => {
                   className="h-52 w-full object-cover"
                   alt="cover image"
                 />
+                {/* 내 프로필이면 커버이미지 수정 가능 */}
                 {isMyProfile && (
                   <div
                     className="absolute top-2 right-2 rounded-full p-2 bg-gray-800 bg-opacity-75 cursor-pointer opacity-0 group-hover/cover:opacity-100 transition duration-200"
@@ -108,6 +134,7 @@ const ProfilePage = () => {
                       }
                     />
                     <div className="absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer">
+                      {/* 내 프로필이면 프로필 이미지 수정 가능 */}
                       {isMyProfile && (
                         <MdEdit
                           className="w-4 h-4 text-white"
@@ -119,21 +146,23 @@ const ProfilePage = () => {
                 </div>
               </div>
               <div className="flex justify-end px-4 mt-5">
+                {/* 내 프로필이면 프로필 수정 가능  */}
                 {isMyProfile && <EditProfileModal />}
                 {!isMyProfile && (
                   <button
                     className="btn btn-outline rounded-full btn-sm"
                     onClick={() => alert("Followed successfully")}
                   >
-                    Follow
+                    팔로우하기
                   </button>
                 )}
+                {/* 사용자가 새로 업데이트한 이미지가 있으면 프로필 업데이트 버튼 활성화 */}
                 {(coverImg || profileImg) && (
                   <button
                     className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
-                    onClick={() => alert("Profile updated successfully")}
+                    onClick={() => toast.success("프로필을 업데이트 했어요!")}
                   >
-                    Update
+                    수정하기
                   </button>
                 )}
               </div>
@@ -142,7 +171,7 @@ const ProfilePage = () => {
                 <div className="flex flex-col">
                   <span className="font-bold text-lg">{user?.fullName}</span>
                   <span className="text-sm text-slate-500">
-                    @{user?.username}
+                    @{user?.userName}
                   </span>
                   <span className="text-sm my-1">{user?.bio}</span>
                 </div>
@@ -153,12 +182,12 @@ const ProfilePage = () => {
                       <>
                         <FaLink className="w-3 h-3 text-slate-500" />
                         <a
-                          href="https://youtube.com/@asaprogrammer_"
+                          href={user.link}
                           target="_blank"
                           rel="noreferrer"
                           className="text-sm text-blue-500 hover:underline"
                         >
-                          youtube.com/@asaprogrammer_
+                          {user.link}
                         </a>
                       </>
                     </div>
@@ -166,40 +195,43 @@ const ProfilePage = () => {
                   <div className="flex gap-2 items-center">
                     <IoCalendarOutline className="w-4 h-4 text-slate-500" />
                     <span className="text-sm text-slate-500">
-                      Joined July 2021
+                      {formatDateForProfileJoinDate(user.createdAt)}에
+                      가입했어요.
                     </span>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <div className="flex gap-1 items-center">
+                    <span className="text-slate-500 text-xs">팔로워</span>
                     <span className="font-bold text-xs">
-                      {user?.following.length}
+                      {user?.followers.length}명
                     </span>
-                    <span className="text-slate-500 text-xs">Following</span>
                   </div>
                   <div className="flex gap-1 items-center">
+                    <span className="text-slate-500 text-xs">팔로잉</span>
                     <span className="font-bold text-xs">
-                      {user?.followers.length}
+                      {user?.following.length}명
                     </span>
-                    <span className="text-slate-500 text-xs">Followers</span>
                   </div>
                 </div>
               </div>
               <div className="flex w-full border-b border-gray-700 mt-4">
+                {/* 해당 사용자가 작성한 글을 모아주는 탭 */}
                 <div
                   className="flex justify-center flex-1 p-3 hover:bg-secondary transition duration-300 relative cursor-pointer"
                   onClick={() => setFeedType("posts")}
                 >
-                  Posts
+                  작성한 글
                   {feedType === "posts" && (
                     <div className="absolute bottom-0 w-10 h-1 rounded-full bg-primary" />
                   )}
                 </div>
+                {/* 프로필 주인장이 좋아요 누른 글만 모아주는 탭 */}
                 <div
                   className="flex justify-center flex-1 p-3 text-slate-500 hover:bg-secondary transition duration-300 relative cursor-pointer"
                   onClick={() => setFeedType("likes")}
                 >
-                  Likes
+                  좋아하는 글
                   {feedType === "likes" && (
                     <div className="absolute bottom-0 w-10  h-1 rounded-full bg-primary" />
                   )}
