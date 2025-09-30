@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import Posts from "../../components/posts/Posts";
@@ -13,11 +13,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
 import toast from "react-hot-toast";
 import { formatDateForProfileJoinDate } from "../../utils/date/formatDateForProfile";
+import Post from "../../components/posts/Post";
 
 const ProfilePage = () => {
   const [coverImg, setCoverImg] = useState(null);
   const [profileImg, setProfileImg] = useState(null);
-  const [feedType, setFeedType] = useState("posts"); //프로필 탭 내에서, 프로필 주인이 작성한 글, 좋아요 누른 글을 구분해서 보여주는 탭에 사용
+  const [feedType, setFeedType] = useState("작성한 글"); //프로필 탭 내에서, 프로필 주인이 작성한 글, 좋아요 누른 글을 구분해서 보여주는 탭에 사용
 
   const coverImgRef = useRef(null);
   const profileImgRef = useRef(null);
@@ -63,6 +64,46 @@ const ProfilePage = () => {
     },
   });
 
+  //프로필페이지에서 작성한 글, 좋아요 누른 글을 불러오기 위한 query
+  const {
+    data: posts,
+    refetch,
+    isRefetching,
+  } = useQuery({
+    queryKey: ["profilePosts", feedType],
+    queryFn: async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URI}/api/user/profile/${userName}`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        const response = await res.json();
+
+        if (!res.ok || response.error)
+          throw new Error(response.error || "게시글을 불러오지 못했어요!");
+
+        return response; //이게 data로 들어감
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+  });
+
+  //프로필 페이지 내에서 탭 전환시마다 게시글을 다시 불러옴
+  useEffect(() => {
+    refetch();
+  }, [feedType, userName, refetch]);
+
+  //프로필 페이지 내에서, 작성한 글, 좋아요 누른 글 탭에 따라 posts or likedPosts 배열을 postArray로 통일해서 사용
+  const postArray =
+    feedType === "작성한 글"
+      ? posts?.profilePosts || []
+      : posts?.likedPosts || [];
+
   //현재 로그인된 사용자 정보 가져옴
   const { data: authUser } = useQuery({
     queryKey: ["authUser"],
@@ -76,14 +117,14 @@ const ProfilePage = () => {
     <>
       <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
         {/* HEADER */}
-        {isLoading && <ProfileHeaderSkeleton />}
-        {!isLoading && !user && (
+        {(isLoading || isRefetching) && <ProfileHeaderSkeleton />}
+        {!isLoading && !isRefetching && !user && (
           <p className="text-center text-lg mt-4">
             존재하지 않는 사용자입니다.
           </p>
         )}
         <div className="flex flex-col">
-          {!isLoading && user && (
+          {!isLoading && !isRefetching && user && (
             <>
               <div className="flex gap-10 px-4 py-2 items-center">
                 <Link to="/">
@@ -219,28 +260,37 @@ const ProfilePage = () => {
                 {/* 해당 사용자가 작성한 글을 모아주는 탭 */}
                 <div
                   className="flex justify-center flex-1 p-3 hover:bg-secondary transition duration-300 relative cursor-pointer"
-                  onClick={() => setFeedType("posts")}
+                  onClick={() => setFeedType("작성한 글")}
                 >
                   작성한 글
-                  {feedType === "posts" && (
+                  {feedType === "작성한 글" && (
                     <div className="absolute bottom-0 w-10 h-1 rounded-full bg-primary" />
                   )}
                 </div>
                 {/* 프로필 주인장이 좋아요 누른 글만 모아주는 탭 */}
                 <div
                   className="flex justify-center flex-1 p-3 text-slate-500 hover:bg-secondary transition duration-300 relative cursor-pointer"
-                  onClick={() => setFeedType("likes")}
+                  onClick={() => setFeedType("좋아하는 글")}
                 >
                   좋아하는 글
-                  {feedType === "likes" && (
+                  {feedType === "좋아하는 글" && (
                     <div className="absolute bottom-0 w-10  h-1 rounded-full bg-primary" />
                   )}
                 </div>
               </div>
+              {/* 작성한 글이 없는 경우 */}
+              {postArray.length === 0 && feedType === "작성한 글" && (
+                <p className="text-center my-4">아직 작성한 글이 없어요.</p>
+              )}
+              {/* 좋아요 누른 글이 없는 경우 */}
+              {postArray.length === 0 && feedType === "좋아하는 글" && (
+                <p className="text-center my-4">아직 좋아하는 글이 없어요.</p>
+              )}
+              {postArray.map((post) => {
+                return <Post key={post._id} post={post} feedType={feedType} />;
+              })}
             </>
           )}
-
-          <Posts />
         </div>
       </div>
     </>

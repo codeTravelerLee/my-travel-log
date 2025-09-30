@@ -292,3 +292,31 @@ export const getProfilePosts = async (req, res) => {
     res.status(500).json({ error: "intetnal server error" });
   }
 };
+
+//userName에 맞는 사용자가 작성한 글을 모아줌
+export const getSpecificUserProfilePosts = async (req, res) => {
+  const { userName } = req.params;
+
+  try {
+    const user = await User.findOne({ userName: userName });
+    if (!user)
+      return res.status(404).json({ error: "존재하지 않는 사용자입니다." });
+
+    const posts = await Post.find({ writer: user._id })
+      .sort({ createdAt: -1 })
+      .populate({ path: "writer", select: "-password" })
+      .populate({ path: "comments.writer", select: "-password" });
+
+    res.status(200).json({
+      message: `${user.userName}님의 작성한 글을 불러왔습니다.`,
+      posts: posts,
+    });
+  } catch (error) {
+    console.error(
+      `error happened while fetching specific user's profile posts...: ${error.message}`
+    );
+    res.status(500).json({ error: "internal server error" });
+  }
+};
+
+export const getSpecificUserLikedPosts = async (req, res) => {}
