@@ -1,3 +1,7 @@
+//Post.jsx 는 말그대로 게시물 하나에 대한 구조를 잡아주는 컴포넌트'
+//Posts.jsx는 여러개의 Post컴포넌트를 묶어서 보여주는 컴포넌트
+//각 화면에서 탭 전환에 따른 feedType에 따라 다양한 API로 요청을 보냄.
+
 import Post from "./Post";
 import PostSkeleton from "../skeletons/PostSkeleton";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +14,7 @@ const Posts = ({ feedType }) => {
         return "/api/posts/all";
       case "팔로잉":
         return "/api/posts/following";
+
       default:
         return "/api/posts/all";
     }

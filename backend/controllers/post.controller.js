@@ -319,4 +319,24 @@ export const getSpecificUserProfilePosts = async (req, res) => {
   }
 };
 
-export const getSpecificUserLikedPosts = async (req, res) => {}
+//userName에 맞는 사용자가 좋아요 누른 글을 모아줌
+export const getSpecificUserLikedPosts = async (req, res) => {
+  const { userName } = req.params;
+
+  try {
+    const user = await User.findOne({ userName: userName });
+
+    if (!user)
+      return res.status(404).json({ error: "존재하지 않는 사용자입니다. " });
+
+    const posts = await Post.find({ $in: { likes: user._id } });
+
+    res.status(200).json({
+      message: `${user.userName}님의 좋아요 누른 글을 불러왔습니다.`,
+      posts: posts,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "internal server error" });
+  }
+};
