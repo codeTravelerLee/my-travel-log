@@ -40,7 +40,12 @@ const ProfilePage = () => {
   const { userName } = useParams();
 
   //특정 userName에 해당하는 사용자 정보를 가져옴
-  const { data: user, isLoading } = useQuery({
+  const {
+    data: user,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useQuery({
     queryKey: ["userProfile", userName], //userName이 바뀌면 새로운 사용자 정보로 refetch됨
     queryFn: async () => {
       try {
@@ -64,45 +69,10 @@ const ProfilePage = () => {
     },
   });
 
-  //프로필페이지에서 작성한 글, 좋아요 누른 글을 불러오기 위한 query
-  const {
-    data: posts,
-    refetch,
-    isRefetching,
-  } = useQuery({
-    queryKey: ["profilePosts", feedType],
-    queryFn: async () => {
-      try {
-        const res = await fetch(
-          `${import.meta.env.VITE_SERVER_URI}/api/user/profile/${userName}`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-
-        const response = await res.json();
-
-        if (!res.ok || response.error)
-          throw new Error(response.error || "게시글을 불러오지 못했어요!");
-
-        return response; //이게 data로 들어감
-      } catch (error) {
-        throw new Error(error.message);
-      }
-    },
-  });
-
-  //프로필 페이지 내에서 탭 전환시마다 게시글을 다시 불러옴
+  //userName이 변하면 프로필 정보 다시 불러옴
   useEffect(() => {
     refetch();
-  }, [feedType, userName, refetch]);
-
-  //프로필 페이지 내에서, 작성한 글, 좋아요 누른 글 탭에 따라 posts or likedPosts 배열을 postArray로 통일해서 사용
-  const postArray =
-    feedType === "작성한 글"
-      ? posts?.profilePosts || []
-      : posts?.likedPosts || [];
+  }, [userName, refetch]);
 
   //현재 로그인된 사용자 정보 가져옴
   const { data: authUser } = useQuery({
@@ -278,17 +248,12 @@ const ProfilePage = () => {
                   )}
                 </div>
               </div>
-              {/* 작성한 글이 없는 경우 */}
-              {postArray.length === 0 && feedType === "작성한 글" && (
-                <p className="text-center my-4">아직 작성한 글이 없어요.</p>
-              )}
-              {/* 좋아요 누른 글이 없는 경우 */}
-              {postArray.length === 0 && feedType === "좋아하는 글" && (
-                <p className="text-center my-4">아직 좋아하는 글이 없어요.</p>
-              )}
-              {postArray.map((post) => {
-                return <Post key={post._id} post={post} feedType={feedType} />;
-              })}
+              {/* 탭 전환에 따라 게시글을 보여줌 -> Posts의 내부 로직 재활용 */}
+              <Posts
+                feedType={feedType}
+                userName={userName}
+                userId={user._id}
+              />
             </>
           )}
         </div>

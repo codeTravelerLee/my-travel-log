@@ -321,15 +321,15 @@ export const getSpecificUserProfilePosts = async (req, res) => {
 
 //userName에 맞는 사용자가 좋아요 누른 글을 모아줌
 export const getSpecificUserLikedPosts = async (req, res) => {
-  const { userName } = req.params;
+  const { id } = req.params; //사용자의 _id
 
   try {
-    const user = await User.findOne({ userName: userName });
+    const user = await User.findById(id);
 
     if (!user)
       return res.status(404).json({ error: "존재하지 않는 사용자입니다. " });
 
-    const posts = await Post.find({ $in: { likes: user._id } });
+    const posts = await Post.find({ likes: { $in: user._id } });
 
     res.status(200).json({
       message: `${user.userName}님의 좋아요 누른 글을 불러왔습니다.`,

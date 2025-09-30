@@ -13,7 +13,6 @@ import {
   updatePost,
   uploadPost,
 } from "../controllers/post.controller.js";
-import { get } from "mongoose";
 
 const router = express.Router();
 
@@ -25,7 +24,7 @@ router.get("/liked", protectedRoute, getLikedPosts); //로그인된 사용자가
 router.get("/following", protectedRoute, getFollowingPosts); //로그인된 사용자가 팔로우하는 사람들의 게시글만 가져오기
 router.get("/profile", protectedRoute, getProfilePosts); //프로필에 리스트업 할 자신이 작성한 글들 가져오기
 router.get("/profile/:userName", protectedRoute, getSpecificUserProfilePosts); //userName에 맞는 사용자가 작성한 글을 모아줌
-router.get("/liked/:userName", protectedRoute, getSpecificUserLikedPosts); //userName에 맞는 사용자가 좋아요 누른 글을 모아줌
+router.get("/liked/:id", protectedRoute, getSpecificUserLikedPosts); //_id에 맞는 사용자가 좋아요 누른 글을 모아줌
 
 router.post("", protectedRoute, uploadPost); //게시물 업로드
 router.post("/like/:id", protectedRoute, likePost); //게시물 좋아요

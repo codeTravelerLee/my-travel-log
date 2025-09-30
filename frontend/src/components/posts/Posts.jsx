@@ -7,14 +7,17 @@ import PostSkeleton from "../skeletons/PostSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-const Posts = ({ feedType }) => {
+const Posts = ({ feedType, userName, userId }) => {
   const fetchPostEndpoint = () => {
     switch (feedType) {
       case "모든 글 보기":
         return "/api/posts/all";
       case "팔로잉":
         return "/api/posts/following";
-
+      case "작성한 글":
+        return `/api/posts/profile/${userName}`;
+      case "좋아하는 글":
+        return `/api/posts/liked/${userId}`;
       default:
         return "/api/posts/all";
     }
@@ -50,11 +53,27 @@ const Posts = ({ feedType }) => {
   useEffect(() => {
     refetch();
     // console.log(`data looks like: ${JSON.stringify(data)}`);
-  }, [feedType, refetch]);
+  }, [feedType, userName, refetch]);
 
-  //백엔드에서 all, following각각 게시글 배열의 이름이 달라서 클라이언트 렌더링시 통일된 이름으로 사용하기 위함
-  //prettier-ignore
-  const postArray = feedType === "모든 글 보기" ? data?.posts || [] : data?.followingPosts || [];
+  //각 API마다 리턴하는 데이터의 변수명이 달라서 아래와 같이 조작하여 postArray에 할당
+  let postArray;
+
+  switch (feedType) {
+    case "모든 글 보기":
+      postArray = data?.posts || [];
+      break;
+    case "팔로잉":
+      postArray = data?.followingPosts || [];
+      break;
+    case "작성한 글":
+      postArray = data?.posts || [];
+      break;
+    case "좋아하는 글":
+      postArray = data?.posts || [];
+      break;
+    default:
+      postArray = data?.posts || [];
+  }
 
   return (
     <>
@@ -65,6 +84,8 @@ const Posts = ({ feedType }) => {
           <PostSkeleton />
         </div>
       )}
+
+      {/* 각 API별로 응답 데이터가 0개일 때 UI처리 */}
       {!isLoading &&
         !isRefetching &&
         postArray.length === 0 &&
@@ -81,6 +102,20 @@ const Posts = ({ feedType }) => {
             더 많은 사람들을 팔로우하고 다양한 추억을 구경해보세요!
           </p>
         )}
+      {!isLoading &&
+        !isRefetching &&
+        postArray.length === 0 &&
+        feedType === "작성한 글" && (
+          <p className="text-center my-4">아직 작성한 글이 없어요!</p>
+        )}
+      {!isLoading &&
+        !isRefetching &&
+        postArray.length === 0 &&
+        feedType === "좋아하는 글" && (
+          <p className="text-center my-4">좋아하는 글이 없어요!</p>
+        )}
+
+      {/* API응답으로 1개 이상의 데이터를 받아왔으면 화면에 보여줌  */}
       {!isLoading && !isRefetching && postArray && (
         <div>
           {postArray.map((post) => (
