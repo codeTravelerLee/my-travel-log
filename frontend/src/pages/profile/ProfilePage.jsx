@@ -14,6 +14,8 @@ import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
 import toast from "react-hot-toast";
 import { formatDateForProfileJoinDate } from "../../utils/date/formatDateForProfile";
 import Post from "../../components/posts/Post";
+import useFollow from "../../hooks/useFollow";
+import LoadingSpinner from "../../components/commons/LoadingSpinner";
 
 const ProfilePage = () => {
   const [coverImg, setCoverImg] = useState(null);
@@ -82,6 +84,9 @@ const ProfilePage = () => {
 
   //현재 로그인된 사용자가 프로필 페이지의 주인인지 확인
   const isMyProfile = authUser?._id === user?._id;
+
+  //팔로우 기능 커스텀 훅 호출
+  const { follow, isPending, isError } = useFollow();
 
   return (
     <>
@@ -162,11 +167,15 @@ const ProfilePage = () => {
                 {!isMyProfile && (
                   <button
                     className="btn btn-outline rounded-full btn-sm"
-                    onClick={() => alert("Followed successfully")}
+                    onClick={() => {
+                      follow(user._id); //useFollow커스텀 훅에서 가져온 mutate함수
+                      // toast.success("팔로우 완료!"); //커스텀 훅 안에서 이미 토스트를 띄워주므로 제거
+                    }}
                   >
-                    팔로우하기
+                    {isPending ? <LoadingSpinner size="sm" /> : "팔로우"}
                   </button>
                 )}
+                {isError ? toast.error("다시 시도해주세요") : null}
                 {/* 사용자가 새로 업데이트한 이미지가 있으면 프로필 업데이트 버튼 활성화 */}
                 {(coverImg || profileImg) && (
                   <button

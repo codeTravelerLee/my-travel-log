@@ -13,8 +13,9 @@ const useFollow = () => {
 
   const {
     mutate: follow,
-    isPending: isFollowing,
+    isPending,
     error,
+    isError,
   } = useMutation({
     //팔로우 하고싶은 유저의 id
     mutationFn: async (id) => {
@@ -48,7 +49,7 @@ const useFollow = () => {
       toast.error(error.message);
     },
   });
-  return { follow, isFollowing };
+  return { follow, isPending, error, isError };
 };
 
 export default useFollow;
