@@ -37,7 +37,7 @@ const useFollow = () => {
       }
     },
     onSuccess: () => {
-      toast.success("팔로우 성공!");
+      // toast.success("팔로우 성공!"); //언팔로우와 팔로우 상황을 구분하기 쉽도록 해당 커스텀훅을 호출하는 페이지에서 토스트를 띄우도록 변경
 
       //하나라도 실패하면 전체 실패시켜버리기
       Promise.all([

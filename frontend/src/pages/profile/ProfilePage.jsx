@@ -88,6 +88,9 @@ const ProfilePage = () => {
   //팔로우 기능 커스텀 훅 호출
   const { follow, isPending, isError } = useFollow();
 
+  //현재 로그인된 사용자가 조회한 프로필을 이미 팔로우중인지 확인
+  const isAlradyFollowing = authUser?.following?.includes(user?._id);
+
   return (
     <>
       <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
@@ -169,10 +172,21 @@ const ProfilePage = () => {
                     className="btn btn-outline rounded-full btn-sm"
                     onClick={() => {
                       follow(user._id); //useFollow커스텀 훅에서 가져온 mutate함수
-                      // toast.success("팔로우 완료!"); //커스텀 훅 안에서 이미 토스트를 띄워주므로 제거
+
+                      // 팔로우 언팔로우 각 상황에 맞는 토스트 띄우기
+                      if (authUser?.following?.includes(user?._id)) {
+                        toast.success("언팔로우 성공!");
+                      } else {
+                        toast.success("팔로우 성공!");
+                      }
                     }}
                   >
-                    {isPending ? <LoadingSpinner size="sm" /> : "팔로우"}
+                    {/* 이미 팔로우중이면 언팔로우, 아니면 팔로우라는 글자를 띄워주기 */}
+                    {isPending && (isAlradyFollowing || !isAlradyFollowing) && (
+                      <LoadingSpinner size="sm" />
+                    )}
+                    {!isPending && isAlradyFollowing && "언팔로우"}
+                    {!isPending && !isAlradyFollowing && "팔로우"}
                   </button>
                 )}
                 {isError ? toast.error("다시 시도해주세요") : null}
