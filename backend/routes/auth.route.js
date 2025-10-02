@@ -4,7 +4,6 @@ import {
   logIn,
   logOut,
   signUp,
-  verifyPassword,
 } from "../controllers/auth.controller.js";
 import { protectedRoute } from "../middleware/protectedRoute.js";
 
@@ -15,7 +14,7 @@ router.post("/logIn", logIn); //로그인
 router.post("/logOut", logOut); //로그아웃
 
 //클라이언트에서 비밀번호 수정시, 현재 비밀번호가 맞는지 확인하는 API
-router.post("/verifyPassword", protectedRoute, verifyPassword);
+// router.post("/verifyPassword", protectedRoute, verifyPassword);
 
 //현재 로그인되어있는 계정의 정보를 받아오는 api(로그인된 프로필 정보 받아오기)
 //먼저 protectedRoute함수 수행되고, 내부의 next()로직으로 인해 다음 인자인 getCurrentUser컨트롤러 수행

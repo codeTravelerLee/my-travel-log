@@ -1,5 +1,7 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import LoadingSpinner from "../../components/commons/LoadingSpinner";
 
 const EditProfileModal = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +18,61 @@ const EditProfileModal = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const queryClient = useQueryClient();
+
+  //프로필사진, 커버사진을 제외한 모든 수정된 정보를 반영하는 쿼리
+  const { mutate: editProfile, isPending } = useMutation({
+    mutationFn: async (formData) => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URI}/api/user/update`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+            credentials: "include",
+          }
+        );
+
+        const response = await res.json();
+
+        if (!res.ok || response.error)
+          throw new Error(response.error || "다시 시도해주세요");
+
+        return response.updatedProfile;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: (data) => {
+      toast.success("프로필 수정 성공!");
+
+      document.getElementById("edit_profile_modal").close(); //수정다하면 모달 닫기
+
+      //formData초기화
+      setFormData({
+        fullName: "",
+        userName: "",
+        email: "",
+        bio: "",
+        link: "",
+        newPassword: "",
+        currentPassword: "",
+      });
+
+      //UI 즉각 업데이트
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+        queryClient.invalidateQueries({ queryKey: ["userProfile", userName] }),
+      ]);
+    },
+    onError: () => {
+      toast.error("다시 시도해주세요.");
+    },
+  });
+
   return (
     <>
       <button
@@ -24,7 +81,7 @@ const EditProfileModal = () => {
           document.getElementById("edit_profile_modal").showModal()
         }
       >
-        프로필 수정하기
+        {isPending ? <LoadingSpinner size="sm" /> : "프로필 수정하기"}
       </button>
       <dialog id="edit_profile_modal" className="modal">
         <div className="modal-box border rounded-md border-gray-700 shadow-md">
@@ -33,7 +90,7 @@ const EditProfileModal = () => {
             className="flex flex-col gap-4"
             onSubmit={(e) => {
               e.preventDefault();
-              toast.success("프로필 업데이트 성공!");
+              editProfile(formData); //입력한 정보를 db에 반영하는 mutateFn
             }}
           >
             <div className="flex flex-wrap gap-2">
@@ -80,7 +137,6 @@ const EditProfileModal = () => {
                 name="currentPassword"
                 onChange={handleInputChange}
               />
-              {/* <button onClick={}>검증하기</button> */}
             </div>
             <input
               type="password"
