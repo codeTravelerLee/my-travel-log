@@ -190,7 +190,7 @@ export const updateProfile = async (req, res) => {
 
       //기존 비번 입력한거 맞는지 쳌
       //prettier-ignore
-      const isCurrentPasswordCorrect = await bcrypt.compare(currentPassword, currentUser._id);
+      const isCurrentPasswordCorrect = await bcrypt.compare(currentPassword, currentUser.password);
 
       //prettier-ignore
       if(!isCurrentPasswordCorrect) return res.status(400).json({error: "기존 비밀번호가 일치하지 않아요"});
@@ -261,8 +261,7 @@ export const updateProfile = async (req, res) => {
       updatedProfile: updatedProfile,
     });
   } catch (error) {
-    console.log(`error happened while updating profile...: ${error.message}`);
+    console.log(`error happened while updating profile...: ${error}`);
     res.status(500).json({ error: "internal server error" });
   }
 };
-

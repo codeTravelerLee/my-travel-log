@@ -213,7 +213,7 @@ const ProfilePage = () => {
               <div className="flex justify-end px-4 mt-5">
                 {/* 내 프로필이면 프로필 수정 가능, 커버이미지나 프로필 이미지 수정중인 경우엔 모달창으로 넘어가는 버튼 숨기기  */}
                 {isMyProfile && !profileImg && !coverImg && (
-                  <EditProfileModal />
+                  <EditProfileModal authUser={authUser} />
                 )}
                 {!isMyProfile && (
                   <button

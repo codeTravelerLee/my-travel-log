@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../../components/commons/LoadingSpinner";
+import { useNavigate } from "react-router-dom";
 
-const EditProfileModal = () => {
+const EditProfileModal = ({ authUser }) => {
   const [formData, setFormData] = useState({
     fullName: "",
     userName: "",
@@ -13,6 +14,23 @@ const EditProfileModal = () => {
     newPassword: "",
     currentPassword: "",
   });
+
+  const navigate = useNavigate();
+
+  //수정 모달창을 처음 열면, 각 폼엔 기존 정보로 채워져있도록
+  useEffect(() => {
+    if (authUser) {
+      setFormData({
+        fullName: authUser.fullName || "",
+        userName: authUser.userName || "",
+        email: authUser.email || "",
+        bio: authUser.bio || "",
+        link: authUser.link || "",
+        newPassword: "",
+        currentPassword: "",
+      });
+    }
+  }, [authUser]);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -65,8 +83,11 @@ const EditProfileModal = () => {
       //UI 즉각 업데이트
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ["authUser"] }),
-        queryClient.invalidateQueries({ queryKey: ["userProfile", userName] }),
+        queryClient.invalidateQueries({
+          queryKey: ["userProfile", data.userName],
+        }),
       ]);
+      navigate(`/profile/${data.userName}`); //사용자가 userName자체를 바꿔버리면, 아예 페이지를 바꿔줘야함.
     },
     onError: () => {
       toast.error("다시 시도해주세요.");
@@ -155,7 +176,10 @@ const EditProfileModal = () => {
               name="link"
               onChange={handleInputChange}
             />
-            <button className="btn btn-primary rounded-full btn-sm text-white">
+            <button
+              className="btn btn-primary rounded-full btn-sm text-white"
+              type="submit"
+            >
               수정하기
             </button>
           </form>
