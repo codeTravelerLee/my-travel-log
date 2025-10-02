@@ -1,9 +1,10 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 const EditProfileModal = () => {
   const [formData, setFormData] = useState({
     fullName: "",
-    username: "",
+    userName: "",
     email: "",
     bio: "",
     link: "",
@@ -23,22 +24,22 @@ const EditProfileModal = () => {
           document.getElementById("edit_profile_modal").showModal()
         }
       >
-        Edit profile
+        프로필 수정하기
       </button>
       <dialog id="edit_profile_modal" className="modal">
         <div className="modal-box border rounded-md border-gray-700 shadow-md">
-          <h3 className="font-bold text-lg my-3">Update Profile</h3>
+          <h3 className="font-bold text-lg my-3">프로필 정보 수정</h3>
           <form
             className="flex flex-col gap-4"
             onSubmit={(e) => {
               e.preventDefault();
-              alert("Profile updated successfully");
+              toast.success("프로필 업데이트 성공!");
             }}
           >
             <div className="flex flex-wrap gap-2">
               <input
                 type="text"
-                placeholder="Full Name"
+                placeholder="성함을 입력해주세요"
                 className="flex-1 input border border-gray-700 rounded p-2 input-md"
                 value={formData.fullName}
                 name="fullName"
@@ -46,24 +47,24 @@ const EditProfileModal = () => {
               />
               <input
                 type="text"
-                placeholder="Username"
+                placeholder="사용하실 유저네임을 입력해주세요."
                 className="flex-1 input border border-gray-700 rounded p-2 input-md"
-                value={formData.username}
-                name="username"
+                value={formData.userName}
+                name="userName"
                 onChange={handleInputChange}
               />
             </div>
             <div className="flex flex-wrap gap-2">
               <input
                 type="email"
-                placeholder="Email"
+                placeholder="ex@email.com"
                 className="flex-1 input border border-gray-700 rounded p-2 input-md"
                 value={formData.email}
                 name="email"
                 onChange={handleInputChange}
               />
               <textarea
-                placeholder="Bio"
+                placeholder="프로필 한줄소개"
                 className="flex-1 input border border-gray-700 rounded p-2 input-md"
                 value={formData.bio}
                 name="bio"
@@ -73,36 +74,38 @@ const EditProfileModal = () => {
             <div className="flex flex-wrap gap-2">
               <input
                 type="password"
-                placeholder="Current Password"
+                placeholder="기존 비밀번호"
                 className="flex-1 input border border-gray-700 rounded p-2 input-md"
                 value={formData.currentPassword}
                 name="currentPassword"
                 onChange={handleInputChange}
               />
-              <input
-                type="password"
-                placeholder="New Password"
-                className="flex-1 input border border-gray-700 rounded p-2 input-md"
-                value={formData.newPassword}
-                name="newPassword"
-                onChange={handleInputChange}
-              />
+              {/* <button onClick={}>검증하기</button> */}
             </div>
             <input
+              type="password"
+              placeholder="새로 사용할 비밀번호"
+              className="flex-1 input border border-gray-700 rounded p-2 input-md"
+              value={formData.newPassword}
+              name="newPassword"
+              onChange={handleInputChange}
+            />
+
+            <input
               type="text"
-              placeholder="Link"
+              placeholder="프로필에 외부 사이트 링크를 남겨보세요!"
               className="flex-1 input border border-gray-700 rounded p-2 input-md"
               value={formData.link}
               name="link"
               onChange={handleInputChange}
             />
             <button className="btn btn-primary rounded-full btn-sm text-white">
-              Update
+              수정하기
             </button>
           </form>
         </div>
         <form method="dialog" className="modal-backdrop">
-          <button className="outline-none">close</button>
+          <button className="outline-none">닫기</button>
         </form>
       </dialog>
     </>

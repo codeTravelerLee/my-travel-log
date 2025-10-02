@@ -9,7 +9,7 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
 import toast from "react-hot-toast";
 import { formatDateForProfileJoinDate } from "../../utils/date/formatDateForProfile";
@@ -85,6 +85,52 @@ const ProfilePage = () => {
   //현재 로그인된 사용자가 프로필 페이지의 주인인지 확인
   const isMyProfile = authUser?._id === user?._id;
 
+  //모달창이 아닌, 현재 페이지에서 수정 가능한 프로필사진, 커버사진 업뎃을 반영하는 쿼리
+  const {
+    mutate: updateProfileOrCoverImg,
+    isPending: isUpdatingProfileOrCoverImg,
+  } = useMutation({
+    mutationFn: async ({ profileImg, coverImg }) => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URI}/api/user/update`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ profileImg, coverImg }),
+            credentials: "include",
+          }
+        );
+
+        const response = await res.json();
+
+        if (!res.ok || response.error)
+          throw new Error(response.error || "에러 발생");
+
+        return response.updatedProfile;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: (data) => {
+      toast.success("프로필이 성공적으로 업데이트 되었어요!");
+      setProfileImg(null);
+      setCoverImg(null);
+
+      //변경된 프로필 정보로 다시 불러오기
+      Promise.all([
+        //현재 페이지의 프로필 정보
+        queryClient.setQueryData(["userProfile", userName], data),
+        //사이드바의 내 프로필 사진도 변경된 사진으로 바꿔주기 위해서, authUser쿼리도 무효화
+        queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+      ]);
+    },
+    onError: () => {
+      toast.error("다시 시도해주세요.");
+    },
+  });
   //팔로우 기능 커스텀 훅 호출
   const { follow, isPending, isError } = useFollow();
 
@@ -165,8 +211,10 @@ const ProfilePage = () => {
                 </div>
               </div>
               <div className="flex justify-end px-4 mt-5">
-                {/* 내 프로필이면 프로필 수정 가능  */}
-                {isMyProfile && <EditProfileModal />}
+                {/* 내 프로필이면 프로필 수정 가능, 커버이미지나 프로필 이미지 수정중인 경우엔 모달창으로 넘어가는 버튼 숨기기  */}
+                {isMyProfile && !profileImg && !coverImg && (
+                  <EditProfileModal />
+                )}
                 {!isMyProfile && (
                   <button
                     className="btn btn-outline rounded-full btn-sm"
@@ -175,7 +223,10 @@ const ProfilePage = () => {
 
                       // 팔로우 언팔로우 각 상황에 맞는 토스트 띄우기
                       if (authUser?.following?.includes(user?._id)) {
-                        toast.success("언팔로우 성공!");
+                        if (confirm("정말 언팔로우 하실건가요?"))
+                          toast.success(
+                            `이제 ${user.fullName}님을 더이상 팔로우하지 않아요.`
+                          );
                       } else {
                         toast.success("팔로우 성공!");
                       }
@@ -194,9 +245,15 @@ const ProfilePage = () => {
                 {(coverImg || profileImg) && (
                   <button
                     className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
-                    onClick={() => toast.success("프로필을 업데이트 했어요!")}
+                    onClick={() => {
+                      updateProfileOrCoverImg({ profileImg, coverImg }); //프로필사진 및 커버사진을 업데이트 하는 mutate함수
+                    }}
                   >
-                    수정하기
+                    {isUpdatingProfileOrCoverImg ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      "수정하기"
+                    )}
                   </button>
                 )}
               </div>

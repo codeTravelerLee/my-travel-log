@@ -145,3 +145,6 @@ export const getCurrentUser = async (req, res) => {
     res.status(500).json({ error: "internal server error" });
   }
 };
+
+//클라이언트에서 입력한 비밀번호가 실제 사용자의 비밀번호가 맞는지 확인
+export const verifyPassword = async (req, res) => {};
