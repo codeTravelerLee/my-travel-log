@@ -29,7 +29,7 @@ const useFollow = () => {
         const response = await res.json();
 
         if (!res.ok || response.error)
-          throw new Error(error.message || "error!");
+          throw new Error(response.error || "error!");
 
         return response;
       } catch (error) {
