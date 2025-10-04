@@ -40,15 +40,18 @@ export const signUp = async (req, res) => {
     }
 
     //비밀번호 해싱
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // 컨트롤러에서의 작업을 user.model.js로 이전
+
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(password, salt);
 
     //검증을 마친 신규 유저 데이터 객체
     const newUser = new User({
       userName: userName,
       fullName: fullName,
       email: email,
-      password: hashedPassword,
+      // password: hashedPassword,
+      password: password, //model에서 pre메소드로 해시처리될 것. save호출되기 직전에
     });
 
     //신규 유저 발생시마다 DB저장, 토큰발급
@@ -85,10 +88,14 @@ export const logIn = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email });
-    const isPasswordCorrect = await bcrypt.compare(
-      password,
-      user?.password || ""
-    ); //일치하는 user가 없을 경우를 대비
+
+    // const isPasswordCorrect = await bcrypt.compare(
+    //   password,
+    //   user?.password || ""
+    // ); //일치하는 user가 없을 경우를 대비
+
+    // 아래의 비밀번호 검증 로직을 user.model.js에서 정의한 comparePassword메소드로 대체
+    const isPasswordCorrect = await user.comparePassword(password);
 
     //해당 이메일을 사용하는 유저가 없거나 비밀번호가 틀린 경우
     if (!user) {
