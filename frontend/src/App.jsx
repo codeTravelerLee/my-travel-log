@@ -37,7 +37,9 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={authUser ? <HomePage /> : <Navigate to={"/logIn"} />}
+          element={
+            !isLoading && authUser ? <HomePage /> : <Navigate to={"/logIn"} />
+          }
         />
         <Route
           path="/signUp"

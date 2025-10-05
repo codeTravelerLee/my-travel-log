@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.post("/signUp", signUp); //회원가입
 router.post("/logIn", logIn); //로그인
-router.post("/logOut", logOut); //로그아웃
+router.post("/logOut", protectedRoute, logOut); //로그아웃
 
 //클라이언트에서 비밀번호 수정시, 현재 비밀번호가 맞는지 확인하는 API
 // router.post("/verifyPassword", protectedRoute, verifyPassword);

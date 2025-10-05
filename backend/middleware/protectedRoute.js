@@ -4,7 +4,7 @@ import User from "../models/user.model.js";
 
 export const protectedRoute = async (req, res, next) => {
   try {
-    const token = req.cookies.jwt; //jwt라는 이름의 쿠키값을 가져옴, cookieParser설정완료
+    const token = req.cookies.access_token; //jwt라는 이름의 쿠키값을 가져옴, cookieParser설정완료
 
     //토큰이 없다면 로그인부터 할 것!
     if (!token) {
@@ -12,7 +12,7 @@ export const protectedRoute = async (req, res, next) => {
     }
 
     //토큰값 검증
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); //성공하면 payload값 반환(여기선 userId. generateToken.js참조)
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET); //성공하면 payload값 반환(여기선 userId. generateToken.js참조)
 
     //토큰 verify결과 falsy하다면
     if (!decodedToken) {

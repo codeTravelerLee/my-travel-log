@@ -1,3 +1,4 @@
+import redis from "../db/redis.js";
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
@@ -121,6 +122,8 @@ export const logIn = async (req, res) => {
       following: user.following,
       profileImg: user.profileImg,
       coverImg: user.coverImg,
+      role: user.role,
+      cartItems: user.cartItems,
     });
   } catch (error) {
     console.error(`error while logging in.. error: ${error.messaage}`);
@@ -129,12 +132,18 @@ export const logIn = async (req, res) => {
 };
 
 //로그아웃
-export const logOut = (req, res) => {
+export const logOut = async (req, res) => {
   try {
-    res.cookie("jwt", "", { maxAge: 0 }); //maxAge를 0으로 함 -> 즉시 만료 == 로그아웃
+    //레디스에서 refresh토큰 삭제
+    await redis.del(`refresh_token_${req.user._id}`);
+
+    //쿠키에서 refresh, access토큰 삭제
+    res.cookie("access_token", "", { maxAge: 0 }); //maxAge를 0으로 함 -> 즉시 만료 == 로그아웃
+    res.cookie("refresh_token", "", { maxAge: 0 });
+
     res.status(200).json({ message: "로그아웃 되었어요." });
   } catch (error) {
-    console.error(`error while logging out.. ${error.messaage}`);
+    console.error(`error while logging out.. ${error.message}`);
     res.status(500).json({ error: "internal server error" });
   }
 };

@@ -115,7 +115,7 @@ const Sidebar = () => {
             <BiLogOut
               className="w-5 h-5 cursor-pointer"
               onClick={() => {
-                logOutMutate();
+                if (confirm("정말 로그아웃 하실건가요?")) logOutMutate();
               }}
             />
           </>
