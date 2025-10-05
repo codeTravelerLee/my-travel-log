@@ -1,7 +1,9 @@
+import { JsonWebTokenError } from "jsonwebtoken";
 import redis from "../db/redis.js";
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 //회원가입
 export const signUp = async (req, res) => {
@@ -162,5 +164,39 @@ export const getCurrentUser = async (req, res) => {
   }
 };
 
-//클라이언트에서 입력한 비밀번호가 실제 사용자의 비밀번호가 맞는지 확인
-// export const verifyPassword = async (req, res) => {};
+//액세스 토큰 갱신
+export const refreshAccessToken = async (req, res) => {
+  const refreshToken = req.cookies.refrsh_token;
+
+  if (!refreshToken)
+    return res.status(401).json({ error: "유효한 리프레시 토큰이 없습니다." });
+
+  try {
+    const redisRefreshToken = await redis.get(`refresh_token_${req.user._id}`);
+
+    //쿠키에 저장된 refresh token과 레디스에 저장된 걸 비교
+    if (refreshToken !== redisRefreshToken)
+      return res
+        .status(401)
+        .json({ error: "유효하지 않은 리프레시 토큰입니다." });
+
+    //유효하다면 new 액세스 토큰 생성
+    const access_token = jwt.sign(
+      { userId: req.user._id },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    //새로 만든 엑세스 토큰 쿠키에 저장
+    res.cookie("access_token", access_token, {
+      maxAge: 15 * 60 * 1000,
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV !== "development",
+    });
+
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(500).json({ error: `internal server error: ${error.message}` });
+  }
+};
