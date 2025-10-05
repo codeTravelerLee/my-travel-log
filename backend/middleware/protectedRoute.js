@@ -4,11 +4,11 @@ import User from "../models/user.model.js";
 
 export const protectedRoute = async (req, res, next) => {
   try {
-    const token = req.cookies.access_token; //jwt라는 이름의 쿠키값을 가져옴, cookieParser설정완료
+    const token = req.cookies.access_token; //cookieParser설정완료
 
     //토큰이 없다면 로그인부터 할 것!
     if (!token) {
-      return res.status(404).json({ error: "먼저 로그인을 해주세요." });
+      return res.status(401).json({ error: "먼저 로그인을 해주세요." });
     }
 
     //토큰값 검증
@@ -16,7 +16,7 @@ export const protectedRoute = async (req, res, next) => {
 
     //토큰 verify결과 falsy하다면
     if (!decodedToken) {
-      return res.status(404).json({ error: "접근 권한이 없습니다!" }); //게시물 삭제 수정 등등 접근권한 없음
+      return res.status(401).json({ error: "접근 권한이 없습니다!" }); //게시물 삭제 수정 등등 접근권한 없음
     }
 
     //verify를 거친 decodedToken엔 payload인 userId가 담겨있음
