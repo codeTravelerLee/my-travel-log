@@ -1,8 +1,7 @@
-import { JsonWebTokenError } from "jsonwebtoken";
 import redis from "../db/redis.js";
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 import User from "../models/user.model.js";
-import bcrypt from "bcryptjs";
+
 import jwt from "jsonwebtoken";
 
 //회원가입
@@ -166,7 +165,7 @@ export const getCurrentUser = async (req, res) => {
 
 //액세스 토큰 갱신
 export const refreshAccessToken = async (req, res) => {
-  const refreshToken = req.cookies.refrsh_token;
+  const refreshToken = req.cookies.refresh_token;
 
   if (!refreshToken)
     return res.status(401).json({ error: "유효한 리프레시 토큰이 없습니다." });
@@ -195,7 +194,7 @@ export const refreshAccessToken = async (req, res) => {
       secure: process.env.NODE_ENV !== "development",
     });
 
-    res.sendStatus(200);
+    res.status(200).json({ message: "엑세스 토큰 갱신 완료!" });
   } catch (error) {
     res.status(500).json({ error: `internal server error: ${error.message}` });
   }
