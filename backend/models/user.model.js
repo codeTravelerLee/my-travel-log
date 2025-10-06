@@ -75,9 +75,10 @@ const userSchema = mongoose.Schema(
     //유저의 권한
     //[1] user: 일반 사용자 - 게시글 작성, 조회, 개인상품 조회 및 판매, 구매 가능(중고거래)
     //[2] admin: 총관리자
+    //[3] seller: 상품판매를 등록한 사장님들.
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "seller", "admin"],
       default: "user",
     },
   },
