@@ -25,10 +25,16 @@ const productSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    //즐겨찾기 했는지
+    //각 마켓에 가장 메인으로 보여질 주력상품으로 사장님이 등록을 하였는지
     isFeatured: {
       type: Boolean,
       default: false,
+    },
+    //판매자
+    seller: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
   },
   { timestamps: true }

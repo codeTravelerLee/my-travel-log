@@ -17,16 +17,19 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
-//즐겨찾기한 상품을 조회
+//가게별로 사장님이 주력으로 등록한 상품을 조회
 export const getFeaturedProducts = async (req, res) => {
   try {
+    //프론트에서, 각 사장님 전용 몰에 들어가면, url에 sellerId가 있을 것. -> sellerId는 각 쇼핑몰의 구분자
+    const sellerId = req.params.sellerId;
+
     //먼저 레디스에 있는지 확인하고, 없으면 mongoDB에서 가져올 것(재할당이 일어나므로 let)
-    let featuredProducts = await redis.get(`featured_products_${req.user._id}`);
+    let featuredProducts = await redis.get(`featured_products_${sellerId}`);
 
     //Redis에 해당 내용이 존재하는 경우
     if (featuredProducts) {
       return res.status(200).json({
-        message: "redis에서 즐겨찾기한 상품을 찾아왔습니다",
+        message: "redis에서 주력상품을 찾아왔습니다",
         data: JSON.parse(featuredProducts), //Redis는 데이터를 string으로 저장하기에, 클라이언트로 보낼 경우 json으로 형태를 바꿔줌
       });
     }
@@ -41,15 +44,20 @@ export const getFeaturedProducts = async (req, res) => {
     //몽고디비에 존재하는 경우 나중의 빠른 접근을 위해 Redis에 저장
     // redis에 저장할 땐, 문자열 형태로 변환하여 저장해야함.
     await redis.set(
-      `featured_products_${req.user._id}`,
+      `featured_products_${sellerId}`,
       JSON.stringify(featuredProducts)
     );
 
     res.status(200).json({
-      message: "즐겨찾기한 상품을 가져왔어요",
+      message: "사장님이 주력으로 등록하신 상품을 가져왔어요",
       data: featuredProducts,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(
+      `가게의 주력상품을 불러오는 과정에서 에러가 발생했어요.: ${error.message}`
+    );
+    res.status(500).json({ error: "intetnal server error" });
+  }
 };
 
 // 판매할 상품을 등록 (sellerRoute를 거침)
@@ -78,6 +86,7 @@ export const createProduct = async (req, res) => {
       image: image,
       category: category,
       isFeatured: isFeatured,
+      seller: req.user._id, //판매자 -> 현재 사장님 회원의 id
     };
 
     await Product.create(newProduct);
