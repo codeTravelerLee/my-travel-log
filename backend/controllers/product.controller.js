@@ -86,7 +86,7 @@ export const createProduct = async (req, res) => {
       image: image,
       category: category,
       isFeatured: isFeatured,
-      seller: req.user._id, //판매자 -> 현재 사장님 회원의 id
+      seller: req.user._id, //판매자 -> 현재 사장님 회원의 id(해당 컨트롤러는 sellerRoute를 거치므로)
     };
 
     await Product.create(newProduct);
