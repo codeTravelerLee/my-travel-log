@@ -2,6 +2,7 @@
 
 import Product from "../models/product.model.js";
 import redis from "ioredis";
+import { v2 as cloudinary } from "cloudinary";
 
 //모든 상품을 조회
 export const getAllProducts = async (req, res) => {
@@ -52,4 +53,38 @@ export const getFeaturedProducts = async (req, res) => {
 };
 
 // 판매할 상품을 등록 (sellerRoute를 거침)
-export const createProduct = async (req, res) => {};
+export const createProduct = async (req, res) => {
+  try {
+    const { name, description, price, category, isFeatured } = req.body;
+    let { image } = req.body;
+
+    //필수속성들이 다 있는지 체크
+    if (!name || !description || !price || !image || !category) {
+      return res.status(400).json({ error: "모든 정보를 입력해주세요" });
+    }
+
+    //이미지의 경우 cloudinary스토리지에 저장
+    //스토리지에 접근 가능한 문자열만 mongoDB에 저장.
+    const cloudinaryResponse = await cloudinary.uploader.upload(image, {
+      folder: "products",
+    });
+    image = cloudinaryResponse.secure_url;
+
+    //mongoDB에 저장할 새로운 상품 객체
+    const newProduct = {
+      name: name,
+      description: description,
+      price: price,
+      image: image,
+      category: category,
+      isFeatured: isFeatured,
+    };
+
+    await Product.create(newProduct);
+
+    res.status(200).json({ message: "상품 등록 성공!", data: newProduct });
+  } catch (error) {
+    console.log(`상품 등록 과정에서 에러가 발생했어요.: ${error.message}`);
+    res.status(500).json({ error: "intetnal server error" });
+  }
+};
