@@ -1,7 +1,7 @@
 // 여행상품 거래 페이지를 위한 APIs
 
 import Product from "../models/product.model.js";
-import redis from "ioredis";
+import redis from "../db/redis.js";
 import { v2 as cloudinary } from "cloudinary";
 
 //모든 상품을 조회
@@ -153,6 +153,38 @@ export const getProductsByCategory = async (req, res) => {
   } catch (error) {
     console.log(
       `카테고리에 맞는 상품을 불러오는 과정에서 에러가 발생했어요.: ${error.message}`
+    );
+    res.status(500).json({ error: "intetnal server error" });
+  }
+};
+
+//주력 상품으로 등록하기
+export const featureProduct = async (req, res) => {
+  try {
+    const { id: productId } = req.params; //주력상품으로 등록할 상품의 아이디
+
+    const featuredProduct = await Product.findByIdAndUpdate(
+      productId,
+      { isFeatured: true },
+      { new: true } //수정된 객체를 반환
+    );
+
+    //해당 상품이 없다면
+    if (!featuredProduct) return res.sendStatus(404);
+
+    //상품이 존재하면 주력상품은 redis에 저장
+    await redis.set(
+      `featured_products_${req.user._id}`,
+      JSON.stringify(featuredProduct)
+    );
+
+    res.status(200).json({
+      message: `${featuredProduct.name}을 가게의 주력 상품으로 설정했어요!`,
+      data: featuredProduct,
+    });
+  } catch (error) {
+    console.log(
+      `주력 상품으로 등록하는 과정에서 에러가 발생했어요.: ${error.message}`
     );
     res.status(500).json({ error: "intetnal server error" });
   }

@@ -4,6 +4,7 @@ import express from "express";
 import {
   createProduct,
   deleteProductById,
+  featureProduct,
   getAllProducts,
   getFeaturedProducts,
   getProductsByCategory,
@@ -20,6 +21,7 @@ router.get("/featured/:sellerId", protectedRoute, getFeaturedProducts); //각 �
 router.get("/category/:category", getProductsByCategory); //특정 카테고리에 속한 모든 상품 조회
 
 router.post("/", protectedRoute, sellerRoute, createProduct); //판매할 상품을 등록, 사장님회원만 접근 가능
+router.post("/featured/:id", protectedRoute, sellerRoute, featureProduct); //상품을 주력 상품으로 등록하기
 
 router.delete("/:id", protectedRoute, sellerRoute, deleteProductById); //id에 맞는 상품 삭제
 export default router;
