@@ -97,3 +97,38 @@ export const createProduct = async (req, res) => {
     res.status(500).json({ error: "intetnal server error" });
   }
 };
+
+// id로 상품 하나 삭제(sellerRoute를 거침)
+export const deleteProductById = async (req, res) => {
+  try {
+    const { id: productId } = req.params;
+    const currentUserId = req.user._id; //해당 컨트롤러는 sellerRoute를 거치므로, currentUserId는 곧 사장님의 id
+
+    //삭제하고자 하는 상품 객체
+    const product = await Product.findById(productId);
+
+    //해당 상품이 존재하지 않는 경우
+    if (!product) return res.sendStatus(404);
+
+    //본인이 등록한 상품인 경우에만 삭제 가능
+    if (product.seller.toString() !== currentUserId.toString()) {
+      return res.status(403).json({ error: "자신의 상품만 삭제 가능합니다." });
+    }
+
+    //본인의 상품이 맞는 경우
+    //주력 상품으로 등록되어 있다면 Redis에도 저장되어 있을 것이므로, redis에서도 해당 데이터를 삭제
+    if (product.isFeatured) {
+      await redis.del(`featured_products_${currentUserId}`);
+    }
+
+    //몽고 디비에서도 지워줌
+    await Product.findByIdAndDelete(productId);
+
+    res.status(200).json({ message: "상품 삭제 완료!" });
+  } catch (error) {
+    console.log(
+      `등록된 상품을 삭제하는 과정에서 에러가 발생했어요.: ${error.message}`
+    );
+    res.status(500).json({ error: "intetnal server error" });
+  }
+};

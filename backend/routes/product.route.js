@@ -3,6 +3,7 @@
 import express from "express";
 import {
   createProduct,
+  deleteProductById,
   getAllProducts,
   getFeaturedProducts,
 } from "../controllers/product.controller.js";
@@ -18,4 +19,5 @@ router.get("/featured/:sellerId", protectedRoute, getFeaturedProducts); //각 �
 
 router.post("/", protectedRoute, sellerRoute, createProduct); //판매할 상품을 등록, 사장님회원만 접근 가능
 
+router.delete("/:id", protectedRoute, sellerRoute, deleteProductById); //id에 맞는 상품 삭제
 export default router;
