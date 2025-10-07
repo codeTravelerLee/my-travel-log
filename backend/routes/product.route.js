@@ -8,6 +8,7 @@ import {
   getAllProducts,
   getFeaturedProducts,
   getProductsByCategory,
+  updateProductById,
 } from "../controllers/product.controller.js";
 
 import { protectedRoute } from "../middleware/protectedRoute.js";
@@ -22,6 +23,8 @@ router.get("/category/:category", getProductsByCategory); //특정 카테고리�
 
 router.post("/", protectedRoute, sellerRoute, createProduct); //판매할 상품을 등록, 사장님회원만 접근 가능
 router.post("/featured/:id", protectedRoute, sellerRoute, featureProduct); //상품을 주력 상품으로 등록하기
+
+router.patch("/:id", protectedRoute, sellerRoute, updateProductById); //상품정보 수정
 
 router.delete("/:id", protectedRoute, sellerRoute, deleteProductById); //id에 맞는 상품 삭제
 export default router;

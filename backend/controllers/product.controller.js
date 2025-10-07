@@ -189,3 +189,63 @@ export const featureProduct = async (req, res) => {
     res.status(500).json({ error: "intetnal server error" });
   }
 };
+
+//상품정보 수정
+export const updateProductById = async (req, res) => {
+  try {
+    const { id: productId } = req.params; //수정할 상품의 id
+    const currentUserId = req.user._id; //사장님의 id
+
+    const { name, description, price, category, isFeatured } = req.body;
+    let { image } = req.body;
+
+    const product = await Product.findById(productId).select("seller");
+
+    //해당 상품이 없다면
+    if (!product) return res.sendStatus(404);
+
+    //자신의 상품인 경우에만 정보 수정 가능
+    if (product.seller.toString() !== currentUserId.toString()) {
+      return res
+        .status(403)
+        .json({ error: "상품의 판매자만 상품 정보를 수정할 수 있어요!" });
+    }
+
+    //cloudinary의 상품사진 업데이트 - 기존사진 삭제, 새로운 사진 등록
+    if (product.image) {
+      await cloudinary.uploader.destroy(
+        `products/${product.image.split("/").pop().split(".")[0]}`
+      );
+    }
+
+    //사용자가 새로 입력한 이미지 업로드
+    if (image) {
+      const cloudinaryResponse = await cloudinary.uploader.upload(image, {
+        folder: "products/",
+      });
+      image = cloudinaryResponse.secure_url;
+    }
+
+    //mongoDB에 저장, newProduct는 반환된 수정후 객체
+    const newProduct = await Product.findByIdAndUpdate(
+      productId,
+      {
+        name: name || product.name,
+        description: description || product.description,
+        price: price || product.price,
+        category: category || product.category,
+        isFeatured: isFeatured || product.isFeatured,
+        image: image || product.image,
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: `${newProduct.name}의 상품정보를 수정했어요!`,
+      data: newProduct,
+    });
+  } catch (error) {
+    console.log(`상품정보 수정 과정에서 에러가 발생했어요.: ${error.message}`);
+    res.status(500).json({ error: "intetnal server error" });
+  }
+};
