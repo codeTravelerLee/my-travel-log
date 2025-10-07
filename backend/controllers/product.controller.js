@@ -121,6 +121,12 @@ export const deleteProductById = async (req, res) => {
       await redis.del(`featured_products_${currentUserId}`);
     }
 
+    //cloudinary에 저장된 상품사진 삭제
+    //product폴더 내 사진별 id로 삭제
+    await cloudinary.uploader.destroy(
+      `products/${product.image.split("/").pop().split(".")[0]}`
+    );
+
     //몽고 디비에서도 지워줌
     await Product.findByIdAndDelete(productId);
 
@@ -128,6 +134,25 @@ export const deleteProductById = async (req, res) => {
   } catch (error) {
     console.log(
       `등록된 상품을 삭제하는 과정에서 에러가 발생했어요.: ${error.message}`
+    );
+    res.status(500).json({ error: "intetnal server error" });
+  }
+};
+
+//카테고리별 상품 조회
+export const getProductsByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+
+    const products = await Product.find({ category: category });
+
+    res.status(200).json({
+      message: `${category} 카테고리 상품들을 모두 불러왔어요!`,
+      data: products,
+    });
+  } catch (error) {
+    console.log(
+      `카테고리에 맞는 상품을 불러오는 과정에서 에러가 발생했어요.: ${error.message}`
     );
     res.status(500).json({ error: "intetnal server error" });
   }
