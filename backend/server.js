@@ -10,6 +10,7 @@ import userRoutes from "./routes/user.route.js";
 import postRoutes from "./routes/post.route.js";
 import notificationRoutes from "./routes/notification.route.js";
 import productRoutes from "./routes/product.route.js";
+import cartRoutes from "./routes/cart.route.js"
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/notification", notificationRoutes);
 app.use("/api/v1/products", productRoutes); //여행상품 거래
+app.use("/api/v1/cart", cartRoutes); //장바구니 담기 
 
 app.listen(PORT, () => {
   console.log(`server is running on port: ${PORT}`);
