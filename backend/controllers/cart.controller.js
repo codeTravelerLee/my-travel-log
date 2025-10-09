@@ -38,6 +38,8 @@ export const addToCart = async (req, res) => {
       data: product,
     });
   } catch (error) {
+    console.error(error.message);
+
     res
       .status(500)
       .json({ error: "internal server error, progress: addToCart" });
@@ -45,7 +47,40 @@ export const addToCart = async (req, res) => {
 };
 
 //장바구니 담기 취소
-export const removeFromCart = async (req, res) => {};
+export const removeFromCart = async (req, res) => {
+  try {
+    const { id: productId } = req.params; //삭제할 상품의 id
+    const currentUser = req.user;
+
+    //장바구니 담기가 되어있으면 취소, 안되어있으면 에러주기
+    const isItemInCart = currentUser.cartItems.some(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (isItemInCart) {
+      const newCartItems = currentUser.cartItems.filter(
+        (item) => item.productId.toString() !== productId.toString()
+      );
+
+      currentUser.cartItems = newCartItems;
+      await currentUser.save();
+    } else {
+      return res
+        .status(404)
+        .json({ error: "장바구니에 담겨있지 않은 상품입니다. " });
+    }
+
+    res.status(200).json({ message: "상품을 장바구니에서 뺐어요." });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "internal server error. progress: removeFromCart" });
+  }
+};
 
 //장바구니 담은 수량 변경
 export const changeCartQuantity = async (req, res) => {};
+
+//장바구니 담은 상품 가져오기
+export const getCartItems = async (req, res) => {};
