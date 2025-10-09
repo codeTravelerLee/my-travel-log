@@ -94,7 +94,7 @@ export const changeCartQuantity = async (req, res) => {
     }
 
     //정상적인 수량변경 요청이 온 경우
-    const cartItem = currentUser.cartItem.find(
+    const cartItem = currentUser.cartItems?.find(
       (item) => item.productId.toString() === productId.toString()
     );
 
@@ -114,7 +114,7 @@ export const changeCartQuantity = async (req, res) => {
 
     res.status(200).json({ message: "수량 변경 성공!" });
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
     res
       .status(500)
       .json({ error: "internal server error. progress: changeCartQuantity" });
