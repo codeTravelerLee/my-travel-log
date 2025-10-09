@@ -80,7 +80,46 @@ export const removeFromCart = async (req, res) => {
 };
 
 //장바구니 담은 수량 변경
-export const changeCartQuantity = async (req, res) => {};
+export const changeCartQuantity = async (req, res) => {
+  try {
+    const { id: productId } = req.params; //수량을 변경할 상품id
+    const currentUser = req.user;
+    const { quantity } = req.body; //변경할 수량
+
+    //변경할 수량이 0이면 에러처리
+    if (quantity === 0) {
+      return res
+        .status(422)
+        .json({ error: "변경할 수량은 0이 아니어야 합니다." });
+    }
+
+    //정상적인 수량변경 요청이 온 경우
+    const cartItem = currentUser.cartItem.find(
+      (item) => item.productId.toString() === productId.toString()
+    );
+
+    cartItem.quantity += quantity;
+
+    //수량변경후 해당 상품의 수량이 0이면 장바구니 담은 항목에서 제거
+    if (cartItem.quantity === 0) {
+      const newCartItems = currentUser.cartItems.filter(
+        (item) => item.productId.toString() !== productId.toString()
+      );
+
+      currentUser.cartItems = newCartItems;
+    }
+
+    //변동사항 DB반영
+    await currentUser.save();
+
+    res.status(200).json({ message: "수량 변경 성공!" });
+  } catch (error) {
+    console.error(error.message);
+    res
+      .status(500)
+      .json({ error: "internal server error. progress: changeCartQuantity" });
+  }
+};
 
 //장바구니 담은 상품 가져오기
 export const getCartItems = async (req, res) => {};
