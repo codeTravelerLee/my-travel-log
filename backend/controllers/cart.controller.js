@@ -1,6 +1,7 @@
 // 장바구니 담기와 관련된 APIs
 
 import Product from "../models/product.model.js";
+import User from "../models/user.model.js";
 
 //장바구니 담기
 export const addToCart = async (req, res) => {
@@ -16,7 +17,7 @@ export const addToCart = async (req, res) => {
 
     //상품 존재 -> 장바구니 담기
     //현재사용자
-    const currentUser = req.user;
+    const currentUser = await User.findById(req.user._id).select("-password");
 
     //이미 담겨있다면 수량증가, 없다면 user model의 cartItems에 추가
     // existingCartItem에는 조건을 만족하는 cartItem객체가 담김
@@ -50,7 +51,7 @@ export const addToCart = async (req, res) => {
 export const removeFromCart = async (req, res) => {
   try {
     const { id: productId } = req.params; //삭제할 상품의 id
-    const currentUser = req.user;
+    const currentUser = await User.findById(req.user._id).select("-password");
 
     //장바구니 담기가 되어있으면 취소, 안되어있으면 에러주기
     const isItemInCart = currentUser.cartItems.some(
@@ -83,7 +84,7 @@ export const removeFromCart = async (req, res) => {
 export const changeCartQuantity = async (req, res) => {
   try {
     const { id: productId } = req.params; //수량을 변경할 상품id
-    const currentUser = req.user;
+    const currentUser = await User.findById(req.user._id).select("-password");
     const { quantity } = req.body; //변경할 수량
 
     //변경할 수량이 0이면 에러처리
@@ -121,5 +122,25 @@ export const changeCartQuantity = async (req, res) => {
   }
 };
 
-//장바구니 담은 상품 가져오기
-export const getCartItems = async (req, res) => {};
+//장바구니 담은 상품목록 가져오기
+export const getCartItems = async (req, res) => {
+  try {
+    const currentUserId = req.user._id;
+
+    const currentUser = await User.findById(currentUserId)
+      .select("-password")
+      .populate({ path: "cartItems.productId" });
+
+    const cartItems = currentUser.cartItems;
+
+    return res.status(200).json({
+      message: `${currentUser.userName}님의 장바구니 담은 상품 목록을 가져왔어요.`,
+      data: cartItems,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "internal server error. progress: getCartItems" });
+  }
+};
