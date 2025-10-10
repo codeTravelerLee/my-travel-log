@@ -88,7 +88,7 @@ const couponSchema = mongoose.Schema(
 // 쿠폰이 사용가능한지 검증해주는 헬퍼 메소드
 // totalAmount : 구매액
 // cartItems: 쿠폰을 적용할 장바구니 담은 상품들(배열)
-couponSchema.methods.isvalid = function (cartItems = [], totalAmount = 0) {
+couponSchema.methods.isValid = function (cartItems = [], totalAmount = 0) {
   const now = new Date();
 
   //쿠폰 기한, 사용가능횟수, 최소주문금액 제한 준수여부 검증
