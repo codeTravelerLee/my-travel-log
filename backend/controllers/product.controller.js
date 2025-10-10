@@ -286,6 +286,13 @@ export const deleteAllProductsBySeller = async (req, res) => {
   try {
     const { sellerId } = req.params;
 
+    //현재 로그인된 계정이 판매자가 맞는지 (자신이 판매한 상품만 삭제가능)
+    const isMyProduct = sellerId.toString() === req.user._id.toString();
+
+    if (!isMyProduct)
+      return res.status(403).json({ error: "자신의 상품만 삭제할 수 있어요." });
+
+    //
     await Product.deleteMany({ seller: sellerId });
 
     res.status(200).json({ message: "사장님 가게의 모든 상품을 삭제했어요." });
