@@ -41,7 +41,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/notification", notificationRoutes);
 app.use("/api/v1/products", productRoutes); //여행상품 거래
 app.use("/api/v1/cart", cartRoutes); //장바구니 담기
-app.user("/api/v1/coupon", couponRoutes); //쿠폰
+app.use("/api/v1/coupon", couponRoutes); //쿠폰
 
 app.listen(PORT, () => {
   console.log(`server is running on port: ${PORT}`);
