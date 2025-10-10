@@ -3,6 +3,7 @@
 
 const sellerRoute = (req, res, next) => {
   if (req.user && req.user.role === "seller") {
+    // console.log("seller route진입 성공");
     next();
   } else {
     return res

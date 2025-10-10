@@ -3,6 +3,7 @@
 import express from "express";
 import {
   createProduct,
+  deleteAllProductsBySeller,
   deleteProductById,
   featureProduct,
   getAllProducts,
@@ -28,5 +29,9 @@ router.post("/featured/:id", protectedRoute, sellerRoute, featureProduct); //상
 
 router.patch("/:id", protectedRoute, sellerRoute, updateProductById); //상품정보 수정
 
-router.delete("/:id", protectedRoute, sellerRoute, deleteProductById); //id에 맞는 상품 삭제
+router.delete("/seller/:id", protectedRoute, sellerRoute, deleteProductById); //id에 맞는 상품 삭제
+
+//prettier-ignore
+router.delete("/seller/:sellerId/all", protectedRoute, sellerRoute, deleteAllProductsBySeller); // 특정 가게에서 올린 상품 전체 삭제
+
 export default router;

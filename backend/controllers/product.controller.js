@@ -280,3 +280,19 @@ export const getProductsBySeller = async (req, res) => {
       .json({ error: "internal server error. progress: getProductsBySeller" });
   }
 };
+
+// 특정 가게에 속한 상품 전체 삭제
+export const deleteAllProductsBySeller = async (req, res) => {
+  try {
+    const { sellerId } = req.params;
+
+    await Product.deleteMany({ seller: sellerId });
+
+    res.status(200).json({ message: "사장님 가게의 모든 상품을 삭제했어요." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "internal server error. progress: deleteAllProductsBySeller",
+    });
+  }
+};
