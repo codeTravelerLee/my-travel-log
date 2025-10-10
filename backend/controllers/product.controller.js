@@ -3,6 +3,7 @@
 import Product from "../models/product.model.js";
 import redis from "../db/redis.js";
 import { v2 as cloudinary } from "cloudinary";
+import User from "../models/user.model.js";
 
 //모든 상품을 조회
 export const getAllProducts = async (req, res) => {
@@ -247,5 +248,35 @@ export const updateProductById = async (req, res) => {
   } catch (error) {
     console.log(`상품정보 수정 과정에서 에러가 발생했어요.: ${error.message}`);
     res.status(500).json({ error: "intetnal server error" });
+  }
+};
+
+// 가게별 전체상품 조회
+export const getProductsBySeller = async (req, res) => {
+  try {
+    const { sellerId } = req.params; //조회할 가게(사장님)의 _id
+
+    //사장님으로 등록되지 않은 사용자인지 체크
+    const userRole = await User.findById(sellerId).select("role");
+
+    // console.log(userRole);
+    if (userRole.role !== "seller") {
+      return res
+        .status(403)
+        .json({ message: "이 사용자는 상품 판매자가 아닙니다!" });
+    }
+
+    //사장님으로 등록된 경우
+    //사장님으로 등록됐으나 등록한 상품이 없는 경우는 빈 배열 반환
+    const products = await Product.find({ seller: sellerId });
+
+    res
+      .status(200)
+      .json({ message: "해당 가게의 상품들을 불러왔어요.", data: products });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "internal server error. progress: getProductsBySeller" });
   }
 };

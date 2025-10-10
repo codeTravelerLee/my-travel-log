@@ -22,10 +22,11 @@ export const addToCart = async (req, res) => {
     //이미 담겨있다면 수량증가, 없다면 user model의 cartItems에 추가
     // existingCartItem에는 조건을 만족하는 cartItem객체가 담김
     const existingCartItem = await currentUser.cartItems.find(
-      (item) => item.productId === productId
+      (item) => item.productId.toString() === productId.toString()
     );
 
     if (existingCartItem) {
+      // console.log(existingCartItem);
       existingCartItem.quantity += 1;
     } else {
       await currentUser.cartItems.push({ productId: productId });
