@@ -21,10 +21,15 @@ export const getCoupons = async (req, res) => {
 //쿠폰 검증
 export const validateCoupon = async (req, res) => {
   try {
+    // cartItems, totalAmount는 isValid에서 사용
     const { code, cartItems, totalAmount } = req.body; //쿠폰의 고유 식별코드
     const { _id: userId } = req.user;
 
     const coupon = await Coupon.findOne({ code: code });
+
+    //필요한 값들이 body에 다 제공되었는지 쳌
+    if (!code || !cartItems || !totalAmount)
+      return res.status(400).json({ error: "필수 필드를 전부 입력해주세요" });
 
     //존재하지 않는 쿠폰일 경우
     if (!coupon)
