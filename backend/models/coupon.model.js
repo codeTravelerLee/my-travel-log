@@ -113,7 +113,9 @@ couponSchema.methods.isValid = function (cartItems = [], totalAmount = 0) {
   //해당 쿠폰에 applicableProducts가 지정되어 있다면 해당하는지 검증
   if (this.applicableProducts.length > 0) {
     const isCouponValid = cartItems.some((item) =>
-      this.applicableProducts.includes(item.productId)
+      this.applicableProducts.some(
+        (id) => id.toString() === item.productId.toString()
+      )
     );
 
     if (!isCouponValid) return false;
