@@ -1,4 +1,4 @@
-import redis from "../db/redis.js";
+import redis from "../lib/db/redis.js";
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 import User from "../models/user.model.js";
 

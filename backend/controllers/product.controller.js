@@ -1,7 +1,7 @@
 // 여행상품 거래 페이지를 위한 APIs
 
 import Product from "../models/product.model.js";
-import redis from "../db/redis.js";
+import redis from "../lib/db/redis.js";
 import { v2 as cloudinary } from "cloudinary";
 import User from "../models/user.model.js";
 
