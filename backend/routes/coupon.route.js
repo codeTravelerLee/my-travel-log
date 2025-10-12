@@ -18,7 +18,7 @@ router.post(
   protectedRoute,
   adminRoute,
   createCouponForUsers
-); //admin패널에서 admin권한으로 신규 쿠폰 생성
+); //admin이 쿠포
 router.post("/validate", protectedRoute, validateCoupon); //쿠폰 사용전 검증
 
 export default router;

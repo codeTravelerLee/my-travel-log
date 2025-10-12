@@ -73,6 +73,13 @@ const userSchema = mongoose.Schema(
         },
       },
     ],
+    //해당 사용자가 가진 쿠폰
+    coupons: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Coupon",
+      },
+    ],
     //유저의 권한
     //[1] user: 일반 사용자 - 게시글 작성, 조회, 개인상품 조회 및 판매, 구매 가능(중고거래)
     //[2] admin: 총관리자
