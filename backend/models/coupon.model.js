@@ -22,7 +22,6 @@ const couponSchema = mongoose.Schema(
     startDate: {
       type: Date,
       default: Date.now,
-      required: true,
     },
     //쿠폰 만료일
     expireDate: {
@@ -37,7 +36,7 @@ const couponSchema = mongoose.Schema(
     //퍼센트 혹은 일정금액
     discountType: {
       type: String,
-      enum: ["percentage", "fixed"],
+      enum: ["percent", "fixed"],
       required: true,
     },
     //할인 값(type에 따라 퍼센트 혹은 금액이 될 것)
@@ -77,7 +76,7 @@ const couponSchema = mongoose.Schema(
       },
     ],
     // 해당 쿠폰을 발급받은 사용자들
-    IssuedUsers: [
+    issuedUsers: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

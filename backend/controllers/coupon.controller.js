@@ -3,6 +3,7 @@
 import Coupon from "../models/coupon.model.js";
 
 import crypto from "crypto";
+import User from "../models/user.model.js";
 
 //해당 사용자가 가진 쿠폰 찾아옴
 export const getCoupons = async (req, res) => {
@@ -61,7 +62,7 @@ export const validateCoupon = async (req, res) => {
 };
 
 //쿠폰 생성 - admin권한이 생성
-export const createCouponForUsers = async (req, res) => {
+export const generateCouponForUsers = async (req, res) => {
   try {
     //어드민 패널에서 쿠폰 생성시 직접 입력할 쿠폰 정보
     const {
@@ -80,7 +81,6 @@ export const createCouponForUsers = async (req, res) => {
     //required필드 입력누락 있는지 확인
     if (
       !name ||
-      !startDate ||
       !expireDate ||
       !discountType ||
       !discountValue ||
@@ -101,7 +101,7 @@ export const createCouponForUsers = async (req, res) => {
       code: randomCouponCode,
       name: name,
       description: description || "",
-      startDate: startDate,
+      startDate: startDate || new Date(),
       expireDate: expireDate,
       discountType: discountType,
       discountValue: discountValue,
@@ -118,5 +118,38 @@ export const createCouponForUsers = async (req, res) => {
     res
       .status(500)
       .json({ error: "internal server error. progress: createCouponForStore" });
+  }
+};
+
+// 일반 사용자가 쿠폰을 발급받음
+export const claimCoupon = async (req, res) => {
+  try {
+    const { _id: currentUserId } = req.user;
+    const { code: couponCode } = req.params; //발급받을 쿠폰의 고유코드
+
+    //사용자가 가진 쿠폰 배열에 추가
+    const user = await User.findById(currentUserId).select("-password");
+    const coupon = await Coupon.findOne({ code: couponCode });
+
+    //해당 쿠폰을 이미 발급받았는지 체크
+    if (user.coupons?.includes(coupon._id)) {
+      return res.status(400).json({ error: "이미 발급받은 쿠폰입니다." });
+    }
+
+    //해당 쿠폰을 발급받은 적이 없다면
+    user.coupons.push(coupon._id);
+
+    //쿠폰 객체의 발급받은 사용자 목록에 추가
+    coupon.issuedUsers.push(user._id);
+
+    //변경사항 DB반영
+    await Promise.all([user.save(), coupon.save()]);
+
+    res.status(200).json({ message: "쿠폰 발급 완료!", coupon: coupon });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "internal server error. progress: claimCoupon" });
   }
 };
