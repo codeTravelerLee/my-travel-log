@@ -56,6 +56,7 @@ const couponSchema = mongoose.Schema(
     maxUsage: {
       type: Number,
       default: 1,
+      required: true,
     },
     //해당 쿠폰을 몇 번 사용했는지
     usedCount: {

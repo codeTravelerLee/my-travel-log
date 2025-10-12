@@ -27,9 +27,6 @@ export const createCheckoutSession = async (req, res) => {
     //cartItems는 주문서 스키마의 구조를 따름
     const lineItems = await Promise.all(
       cartItems.map(async (item) => {
-        const unitAmount = item.price; //개당 가격
-        totalAmount += unitAmount * item.quantity; //상품들 순회하며 결제총액에 누적합
-
         const product = await Product.findById(item.productId).select("image");
         item.image = product.image; //stripe API에는 이미지를 제공해야 하는데, 주문서 스키마엔 이미지가 없으므로 상품 스키마에서 이미지를 가져옴
 
@@ -45,6 +42,11 @@ export const createCheckoutSession = async (req, res) => {
           quantity: item.quantity || 1,
         };
       })
+    );
+
+    totalAmount = lineItems.reduce(
+      (sum, item) => sum + item.price_data.unit_amount * item.quantity,
+      0
     );
 
     //쿠폰코드가 제공되면
@@ -137,19 +139,11 @@ async function createStripeCoupon(discountType, discountValue) {
     case "fixed":
       couponData.amount_off = discountValue;
       couponData.currency = "krw";
+      break;
     default:
       throw new Error("올바르지 않은 형식의 쿠폰 할인 유형입니다. ");
   }
 
   const coupon = await stripe.coupons.create(couponData);
   return coupon.id;
-}
-
-//신규 쿠폰을 생성하고 DB에 저장하는 함수(createCheckoutSession 컨트롤러에서 호출)
-async function createNewCoupon(userId) {
-  const randomCode = crypto.randomBytes(6).toString("hex").toUpperCase(); //12자리
-
-  const newCoupon = await Coupon.create({
-    code: randomCode,
-  });
 }
