@@ -76,8 +76,14 @@ const couponSchema = mongoose.Schema(
         ref: "Product",
       },
     ],
-    // 해당 쿠폰의 주인
+    // 해당 쿠폰을 발급받은 사용자들
     user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    //해당 쿠폰을 발급한 사람(어드민)
+    publisher: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,

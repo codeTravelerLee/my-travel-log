@@ -60,10 +60,10 @@ export const validateCoupon = async (req, res) => {
   }
 };
 
-//쿠폰 생성 - seller권한의 회원이 자신의 가게에 적용 가능한 쿠폰을 생성
-export const createCouponForStore = async (req, res) => {
+//쿠폰 생성 - admin권한이 생성
+export const createCouponForUsers = async (req, res) => {
   try {
-    //사장님이 직접 입력할 쿠폰 정보
+    //어드민 패널에서 쿠폰 생성시 직접 입력할 쿠폰 정보
     const {
       name,
       description,
@@ -107,8 +107,9 @@ export const createCouponForStore = async (req, res) => {
       discountValue: discountValue,
       minPurchaseAmount: minPurchaseAmount,
       maxUsage: maxUsage,
-      applicableCategories: applicableCategories || [],
+      applicableCategories: applicableCategories || [], // 따로 제공하지 않으면 쿠폰 사용전 isValid에서 모든 상품 적용 가능하도록 됨
       applicableProducts: applicableProducts || [],
+      publisher: req.user._id, //admin
     });
 
     res.status(200).json({ message: "쿠폰 생성 완료!", data: newCoupon });

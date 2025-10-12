@@ -98,7 +98,7 @@ export const createCheckoutSession = async (req, res) => {
         ? [
             {
               //coupon을 stripe API에 호환되는 형식으로 생성하는 커스텀 함수
-              coupon: await createStripeCoupon(
+              coupon: await convertToStripeCoupon(
                 coupon.discountType,
                 coupon.discountValue
               ),
@@ -117,6 +117,8 @@ export const createCheckoutSession = async (req, res) => {
         ),
       },
     });
+
+    res.status(200).json({ id: session.id, totalAmount: totalAmount });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -126,8 +128,8 @@ export const createCheckoutSession = async (req, res) => {
   }
 };
 
-//stripe API용 쿠폰을 만들어주는 함수(createCheckoutSession 컨트롤러에서 호출)
-async function createStripeCoupon(discountType, discountValue) {
+//마이트래블로그의 쿠폰을 Stripe API형태로 변환(createCheckoutSession 컨트롤러에서 호출)
+async function convertToStripeCoupon(discountType, discountValue) {
   let couponData = {
     duration: "once",
   };
