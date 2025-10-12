@@ -1,6 +1,11 @@
 //결제를 위한 APIs
 
 import Product from "../models/product.model.js";
+import Coupon from "../models/coupon.model.js";
+
+import { stripe } from "../lib/payments/stripe.js";
+
+import crypto from "crypto";
 
 //stripe결제를 위한 결제 순간의 세션 생성
 export const createCheckoutSession = async (req, res) => {
@@ -41,6 +46,75 @@ export const createCheckoutSession = async (req, res) => {
         };
       })
     );
+
+    //쿠폰코드가 제공되면
+    if (couponCode) {
+      const coupon = await Coupon.findOne({
+        code: couponCode,
+        user: req.user._id,
+        isActive: true,
+      });
+
+      if (!coupon) {
+        return res.status(404).json({ error: "존재하지 않는 쿠폰입니다" });
+      }
+
+      //쿠폰 모델에 구현해둔 유효성 검증 isValid메소드
+      if (!coupon.isValid(lineItems, totalAmount)) {
+        return res.status(422).json({ error: "쿠폰을 사용할 수 없어요." });
+      }
+
+      // 쿠폰아 유효한 경우 fixed, percentage각각의 할인 유형에 따라 totalAmount값에 할인적용
+      switch (coupon.discountType) {
+        case "percentage":
+          totalAmount -= totalAmount * (coupon.discountValue / 100);
+          break;
+        case "fixed":
+          totalAmount -= coupon.discountValue;
+          break;
+        default:
+          return res
+            .status(400)
+            .json({ error: "올바르지 않은 쿠폰 할인유형입니다." });
+      }
+    }
+
+    const coupon = await Coupon.findOne({
+      code: couponCode,
+      user: req.user._id,
+      isActive: true,
+    });
+
+    //stripe 결제세션 생성
+    const session = await stripe.checkout.sessions.create({
+      line_items: lineItems,
+      mode: "payment",
+      payment_method_types: ["card"],
+      success_url: `${process.env.CLIENT_URI}/payment-success?session_id={{CHECKOUT_SESSION_ID}}`,
+      cancel_url: `${process.env.CLIENT_URI}/payment-cancel`,
+      discounts: coupon
+        ? [
+            {
+              //coupon을 stripe API에 호환되는 형식으로 생성하는 커스텀 함수
+              coupon: await createStripeCoupon(
+                coupon.discountType,
+                coupon.discountValue
+              ),
+            },
+          ]
+        : [],
+      metadata: {
+        userId: req.user._id.toString(),
+        couponCode: couponCode || "",
+        products: JSON.stringify(
+          cartItems.map((item) => ({
+            id: item._id,
+            quantity: item.quantity,
+            price: item.price,
+          }))
+        ),
+      },
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -49,3 +123,33 @@ export const createCheckoutSession = async (req, res) => {
     });
   }
 };
+
+//stripe API용 쿠폰을 만들어주는 함수(createCheckoutSession 컨트롤러에서 호출)
+async function createStripeCoupon(discountType, discountValue) {
+  let couponData = {
+    duration: "once",
+  };
+
+  switch (discountType) {
+    case "percentage":
+      couponData.percent_off = discountValue;
+      break;
+    case "fixed":
+      couponData.amount_off = discountValue;
+      couponData.currency = "krw";
+    default:
+      throw new Error("올바르지 않은 형식의 쿠폰 할인 유형입니다. ");
+  }
+
+  const coupon = await stripe.coupons.create(couponData);
+  return coupon.id;
+}
+
+//신규 쿠폰을 생성하고 DB에 저장하는 함수(createCheckoutSession 컨트롤러에서 호출)
+async function createNewCoupon(userId) {
+  const randomCode = crypto.randomBytes(6).toString("hex").toUpperCase(); //12자리
+
+  const newCoupon = await Coupon.create({
+    code: randomCode,
+  });
+}
