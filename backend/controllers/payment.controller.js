@@ -7,7 +7,7 @@ import { stripe } from "../lib/payments/stripe.js";
 
 import crypto from "crypto";
 
-//stripe결제를 위한 결제 순간의 세션 생성
+//stripe결제 호환 API
 export const createCheckoutSession = async (req, res) => {
   try {
     const { cartItems, couponCode } = req.body;
@@ -18,9 +18,6 @@ export const createCheckoutSession = async (req, res) => {
         .status(400)
         .json({ error: "상품데이터가 올바르게 입력되지 않았습니다." });
     }
-
-    //고객이 지불해야할 최종 금액
-    let totalAmount = 0;
 
     //결제할 각각의 상품들의 정보를 담은 배열
     //각각의 상품들을 순회하며 stripe API가 요구하는 형태로 변환
@@ -44,6 +41,9 @@ export const createCheckoutSession = async (req, res) => {
       })
     );
 
+    //고객이 지불해야할 최종 금액
+    let totalAmount = 0;
+
     totalAmount = lineItems.reduce(
       (sum, item) => sum + item.price_data.unit_amount * item.quantity,
       0
@@ -53,7 +53,6 @@ export const createCheckoutSession = async (req, res) => {
     if (couponCode) {
       const coupon = await Coupon.findOne({
         code: couponCode,
-        user: req.user._id,
         isActive: true,
       });
 
@@ -66,7 +65,7 @@ export const createCheckoutSession = async (req, res) => {
         return res.status(422).json({ error: "쿠폰을 사용할 수 없어요." });
       }
 
-      // 쿠폰아 유효한 경우 fixed, percentage각각의 할인 유형에 따라 totalAmount값에 할인적용
+      // 쿠폰이 유효한 경우 fixed, percentage각각의 할인 유형에 따라 totalAmount값에 할인적용
       switch (coupon.discountType) {
         case "percentage":
           totalAmount -= totalAmount * (coupon.discountValue / 100);
@@ -83,7 +82,6 @@ export const createCheckoutSession = async (req, res) => {
 
     const coupon = await Coupon.findOne({
       code: couponCode,
-      user: req.user._id,
       isActive: true,
     });
 
