@@ -143,6 +143,7 @@ couponSchema.methods.isValid = async function (
   }
 
   //모든 조건이 유효한 경우
+
   return true;
 };
 

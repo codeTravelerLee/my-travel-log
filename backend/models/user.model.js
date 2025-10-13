@@ -76,7 +76,7 @@ const userSchema = mongoose.Schema(
     //해당 사용자가 가진 쿠폰
     coupons: [
       {
-        coupon: {
+        couponId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Coupon",
         },

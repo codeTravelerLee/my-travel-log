@@ -4,8 +4,7 @@ import Product from "../models/product.model.js";
 import Coupon from "../models/coupon.model.js";
 
 import { stripe } from "../lib/payments/stripe.js";
-
-import crypto from "crypto";
+import User from "../models/user.model.js";
 
 //stripe결제 호환 API
 export const createCheckoutSession = async (req, res) => {
@@ -86,9 +85,20 @@ export const createCheckoutSession = async (req, res) => {
       isActive: true,
     });
 
-    //쿠폰의 사용횟수를 1증가
-    coupon.usedCount += 1;
-    await coupon.save();
+    const user = await User.findById(req.user._id).select("-password");
+    const couponToUse = user.coupons.find(
+      (c) => c.couponId.toString() === coupon._id
+    );
+
+    //쿠폰 사용횟수를 1증가시킴
+    couponToUse.usedCount += 1;
+
+    if (couponToUse.usedCount >= coupon.maxUsage) {
+      couponToUse.available = false;
+    }
+
+    //변경된 사항 DB반영
+    await user.save();
 
     //stripe 결제세션 생성
     const session = await stripe.checkout.sessions.create({

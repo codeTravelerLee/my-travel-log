@@ -129,7 +129,7 @@ export const claimCoupon = async (req, res) => {
 
     //해당 쿠폰을 이미 발급받았는지 체크
     const alreadyIssued = user.coupons.some(
-      (c) => c.coupon.toString() === coupon._id.toString()
+      (c) => c.couponId.toString() === coupon._id.toString()
     );
 
     if (alreadyIssued)
@@ -137,7 +137,7 @@ export const claimCoupon = async (req, res) => {
 
     //해당 쿠폰을 발급받은 적이 없다면 => 새로운 쿠폰 추가
     user.coupons.push({
-      coupon: coupon._id,
+      couponId: coupon._id,
       available: true,
       usedCount: 0,
       issuedAt: new Date(),
