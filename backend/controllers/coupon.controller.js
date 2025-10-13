@@ -128,12 +128,20 @@ export const claimCoupon = async (req, res) => {
     const coupon = await Coupon.findOne({ code: couponCode });
 
     //해당 쿠폰을 이미 발급받았는지 체크
-    if (user.coupons?.includes(coupon._id)) {
-      return res.status(400).json({ error: "이미 발급받은 쿠폰입니다." });
-    }
+    const alreadyIssued = user.coupons.some(
+      (c) => c.coupon.toString() === coupon._id.toString()
+    );
 
-    //해당 쿠폰을 발급받은 적이 없다면
-    user.coupons.push(coupon._id);
+    if (alreadyIssued)
+      return res.status(400).json({ error: "이미 발급받은 쿠폰입니다." });
+
+    //해당 쿠폰을 발급받은 적이 없다면 => 새로운 쿠폰 추가
+    user.coupons.push({
+      coupon: coupon._id,
+      available: true,
+      usedCount: 0,
+      issuedAt: new Date(),
+    });
 
     //쿠폰 객체의 발급받은 사용자 목록에 추가
     coupon.issuedUsers.push(user._id);
