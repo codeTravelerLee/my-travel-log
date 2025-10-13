@@ -95,7 +95,12 @@ const couponSchema = mongoose.Schema(
 // 쿠폰이 사용가능한지 검증해주는 헬퍼 메소드
 // totalAmount : 구매액
 // cartItems: 쿠폰을 적용할 장바구니 담은 상품들(배열)
-couponSchema.methods.isValid = function (cartItems = [], totalAmount = 0) {
+couponSchema.methods.isValid = async function (
+  cartItems = [],
+  totalAmount = 0,
+  userId,
+  couponId
+) {
   const now = new Date();
 
   //쿠폰 기한, 사용가능횟수, 최소주문금액 제한 준수여부 검증
@@ -107,6 +112,15 @@ couponSchema.methods.isValid = function (cartItems = [], totalAmount = 0) {
     totalAmount < this.minPurchaseAmount
   )
     return false;
+
+  //쿠폰 사용 요청을 보낸 사용자가 해당 쿠폰을 가지고 있는지 확인
+  const user = await User.findById(userId).select("-password");
+  const userCouponIdArray = user.coupons.map((_id) => _id.toString());
+
+  if (!userCouponIdArray.includes(couponId))
+    return res
+      .status(400)
+      .json({ error: "회원님은 해당 쿠폰을 가지고 계시지 않아요." });
 
   //해당 쿠폰에 applicableCategory가 지정되어 있다면 해당하는지 검증
   if (this.applicableCategories.length > 0) {

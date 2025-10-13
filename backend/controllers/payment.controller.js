@@ -61,13 +61,13 @@ export const createCheckoutSession = async (req, res) => {
       }
 
       //쿠폰 모델에 구현해둔 유효성 검증 isValid메소드
-      if (!coupon.isValid(lineItems, totalAmount)) {
+      if (!coupon.isValid(lineItems, totalAmount, req.user._id, coupon._id)) {
         return res.status(422).json({ error: "쿠폰을 사용할 수 없어요." });
       }
 
       // 쿠폰이 유효한 경우 fixed, percentage각각의 할인 유형에 따라 totalAmount값에 할인적용
       switch (coupon.discountType) {
-        case "percentage":
+        case "percent":
           totalAmount -= totalAmount * (coupon.discountValue / 100);
           break;
         case "fixed":
@@ -80,10 +80,15 @@ export const createCheckoutSession = async (req, res) => {
       }
     }
 
+    //쿠폰 전체가 아니라, 사용한 유저가 가진 쿠폰만 만료시켜야함.
     const coupon = await Coupon.findOne({
       code: couponCode,
       isActive: true,
     });
+
+    //쿠폰의 사용횟수를 1증가
+    coupon.usedCount += 1;
+    await coupon.save();
 
     //stripe 결제세션 생성
     const session = await stripe.checkout.sessions.create({
@@ -133,7 +138,7 @@ async function convertToStripeCoupon(discountType, discountValue) {
   };
 
   switch (discountType) {
-    case "percentage":
+    case "percent":
       couponData.percent_off = discountValue;
       break;
     case "fixed":

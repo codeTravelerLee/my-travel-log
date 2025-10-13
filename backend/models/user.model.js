@@ -76,8 +76,24 @@ const userSchema = mongoose.Schema(
     //해당 사용자가 가진 쿠폰
     coupons: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Coupon",
+        coupon: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Coupon",
+        },
+        //해당 쿠폰이 이용가능한지
+        available: {
+          type: Boolean,
+          default: true,
+        },
+        usedCount: {
+          type: Number,
+          default: 0,
+        },
+        //언제 발급받았는지
+        issuedAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
     //유저의 권한
