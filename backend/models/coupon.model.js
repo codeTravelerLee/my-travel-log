@@ -119,7 +119,7 @@ couponSchema.methods.isValid = async function (
     const user = await User.findById(userId).select("-password");
     const userCouponIdArray = user.coupons.map((_id) => _id.toString());
 
-    if (!userCouponIdArray.includes(couponId))
+    if (!userCouponIdArray.includes(couponId.toString()))
       throw new Error("회원님은 해당 쿠폰을 가지고 계시지 않아요.");
 
     //해당 쿠폰에 applicableCategory가 지정되어 있다면 해당하는지 검증

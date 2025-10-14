@@ -23,14 +23,16 @@ export const createCheckoutSession = async (req, res) => {
     //cartItems는 주문서 스키마의 구조를 따름
     const lineItems = await Promise.all(
       cartItems.map(async (item) => {
-        const product = await Product.findById(item.productId).select("image");
+        const product = await Product.findById(item.productId).select(
+          "image name"
+        );
         item.image = product.image; //stripe API에는 이미지를 제공해야 하는데, 주문서 스키마엔 이미지가 없으므로 상품 스키마에서 이미지를 가져옴
 
         return {
           price_data: {
             currency: "krw",
             product_data: {
-              name: item.name,
+              name: product.name,
               images: [item.image],
             },
             unit_amount: item.price,
