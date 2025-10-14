@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+import User from "./user.model.js";
+
 const couponSchema = mongoose.Schema(
   {
     //쿠폰의 고유 코드
@@ -102,49 +104,50 @@ couponSchema.methods.isValid = async function (
   couponId
 ) {
   const now = new Date();
+  try {
+    //쿠폰 기한, 사용가능횟수, 최소주문금액 제한 준수여부 검증
+    if (
+      !this.isActive ||
+      now < this.startDate ||
+      now > this.expireDate ||
+      this.usedCount >= this.maxUsage ||
+      totalAmount < this.minPurchaseAmount
+    )
+      return false;
 
-  //쿠폰 기한, 사용가능횟수, 최소주문금액 제한 준수여부 검증
-  if (
-    !this.isActive ||
-    now < this.startDate ||
-    now > this.expireDate ||
-    this.usedCount >= this.maxUsage ||
-    totalAmount < this.minPurchaseAmount
-  )
-    return false;
+    //쿠폰 사용 요청을 보낸 사용자가 해당 쿠폰을 가지고 있는지 확인
+    const user = await User.findById(userId).select("-password");
+    const userCouponIdArray = user.coupons.map((_id) => _id.toString());
 
-  //쿠폰 사용 요청을 보낸 사용자가 해당 쿠폰을 가지고 있는지 확인
-  const user = await User.findById(userId).select("-password");
-  const userCouponIdArray = user.coupons.map((_id) => _id.toString());
+    if (!userCouponIdArray.includes(couponId))
+      throw new Error("회원님은 해당 쿠폰을 가지고 계시지 않아요.");
 
-  if (!userCouponIdArray.includes(couponId))
-    return res
-      .status(400)
-      .json({ error: "회원님은 해당 쿠폰을 가지고 계시지 않아요." });
+    //해당 쿠폰에 applicableCategory가 지정되어 있다면 해당하는지 검증
+    if (this.applicableCategories.length > 0) {
+      const isCouponValid = cartItems.some((item) =>
+        this.applicableCategories.includes(item.category)
+      );
 
-  //해당 쿠폰에 applicableCategory가 지정되어 있다면 해당하는지 검증
-  if (this.applicableCategories.length > 0) {
-    const isCouponValid = cartItems.some((item) =>
-      this.applicableCategories.includes(item.category)
-    );
+      if (!isCouponValid) return false;
+    }
 
-    if (!isCouponValid) return false;
+    //해당 쿠폰에 applicableProducts가 지정되어 있다면 해당하는지 검증
+    if (this.applicableProducts.length > 0) {
+      const isCouponValid = cartItems.some((item) =>
+        this.applicableProducts.some(
+          (id) => id.toString() === item.productId.toString()
+        )
+      );
+
+      if (!isCouponValid) return false;
+    }
+
+    //모든 조건이 유효한 경우
+    return true;
+  } catch (error) {
+    console.error(error);
+    return error;
   }
-
-  //해당 쿠폰에 applicableProducts가 지정되어 있다면 해당하는지 검증
-  if (this.applicableProducts.length > 0) {
-    const isCouponValid = cartItems.some((item) =>
-      this.applicableProducts.some(
-        (id) => id.toString() === item.productId.toString()
-      )
-    );
-
-    if (!isCouponValid) return false;
-  }
-
-  //모든 조건이 유효한 경우
-
-  return true;
 };
 
 const Coupon = new mongoose.model("Coupon", couponSchema);

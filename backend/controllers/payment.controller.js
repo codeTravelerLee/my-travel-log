@@ -33,7 +33,7 @@ export const createCheckoutSession = async (req, res) => {
               name: item.name,
               images: [item.image],
             },
-            unit_amount: unitAmount,
+            unit_amount: item.price,
           },
           quantity: item.quantity || 1,
         };
@@ -91,10 +91,12 @@ export const createCheckoutSession = async (req, res) => {
     );
 
     //쿠폰 사용횟수를 1증가시킴
-    couponToUse.usedCount += 1;
+    if (couponToUse) {
+      couponToUse.usedCount += 1;
 
-    if (couponToUse.usedCount >= coupon.maxUsage) {
-      couponToUse.available = false;
+      if (couponToUse.usedCount >= coupon.maxUsage) {
+        couponToUse.available = false;
+      }
     }
 
     //변경된 사항 DB반영
