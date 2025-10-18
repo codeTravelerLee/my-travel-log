@@ -163,27 +163,28 @@ export const saveOrderAfterPaymentSuccess = async (req, res) => {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status === "paid") {
+      //주문내역 저장을 위한 주문내역 데이터 생성
+      const products = JSON.parse(session.metadata.products); //배열임
+
+      const buyer = await User.findById(session.metadata.userId).select(
+        "-password"
+      );
+
+      const newOrder = new Order({
+        user: buyer._id,
+        cartItems: products.map((product) => ({
+          productId: product.id,
+          quantity: product.quantity,
+          price: product.price,
+        })),
+        totalAmount: session.amount_total,
+        stripeSessionId: sessionId,
+      });
+
+      await newOrder.save();
+    } else {
+      return res.status(400).json({ error: "아직 결제가 되지 않았습니다." });
     }
-
-    //주문내역 저장을 위한 주문내역 데이터 생성
-    const products = JSON.parse(session.metadata.products); //배열임
-
-    const buyer = await User.findById(session.metadata.userId).select(
-      "-password"
-    );
-
-    const newOrder = new Order({
-      user: buyer._id,
-      cartItems: products.map((product) => ({
-        productId: product.id,
-        quantity: product.quantity,
-        price: product.price,
-      })),
-      totalAmount: session.amount_total,
-      stripeSessionId: sessionId,
-    });
-
-    await newOrder.save();
 
     res
       .status(200)
