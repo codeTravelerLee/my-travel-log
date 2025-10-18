@@ -2,6 +2,7 @@
 
 import Product from "../models/product.model.js";
 import Coupon from "../models/coupon.model.js";
+import Order from "../models/order.model.js";
 
 import { stripe } from "../lib/payments/stripe.js";
 import User from "../models/user.model.js";
@@ -151,6 +152,39 @@ export const createCheckoutSession = async (req, res) => {
     res.status(500).json({
       error:
         "internal server error. progress: createCheckoutSession with stripe API",
+    });
+  }
+};
+
+//결제 성공시 주문내역을 DB에 저장
+export const saveOrderAfterPaymentSuccess = async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (session.payment_status === "paid") {
+      //주문내역 저장을 위한 주문내역 데이터 생성
+      const products = JSON.parse(session.metadata.products);
+
+      const buyer = await User.findById(session.metadata.userId);
+
+      const newOrder = new Order({
+        user: buyer,
+        cartItems: { productId: products.id, ...products },
+        totalAmount: session.amount_total,
+        stripeSessionId: sessionId,
+      });
+
+      await newOrder.save();
+
+      res
+        .status(200)
+        .json({ message: "주문내역 저장 성공!", orderId: newOrder._id });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "internal server error. progress: saveOrderAfterPaymentSuccess",
     });
   }
 };
