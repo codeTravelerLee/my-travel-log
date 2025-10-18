@@ -136,7 +136,7 @@ export const createCheckoutSession = async (req, res) => {
         couponCode: couponCode || "",
         products: JSON.stringify(
           cartItems.map((item) => ({
-            id: item._id,
+            id: item.productId,
             quantity: item.quantity,
             price: item.price,
           }))
@@ -163,24 +163,34 @@ export const saveOrderAfterPaymentSuccess = async (req, res) => {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status === "paid") {
-      //주문내역 저장을 위한 주문내역 데이터 생성
-      const products = JSON.parse(session.metadata.products);
-
-      const buyer = await User.findById(session.metadata.userId);
-
-      const newOrder = new Order({
-        user: buyer,
-        cartItems: { productId: products.id, ...products },
-        totalAmount: session.amount_total,
-        stripeSessionId: sessionId,
-      });
-
-      await newOrder.save();
-
-      res
-        .status(200)
-        .json({ message: "주문내역 저장 성공!", orderId: newOrder._id });
     }
+
+    //주문내역 저장을 위한 주문내역 데이터 생성
+    const products = JSON.parse(session.metadata.products); //배열임
+
+    const buyer = await User.findById(session.metadata.userId).select(
+      "-password"
+    );
+
+    const newOrder = new Order({
+      user: buyer._id,
+      cartItems: products.map((product) => ({
+        productId: product.id,
+        quantity: product.quantity,
+        price: product.price,
+      })),
+      totalAmount: session.amount_total,
+      stripeSessionId: sessionId,
+    });
+
+    await newOrder.save();
+
+    res
+      .status(200)
+      .json({ message: "주문내역 저장 성공!", orderId: newOrder._id });
+
+    console.log("결제가 되지 않은 상품입니다.");
+    console.log(session.payment_status);
   } catch (error) {
     console.error(error);
     res.status(500).json({
