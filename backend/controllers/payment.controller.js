@@ -62,8 +62,16 @@ export const createCheckoutSession = async (req, res) => {
       }
 
       //쿠폰 모델에 구현해둔 유효성 검증 isValid메소드
-      if (!coupon.isValid(lineItems, totalAmount, req.user._id, coupon._id)) {
-        return res.status(422).json({ error: "쿠폰을 사용할 수 없어요." });
+      // return { isValid: boolean, message: String}
+      const isCouponValid = await coupon.isValid(
+        lineItems,
+        totalAmount,
+        req.user._id,
+        coupon._id
+      );
+
+      if (!isCouponValid.isValid) {
+        return res.status(422).json({ error: isCouponValid.message });
       }
 
       // 쿠폰이 유효한 경우 fixed, percentage각각의 할인 유형에 따라 totalAmount값에 할인적용
@@ -89,7 +97,7 @@ export const createCheckoutSession = async (req, res) => {
 
     const user = await User.findById(req.user._id).select("-password");
     const couponToUse = user.coupons.find(
-      (c) => c.couponId.toString() === coupon._id
+      (c) => c.couponId.toString() === coupon._id.toString()
     );
 
     //쿠폰 사용횟수를 1증가시킴
@@ -135,6 +143,8 @@ export const createCheckoutSession = async (req, res) => {
       },
     });
 
+    //결제 성공시
+    console.log("결제 성공!");
     res.status(200).json({ id: session.id, totalAmount: totalAmount });
   } catch (error) {
     console.error(error);

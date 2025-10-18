@@ -127,9 +127,12 @@ export const claimCoupon = async (req, res) => {
     const user = await User.findById(currentUserId).select("-password");
     const coupon = await Coupon.findOne({ code: couponCode });
 
+    if (!coupon)
+      return res.status(404).json({ error: "존재하지 않는 쿠폰입니다." });
+
     //해당 쿠폰을 이미 발급받았는지 체크
     const alreadyIssued = user.coupons.some(
-      (c) => c.couponId.toString() === coupon._id.toString()
+      (c) => c.couponId.toString() === coupon?._id.toString()
     );
 
     if (alreadyIssued)

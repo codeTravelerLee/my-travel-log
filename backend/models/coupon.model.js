@@ -113,14 +113,19 @@ couponSchema.methods.isValid = async function (
       this.usedCount >= this.maxUsage ||
       totalAmount < this.minPurchaseAmount
     )
-      return false;
+      return { isValid: false, message: "사용할 수 없는 쿠폰이에요." };
 
     //쿠폰 사용 요청을 보낸 사용자가 해당 쿠폰을 가지고 있는지 확인
     const user = await User.findById(userId).select("-password");
-    const userCouponIdArray = user.coupons.map((_id) => _id.toString());
+    const userCouponIdArray = user.coupons.map((coupon) =>
+      coupon.couponId.toString()
+    );
 
-    if (!userCouponIdArray.includes(couponId.toString()))
-      throw new Error("회원님은 해당 쿠폰을 가지고 계시지 않아요.");
+    if (!userCouponIdArray.includes(couponId.toString())) {
+      console.log("해당 쿠폰 가지고 있지 않음");
+      // throw new Error("해당 쿠폰 가지고 있지 않음");
+      return { isValid: false, message: "해당 쿠폰 가지고 있지 않아요." };
+    }
 
     //해당 쿠폰에 applicableCategory가 지정되어 있다면 해당하는지 검증
     if (this.applicableCategories.length > 0) {
@@ -128,7 +133,11 @@ couponSchema.methods.isValid = async function (
         this.applicableCategories.includes(item.category)
       );
 
-      if (!isCouponValid) return false;
+      if (!isCouponValid)
+        return {
+          isValid: false,
+          message: "해당 상품의 카테코리에 적용 불가능한 쿠폰이에요.",
+        };
     }
 
     //해당 쿠폰에 applicableProducts가 지정되어 있다면 해당하는지 검증
@@ -139,14 +148,18 @@ couponSchema.methods.isValid = async function (
         )
       );
 
-      if (!isCouponValid) return false;
+      if (!isCouponValid)
+        return {
+          isValid: false,
+          message: "해당 상품에 적용 불가능한 쿠폰이에요.",
+        };
     }
 
     //모든 조건이 유효한 경우
-    return true;
+    return { isValid: true, message: "사용 가능한 쿠폰이에요." };
   } catch (error) {
     console.error(error);
-    return error;
+    return { isValid: false, message: `에러가 발생했어요. :${error}` };
   }
 };
 
