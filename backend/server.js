@@ -14,6 +14,7 @@ import cartRoutes from "./routes/cart.route.js";
 import couponRoutes from "./routes/coupon.route.js";
 import paymentRoutes from "./routes/payment.route.js";
 import adminRoutes from "./routes/admin.route.js";
+import sellerRoutes from "./routes/seller.route.js"
 
 dotenv.config();
 
@@ -45,7 +46,8 @@ app.use("/api/v1/products", productRoutes); //여행상품 거래
 app.use("/api/v1/cart", cartRoutes); //장바구니 담기
 app.use("/api/v1/coupon", couponRoutes); //쿠폰
 app.use("/api/v1/payment", paymentRoutes); //결제
-app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/admin", adminRoutes); //admin페이지
+app.use("/api/v1/seller", sellerRoutes); //가게 관리 페이지 
 
 app.listen(PORT, () => {
   console.log(`server is running on port: ${PORT}`);
