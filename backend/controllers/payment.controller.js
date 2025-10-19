@@ -96,23 +96,6 @@ export const createCheckoutSession = async (req, res) => {
       isActive: true,
     });
 
-    const user = await User.findById(req.user._id).select("-password");
-    const couponToUse = user.coupons.find(
-      (c) => c.couponId.toString() === coupon._id.toString()
-    );
-
-    //쿠폰 사용횟수를 1증가시킴
-    if (couponToUse) {
-      couponToUse.usedCount += 1;
-
-      if (couponToUse.usedCount >= coupon.maxUsage) {
-        couponToUse.available = false;
-      }
-    }
-
-    //변경된 사항 DB반영
-    await user.save();
-
     //stripe 결제세션 생성
     const session = await stripe.checkout.sessions.create({
       line_items: lineItems,
@@ -160,13 +143,32 @@ export const createCheckoutSession = async (req, res) => {
   }
 };
 
-//결제 성공시 주문내역을 DB에 저장
+//결제 성공시 주문내역을 DB에 저장, 사용한 쿠폰 만료처리
 export const saveOrderAfterPaymentSuccess = async (req, res) => {
   try {
     const { sessionId } = req.body;
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status === "paid") {
+      //결제 성공시 사용한 쿠폰 사용횟수 증가 및 만료처리
+      const user = await User.findById(session.metadata.userId).select(
+        "-password"
+      );
+      const couponToUse = user.coupons.find(
+        (c) => c.couponId.toString() === coupon._id.toString()
+      );
+
+      //쿠폰 사용횟수를 1증가시킴
+      if (couponToUse) {
+        couponToUse.usedCount += 1;
+
+        if (couponToUse.usedCount >= coupon.maxUsage) {
+          couponToUse.available = false;
+        }
+      }
+
+      await user.save();
+
       //주문내역 저장을 위한 주문내역 데이터 생성
       const products = JSON.parse(session.metadata.products); //배열임
 
