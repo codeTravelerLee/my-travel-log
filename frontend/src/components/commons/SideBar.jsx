@@ -13,7 +13,6 @@ import { BiLogOut } from "react-icons/bi";
 import { FaShoppingBag } from "react-icons/fa";
 import { FaShoppingCart } from "react-icons/fa";
 import { RiAdminLine } from "react-icons/ri";
-import { FaShoppingCart } from "react-icons/fa";
 
 const Sidebar = () => {
   // const navigate = useNavigate(); //app.jsx의 조건부 렌더링으로 대체
