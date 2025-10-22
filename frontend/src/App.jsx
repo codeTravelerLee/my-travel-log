@@ -6,6 +6,7 @@ import SignUpPage from "./pages/auth/signUp/SignUpPage";
 import LogInPage from "./pages/auth/logIn/LogInPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import NotificationPage from "./pages/notification/NotificationPage";
+import ShopManageHome from "./pages/shop/ShopManageHome";
 
 import Sidebar from "./components/commons/SideBar";
 import RightPanel from "./components/commons/RightPannel";
@@ -14,6 +15,7 @@ import { Toaster } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "./components/commons/LoadingSpinner";
 import { getCurrentUser } from "./utils/tanstack/getCurrentUser";
+import ProductMain from "./pages/product/ProductMain";
 
 function App() {
   //프론트엔드에서 protected route를 위한 <현재 로그인된 유저 정보 받아오기>
@@ -56,6 +58,20 @@ function App() {
         <Route
           path="/notifications"
           element={authUser ? <NotificationPage /> : <Navigate to={"/logIn"} />}
+        />
+        <Route
+          path="/products"
+          element={authUser ? <ProductMain /> : <Navigate to={"/logIn"} />}
+        />
+        <Route
+          path="/shop/:id"
+          element={
+            authUser && authUser.role === "seller" ? (
+              <ShopManageHome />
+            ) : (
+              <Navigate to={"/"} />
+            )
+          }
         />
       </Routes>
       {authUser && <RightPanel />}

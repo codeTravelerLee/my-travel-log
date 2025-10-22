@@ -5,6 +5,7 @@ import { IoNotifications } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
+import { FaShoppingCart } from "react-icons/fa";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
@@ -65,7 +66,7 @@ const Sidebar = () => {
               className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer"
             >
               <MdHomeFilled className="w-8 h-8" />
-              <span className="text-lg hidden md:block">Home</span>
+              <span className="text-lg hidden md:block">여행기록</span>
             </Link>
           </li>
           <li className="flex justify-center md:justify-start">
@@ -74,7 +75,17 @@ const Sidebar = () => {
               className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer"
             >
               <IoNotifications className="w-6 h-6" />
-              <span className="text-lg hidden md:block">Notifications</span>
+              <span className="text-lg hidden md:block">알림</span>
+            </Link>
+          </li>
+
+          <li className="flex justify-center md:justify-start">
+            <Link
+              to="/products"
+              className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer"
+            >
+              <FaShoppingCart className="w-6 h-6" />
+              <span className="text-lg hidden md:block">여행상품</span>
             </Link>
           </li>
 
@@ -84,9 +95,21 @@ const Sidebar = () => {
               className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer"
             >
               <FaUser className="w-6 h-6" />
-              <span className="text-lg hidden md:block">Profile</span>
+              <span className="text-lg hidden md:block">프로필</span>
             </Link>
           </li>
+          {/* 판매자 권한일 경우에만 가게 관리 탭 노출  */}
+          {authUser.role === "seller" ? (
+            <li className="flex justify-center md:justify-start">
+              <Link
+                to={`/shop/${authUser?._id}`}
+                className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer"
+              >
+                <FaUser className="w-6 h-6" />
+                <span className="text-lg hidden md:block">가게 관리</span>
+              </Link>
+            </li>
+          ) : null}
         </ul>
         {authUser && (
           <>
