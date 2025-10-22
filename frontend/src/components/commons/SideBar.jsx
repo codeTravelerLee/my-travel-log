@@ -1,14 +1,19 @@
-import LogoSvg from "../svgs/LogoSvg";
+import { Link, useNavigate } from "react-router-dom";
+
+import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
+
+import toast from "react-hot-toast";
+
+import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
 
 import { MdHomeFilled } from "react-icons/md";
 import { IoNotifications } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
+import { FaShoppingBag } from "react-icons/fa";
 import { FaShoppingCart } from "react-icons/fa";
-import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import toast from "react-hot-toast";
-import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
+import { RiAdminLine } from "react-icons/ri";
+import { FaShoppingCart } from "react-icons/fa";
 
 const Sidebar = () => {
   // const navigate = useNavigate(); //app.jsx의 조건부 렌더링으로 대체
@@ -84,8 +89,18 @@ const Sidebar = () => {
               to="/products"
               className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer"
             >
-              <FaShoppingCart className="w-6 h-6" />
+              <FaShoppingBag className="w-6 h-6" />
               <span className="text-lg hidden md:block">여행상품</span>
+            </Link>
+          </li>
+
+          <li className="flex justify-center md:justify-start">
+            <Link
+              to={`/carts/${authUser._id}`}
+              className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer"
+            >
+              <FaShoppingCart className="w-6 h-6" />
+              <span className="text-lg hidden md:block">장바구니</span>
             </Link>
           </li>
 
@@ -107,6 +122,18 @@ const Sidebar = () => {
               >
                 <FaUser className="w-6 h-6" />
                 <span className="text-lg hidden md:block">가게 관리</span>
+              </Link>
+            </li>
+          ) : null}
+          {/* 어드민 권한일 경우에만 서비스 관리 탭 노출  */}
+          {authUser.role === "admin" ? (
+            <li className="flex justify-center md:justify-start">
+              <Link
+                to={`/admin`}
+                className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer"
+              >
+                <RiAdminLine className="w-6 h-6" />
+                <span className="text-lg hidden md:block">서비스 관리</span>
               </Link>
             </li>
           ) : null}

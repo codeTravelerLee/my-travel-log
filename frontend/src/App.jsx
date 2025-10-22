@@ -1,5 +1,5 @@
 import "./App.css";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import HomePage from "./pages/home/HomePage";
 import SignUpPage from "./pages/auth/signUp/SignUpPage";
@@ -16,6 +16,8 @@ import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "./components/commons/LoadingSpinner";
 import { getCurrentUser } from "./utils/tanstack/getCurrentUser";
 import ProductMain from "./pages/product/ProductMain";
+import AdminHome from "./pages/admin/AdminHome";
+import CartHome from "./pages/cart/CartHome";
 
 function App() {
   //프론트엔드에서 protected route를 위한 <현재 로그인된 유저 정보 받아오기>
@@ -23,6 +25,16 @@ function App() {
     queryKey: ["authUser"],
     queryFn: getCurrentUser,
     retry: false, //fetching 실패해도 재요청 안보냄
+  });
+
+  //rightPanel을 숨길 경로 지정
+  const location = useLocation();
+  const { pathname } = location;
+
+  const hideRightPanelRoutes = ["/products", "/shops", "/admin", "/carts"];
+
+  const shouldHideRightPanel = hideRightPanelRoutes.some((path) => {
+    pathname.startsWith(path);
   });
 
   if (isLoading) {
@@ -63,6 +75,7 @@ function App() {
           path="/products"
           element={authUser ? <ProductMain /> : <Navigate to={"/logIn"} />}
         />
+        {/* 가게 관리 페이지 */}
         <Route
           path="/shop/:id"
           element={
@@ -73,8 +86,24 @@ function App() {
             )
           }
         />
+        {/* 서비스 관리 어드민 페이지 */}
+        <Route
+          path="/admin"
+          element={
+            authUser && authUser.role === "admin" ? (
+              <AdminHome />
+            ) : (
+              <Navigate to={"/"} />
+            )
+          }
+        />
+        {/* 장바구니 담은 상품 페이지  */}
+        <Route
+          path="/carts/:id"
+          element={authUser ? <CartHome /> : <Navigate to={"/signIn"} />}
+        />
       </Routes>
-      {authUser && <RightPanel />}
+      {authUser && !shouldHideRightPanel && <RightPanel />}
       <Toaster />
     </div>
   );
