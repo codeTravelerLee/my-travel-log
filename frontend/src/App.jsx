@@ -34,7 +34,7 @@ function App() {
   const hideRightPanelRoutes = ["/products", "/shops", "/admin", "/carts"];
 
   const shouldHideRightPanel = hideRightPanelRoutes.some((path) => {
-    pathname.startsWith(path);
+    return pathname.includes(path);
   });
 
   if (isLoading) {
