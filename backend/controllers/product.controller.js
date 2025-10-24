@@ -272,7 +272,10 @@ export const getProductsBySeller = async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "해당 가게의 상품들을 불러왔어요.", data: products });
+      .json({
+        message: "해당 가게의 상품들을 불러왔어요.",
+        products: products,
+      });
   } catch (error) {
     console.error(error);
     res
