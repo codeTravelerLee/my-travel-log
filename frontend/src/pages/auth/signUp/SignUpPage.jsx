@@ -17,6 +17,7 @@ const SignUpPage = () => {
     userName: "",
     fullName: "",
     password: "",
+    passwordConfirm: "",
   });
 
   const navigate = useNavigate();
@@ -24,14 +25,26 @@ const SignUpPage = () => {
   // const queryClient = new QueryClient();
 
   const { mutate, isError, isPending, error } = useMutation({
-    mutationFn: async ({ email, userName, fullName, password }) => {
+    mutationFn: async ({
+      email,
+      userName,
+      fullName,
+      password,
+      passwordConfirm,
+    }) => {
       try {
         const res = await fetch(
           `${import.meta.env.VITE_SERVER_URI}/api/auth/signUp`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, userName, fullName, password }),
+            body: JSON.stringify({
+              email,
+              userName,
+              fullName,
+              password,
+              passwordConfirm,
+            }),
             credentials: "include", //토큰이 담긴 쿠키를 받아오기 위함
           }
         );
@@ -90,7 +103,7 @@ const SignUpPage = () => {
             <input
               type="email"
               className="grow"
-              placeholder="Email"
+              placeholder="hello@gmail.com"
               name="email"
               onChange={handleInputChange}
               value={formData.email}
@@ -102,7 +115,7 @@ const SignUpPage = () => {
               <input
                 type="text"
                 className="grow "
-                placeholder="Username"
+                placeholder="닉네임"
                 name="userName"
                 onChange={handleInputChange}
                 value={formData.userName}
@@ -113,7 +126,7 @@ const SignUpPage = () => {
               <input
                 type="text"
                 className="grow"
-                placeholder="Full Name"
+                placeholder="성함"
                 name="fullName"
                 onChange={handleInputChange}
                 value={formData.fullName}
@@ -125,10 +138,21 @@ const SignUpPage = () => {
             <input
               type="password"
               className="grow"
-              placeholder="Password"
+              placeholder="비밀번호"
               name="password"
               onChange={handleInputChange}
               value={formData.password}
+            />
+          </label>
+          <label className="input input-bordered rounded flex items-center gap-2">
+            <MdPassword />
+            <input
+              type="password"
+              className="grow"
+              placeholder="비밀번호 확인"
+              name="passwordConfirm"
+              onChange={handleInputChange}
+              value={formData.passwordConfirm}
             />
           </label>
           <button className="btn rounded-full btn-primary text-white">

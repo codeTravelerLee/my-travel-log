@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 //회원가입
 export const signUp = async (req, res) => {
   try {
-    const { userName, fullName, password, email } = req.body;
+    const { userName, fullName, email, password, passwordConfirm } = req.body;
 
     //이메일 형식 유효성 검증
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -39,6 +39,15 @@ export const signUp = async (req, res) => {
       return res
         .status(400)
         .json({ error: "비밀번호는 8글자 이상이어야 해요" });
+    }
+
+    //비밀번호랑 비밀번호 생성에 입력한 값이 다른 경우
+    if (password !== passwordConfirm) {
+      return res
+        .status(400)
+        .json({
+          error: "처음 입력하신 비밀번호와 다시 입력하신 비밀번호가 달라요.",
+        });
     }
 
     //비밀번호 해싱

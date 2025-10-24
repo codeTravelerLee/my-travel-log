@@ -100,7 +100,7 @@ function App() {
         {/* 장바구니 담은 상품 페이지  */}
         <Route
           path="/carts/:id"
-          element={authUser ? <CartHome /> : <Navigate to={"/signIn"} />}
+          element={authUser ? <CartHome /> : <Navigate to={"/logIn"} />}
         />
       </Routes>
       {authUser && !shouldHideRightPanel && <RightPanel />}
