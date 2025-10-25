@@ -18,6 +18,7 @@ import { getCurrentUser } from "./utils/tanstack/getCurrentUser";
 import ProductMain from "./pages/product/ProductMain";
 import AdminHome from "./pages/admin/AdminHome";
 import CartHome from "./pages/cart/CartHome";
+import ProductDetail from "./pages/product/ProductDetail";
 
 function App() {
   //프론트엔드에서 protected route를 위한 <현재 로그인된 유저 정보 받아오기>
@@ -48,61 +49,69 @@ function App() {
   return (
     <div className="flex max-w-6xl mx-auto">
       {authUser && <Sidebar />}
-      <Routes>
-        <Route
-          path="/"
-          element={
-            !isLoading && authUser ? <HomePage /> : <Navigate to={"/logIn"} />
-          }
-        />
-        <Route
-          path="/signUp"
-          element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />}
-        />
-        <Route
-          path="/logIn"
-          element={!authUser ? <LogInPage /> : <Navigate to={"/"} />}
-        />
-        <Route
-          path="/profile/:userName"
-          element={authUser ? <ProfilePage /> : <Navigate to={"/logIn"} />}
-        />
-        <Route
-          path="/notifications"
-          element={authUser ? <NotificationPage /> : <Navigate to={"/logIn"} />}
-        />
-        <Route
-          path="/products"
-          element={authUser ? <ProductMain /> : <Navigate to={"/logIn"} />}
-        />
-        {/* 가게 관리 페이지 */}
-        <Route
-          path="/shop/:id"
-          element={
-            authUser && authUser.role === "seller" ? (
-              <ShopManageHome />
-            ) : (
-              <Navigate to={"/"} />
-            )
-          }
-        />
-        {/* 서비스 관리 어드민 페이지 */}
-        <Route
-          path="/admin"
-          element={
-            authUser && authUser.role === "admin" ? (
-              <AdminHome />
-            ) : (
-              <Navigate to={"/"} />
-            )
-          }
-        />
-        {/* 장바구니 담은 상품 페이지  */}
-        <Route
-          path="/carts/:id"
-          element={authUser ? <CartHome /> : <Navigate to={"/logIn"} />}
-        />
-      </Routes>
+      <main className="flex-1">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              !isLoading && authUser ? <HomePage /> : <Navigate to={"/logIn"} />
+            }
+          />
+          <Route
+            path="/signUp"
+            element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />}
+          />
+          <Route
+            path="/logIn"
+            element={!authUser ? <LogInPage /> : <Navigate to={"/"} />}
+          />
+          <Route
+            path="/profile/:userName"
+            element={authUser ? <ProfilePage /> : <Navigate to={"/logIn"} />}
+          />
+          <Route
+            path="/notifications"
+            element={
+              authUser ? <NotificationPage /> : <Navigate to={"/logIn"} />
+            }
+          />
+          <Route
+            path="/products"
+            element={authUser ? <ProductMain /> : <Navigate to={"/logIn"} />}
+          />
+          <Route
+            path="/product/:id"
+            element={authUser ? <ProductDetail /> : <Navigate to={"/logIn"} />}
+          />
+          {/* 가게 관리 페이지 */}
+          <Route
+            path="/shop/:id"
+            element={
+              authUser && authUser.role === "seller" ? (
+                <ShopManageHome />
+              ) : (
+                <Navigate to={"/"} />
+              )
+            }
+          />
+          {/* 서비스 관리 어드민 페이지 */}
+          <Route
+            path="/admin"
+            element={
+              authUser && authUser.role === "admin" ? (
+                <AdminHome />
+              ) : (
+                <Navigate to={"/"} />
+              )
+            }
+          />
+          {/* 장바구니 담은 상품 페이지  */}
+          <Route
+            path="/carts/:id"
+            element={authUser ? <CartHome /> : <Navigate to={"/logIn"} />}
+          />
+        </Routes>
+      </main>
       {authUser && !shouldHideRightPanel && <RightPanel />}
       <Toaster />
     </div>

@@ -58,8 +58,9 @@ const Sidebar = () => {
   });
 
   return (
-    <div className="md:flex-[2_2_0] w-18 max-w-52">
-      <div className="sticky top-0 left-0 h-screen flex flex-col border-r border-gray-700 w-20 md:w-full">
+    // 고정 너비로 설정하고 플렉스에서 줄어들지 않도록 설정
+    <div className="w-20 md:w-56 flex-shrink-0">
+      <div className="sticky top-0 left-0 h-screen flex flex-col border-r border-gray-700 w-20 md:w-56">
         <Link to="/" className="flex justify-center md:justify-start">
           <p className="text-center font-bold pt-4">MY TRAVEL LOG</p>
         </Link>
