@@ -32,7 +32,13 @@ function App() {
   const location = useLocation();
   const { pathname } = location;
 
-  const hideRightPanelRoutes = ["/products", "/shops", "/admin", "/carts"];
+  const hideRightPanelRoutes = [
+    "/products",
+    "/product",
+    "/shops",
+    "/admin",
+    "/carts",
+  ];
 
   const shouldHideRightPanel = hideRightPanelRoutes.some((path) => {
     return pathname.includes(path);

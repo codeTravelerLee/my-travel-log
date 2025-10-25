@@ -19,7 +19,7 @@ const ProductMain = () => {
 
   //로딩되는 동안 보여줄 스켈레톤의 개수 설정
   const skeletonArray = Array.from({ length: 12 });
-  console.log(products);
+
   return (
     <div
       className="p-4 grid gap-4 
