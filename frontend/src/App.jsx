@@ -7,18 +7,19 @@ import LogInPage from "./pages/auth/logIn/LogInPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import NotificationPage from "./pages/notification/NotificationPage";
 import ShopManageHome from "./pages/shop/ShopManageHome";
-
-import Sidebar from "./components/commons/SideBar";
-import RightPanel from "./components/commons/RightPannel";
-
-import { Toaster } from "react-hot-toast";
-import { useQuery } from "@tanstack/react-query";
-import LoadingSpinner from "./components/commons/LoadingSpinner";
-import { getCurrentUser } from "./utils/tanstack/getCurrentUser";
 import ProductMain from "./pages/product/ProductMain";
 import AdminHome from "./pages/admin/AdminHome";
 import CartHome from "./pages/cart/CartHome";
 import ProductDetail from "./pages/product/ProductDetail";
+
+import Sidebar from "./components/commons/SideBar";
+import RightPanel from "./components/commons/RightPannel";
+import LoadingSpinner from "./components/commons/LoadingSpinner";
+
+import { Toaster } from "react-hot-toast";
+
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentUser } from "./utils/tanstack/getCurrentUser";
 
 function App() {
   //프론트엔드에서 protected route를 위한 <현재 로그인된 유저 정보 받아오기>
