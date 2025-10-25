@@ -270,12 +270,10 @@ export const getProductsBySeller = async (req, res) => {
     //사장님으로 등록됐으나 등록한 상품이 없는 경우는 빈 배열 반환
     const products = await Product.find({ seller: sellerId });
 
-    res
-      .status(200)
-      .json({
-        message: "해당 가게의 상품들을 불러왔어요.",
-        products: products,
-      });
+    res.status(200).json({
+      message: "해당 가게의 상품들을 불러왔어요.",
+      products: products,
+    });
   } catch (error) {
     console.error(error);
     res
