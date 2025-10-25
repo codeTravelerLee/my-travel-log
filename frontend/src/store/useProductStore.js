@@ -20,6 +20,9 @@ export const useProductStore = create((set) => ({
       const response = await axiosInstance.get("/api/v1/products");
       const productsData = response.data.products;
 
+      console.log("response", response);
+      console.log("productsdata", productsData);
+
       set({ products: productsData, loading: false });
     } catch (error) {
       set({ error: "모든 상품 불러오는 중 에러 발생!", loading: false });

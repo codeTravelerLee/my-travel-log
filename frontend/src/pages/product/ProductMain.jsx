@@ -3,7 +3,9 @@
 import React, { useEffect } from "react";
 
 import { useProductStore } from "../../store/useProductStore";
+
 import ProductItemSkeleton from "../../components/skeletons/ProductItemSkeleton";
+import ProductItem from "../../components/products/ProductItem";
 
 const ProductMain = () => {
   const { fetchAllProducts, products, loading, error } = useProductStore();
@@ -17,6 +19,7 @@ const ProductMain = () => {
 
   //로딩되는 동안 보여줄 스켈레톤의 개수 설정
   const skeletonArray = Array.from({ length: 12 });
+  console.log(products);
   return (
     <div
       className="p-4 grid gap-4 
@@ -28,7 +31,7 @@ const ProductMain = () => {
     >
       {loading
         ? skeletonArray.map((_, idx) => <ProductItemSkeleton key={idx} />)
-        : products.map((product) => (
+        : products?.map((product) => (
             <ProductItem
               key={product._id}
               name={product.name}
