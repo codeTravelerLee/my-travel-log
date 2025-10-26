@@ -10,11 +10,40 @@ export const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find();
 
-    res
-      .status(200)
-      .json({ products: products, message: "모든 상품을 가져왔어요" });
+    const totalCount = products.length;
+
+    res.status(200).json({
+      products: products,
+      totalCount: totalCount,
+      message: "모든 상품을 가져왔어요",
+    });
   } catch (error) {
     res.status(500).json({ error: `internal server error...${error.message}` });
+  }
+};
+
+//상품 검색
+export const searchProducts = async (req, res) => {
+  try {
+    const { keyword = "" } = req.query;
+
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+      ],
+    });
+
+    const totalCount = products.length;
+
+    res.status(200).json({
+      message: "상품 검색 성공!",
+      products: products,
+      totalCount: totalCount,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "상품검색중 오류 발생." });
   }
 };
 
