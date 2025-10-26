@@ -33,13 +33,13 @@ const ProductMain = () => {
     [searchProducts]
   );
 
+  // 컴포넌트 마운트 시 전체 데이터 fetch
   useEffect(() => {
-    // 컴포넌트 마운트 시 전체 데이터 fetch
     fetchAllProducts();
   }, [fetchAllProducts]);
 
+  // 검색어 변경 시 디바운스 적용
   useEffect(() => {
-    // 검색어 변경 시 디바운스 적용
     if (searchInputValue.trim() === "") {
       fetchAllProducts();
     } else {
