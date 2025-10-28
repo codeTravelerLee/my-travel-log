@@ -56,7 +56,7 @@ function App() {
   return (
     <div className="flex max-w-6xl mx-auto">
       {authUser && <Sidebar />}
-      <main className="flex-1">
+      <main className="flex-1 relative">
         <Routes>
           <Route
             path="/"
