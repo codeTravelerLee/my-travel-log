@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import axiosInstance from "../utils/axios/axios";
 
 export const useProductStore = create((set) => ({
-  products: [],
+  products: [], //여러개의 상품을 찾은 경우
   loading: false,
   error: "", //발생한 오류 메시지
   totalCount: 0, //찾은 상품의 개수
@@ -33,6 +33,21 @@ export const useProductStore = create((set) => ({
       toast.error(
         error.response.data.error || "모든 상품 불러오는 중 에러 발생!"
       );
+    }
+  },
+
+  //특정 id에 맞는 상품정보를 불러옴
+  fetchProductById: async (id) => {
+    set({ loading: true });
+    try {
+      const response = await axiosInstance.get(`/api/v1/products/${id}`);
+
+      set({ products: [response.data.product] });
+    } catch (error) {
+      console.error(error);
+      set({ error: error.response.data.error });
+    } finally {
+      set({ loading: false });
     }
   },
 

@@ -22,6 +22,24 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
+//특정 id에 맞는 상품 조회
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findById(id).populate({
+      path: "seller",
+      select: "userName profileImg",
+    });
+
+    res
+      .status(200)
+      .json({ message: "상품 정보 불러오기 성공", product: product });
+  } catch (error) {
+    res.status(500).json({ error: `internal server error...${error.message}` });
+  }
+};
+
 //상품 검색
 export const searchProducts = async (req, res) => {
   try {

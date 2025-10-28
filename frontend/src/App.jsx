@@ -54,9 +54,9 @@ function App() {
   }
 
   return (
-    <div className="flex max-w-6xl mx-auto">
+    <div className="flex max-w-6xl mx-auto ">
       {authUser && <Sidebar />}
-      <main className="flex-1 relative">
+      <main className="flex-1 flex flex-col relative min-h-screen overflow-auto scrollbar-hide">
         <Routes>
           <Route
             path="/"

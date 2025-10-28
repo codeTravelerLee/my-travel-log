@@ -2,51 +2,79 @@
 //TODO: 결제창 구현
 //TODO: 장바구니 담기 구현
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useProductStore } from "../../store/useProductStore";
+
+import LoadingSpinner from "../../components/commons/LoadingSpinner";
+import avatarPlaceholder from "../../assets/profile/avatar-placeholder.png";
 
 const ProductDetail = () => {
   const { id } = useParams(); //상품id
+  const { fetchProductById, products, loading, error } = useProductStore();
+
+  //특정 id에 맞는 상품정보를 불러옴
+  useEffect(() => {
+    fetchProductById(id);
+  }, [fetchProductById, id]);
+
+  //dev
+  console.log("products", products);
+
+  //에러 발생시
+  if (error)
+    return (
+      <div className="flex items-center justify-center text-6xl">
+        문제가 발생했어요. 다시 시도해주세요.
+      </div>
+    );
+
+  if (loading) return <LoadingSpinner size={"lg"} />;
+
   return (
-    <div className="flex flex-col items-center h-full w-full ">
+    <div className="flex flex-col flex-1  w-full ">
       {/* 스크롤 되는 영역 */}
-      <div className="flex flex-col items-center">
-        <div>
-          <p>카테고리</p>
-        </div>
-        <div>
-          <p>상품 이름</p>
-        </div>
-        <div>
-          <img
-            src={""}
-            alt="상품 이미지"
-            className="w-full aspect-square overflow-hidden rounded-lg"
-          />
-        </div>
+      <div className="flex flex-col flex-1 overflow-auto gap-1 items-start  h-full m-4">
+        <p className="text-gray-500">{products[0].category}</p>
+        <p className="text-3xl font-bold mb-5">{products[0].name}</p>
+
+        <img
+          src={products[0].image}
+          alt={products[0].name || "상품 이미지"}
+          className="w-full rounded-lg mb-4"
+        />
+
         {/* 판매자 정보 */}
-        <Link to={""}>
-          <div className="flex flex-row gap-1.5 justify-start items-center">
+        <p className="text-gray-300 font-bold">판매자</p>
+        <Link to={`/shop/${id}`}>
+          <div className="flex flex-row gap-3 justify-start items-center mb-7 bg-gray-700 w-full min-h-20 rounded-lg p-4">
             <img
-              src=""
-              alt=""
-              className="aspect-square overflow-hidden rounded-full"
+              src={products[0].seller.profileImg || avatarPlaceholder}
+              alt={products[0].seller.userName || "판매자 프로필"}
+              className="w-16 aspect-square overflow-hidden rounded-full"
             />
-            <p>판매자 이름</p>
+            <p>{products[0].seller.userName}</p>
           </div>
         </Link>
-        <div>상품정보</div>
+        <p className="text-gray-300 font-bold">상품 정보</p>
+        <div className="bg-gray-700 w-full min-h-20 rounded-lg p-4">
+          {products[0].description}
+        </div>
         <button>더보기</button>
       </div>
 
       {/* 고정된 영역 -> 하단 중앙 정렬 */}
-      <div className="w-full absolute bottom-0 left-1/2 -translate-x-1/2  flex flex-row gap-4 justify-between items-center bg-white text-black p-8 rounded-lg m-8">
+      <div className=" left-0 flex justify-between items-center bg-white text-black p-4 md:p-6 rounded-t-lg shadow-inner w-full">
         <div>
-          <p className="text-red-600">34,000원</p>
+          <p className="text-red-600 font-bold text-xl">
+            {products[0].price.toLocaleString("ko-KR")}원
+          </p>
         </div>
         <div className="flex flex-row gap-2 justify-center items-center">
-          <button className="border rounded-lg p-2">장바구니 담기</button>
-          <button className="border rounded-lg p-2">결제</button>
+          <button className="border rounded-lg p-2 font-bold">
+            장바구니 담기
+          </button>
+          <button className="border rounded-lg p-2 font-bold">결제</button>
         </div>
       </div>
     </div>
