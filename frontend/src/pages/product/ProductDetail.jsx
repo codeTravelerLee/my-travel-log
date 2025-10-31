@@ -2,16 +2,20 @@
 //TODO: 결제창 구현
 //TODO: 장바구니 담기 구현
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useProductStore } from "../../store/useProductStore";
 
 import LoadingSpinner from "../../components/commons/LoadingSpinner";
 import avatarPlaceholder from "../../assets/profile/avatar-placeholder.png";
+import CartModal from "../../components/carts/CartModal";
 
 const ProductDetail = () => {
   const { id } = useParams(); //상품id
   const { fetchProductById, products, loading, error } = useProductStore();
+
+  //장바구니 모달창
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   //특정 id에 맞는 상품정보를 불러옴
   useEffect(() => {
@@ -70,13 +74,18 @@ const ProductDetail = () => {
             {products[0].price.toLocaleString("ko-KR")}원
           </p>
         </div>
-        <div className="flex flex-row gap-2 justify-center items-center">
-          <button className="border rounded-lg p-2 font-bold">
+        <div className="flex flex-row gap-2 justify-center items-center hover:cursor-pointer">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="border rounded-lg p-2 font-bold"
+          >
             장바구니 담기
           </button>
           <button className="border rounded-lg p-2 font-bold">결제</button>
         </div>
       </div>
+
+      <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 };
