@@ -12,6 +12,8 @@ export const addToCart = async (req, res) => {
     //담을 상품 객체
     const product = await Product.findById(productId);
 
+    // console.log("상품데이터:", product);
+
     //해당 상품이 존재하지 않을 경우
     if (!product)
       return res.status(404).json({ error: "해당 상품은 존재하지 않습니다." });
@@ -22,7 +24,7 @@ export const addToCart = async (req, res) => {
 
     //이미 담겨있다면 수량증가, 없다면 user model의 cartItems에 추가
     // existingCartItem에는 조건을 만족하는 cartItem객체가 담김
-    const existingCartItem = await currentUser.cartItems.find(
+    const existingCartItem = currentUser.cartItems.find(
       (item) => item.productId.toString() === productId.toString()
     );
 
@@ -30,21 +32,20 @@ export const addToCart = async (req, res) => {
       // console.log(existingCartItem);
       existingCartItem.quantity += quantity;
     } else {
-      await currentUser.cartItems.push({
+      currentUser.cartItems.push({
         productId: productId,
         productName: product.name,
-        quantity: quantity,
         price: product.price,
+        quantity: quantity,
       });
     }
 
-    console.log(currentUser.cartItems);
     //cartItems수정사항 반영
     await currentUser.save();
 
     res.status(200).json({
       message: `${product.name}을 장바구니에 담았어요!`,
-      data: product,
+      cartItems: currentUser.cartItems,
     });
   } catch (error) {
     console.error(error.message);
