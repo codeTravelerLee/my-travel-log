@@ -7,6 +7,7 @@ import User from "../models/user.model.js";
 export const addToCart = async (req, res) => {
   try {
     const { id: productId } = req.params; // 담을 상품의 id
+    const { quantity } = req.body;
 
     //담을 상품 객체
     const product = await Product.findById(productId);
@@ -27,11 +28,17 @@ export const addToCart = async (req, res) => {
 
     if (existingCartItem) {
       // console.log(existingCartItem);
-      existingCartItem.quantity += 1;
+      existingCartItem.quantity += quantity;
     } else {
-      await currentUser.cartItems.push({ productId: productId });
+      await currentUser.cartItems.push({
+        productId: productId,
+        productName: product.name,
+        quantity: quantity,
+        price: product.price,
+      });
     }
 
+    console.log(currentUser.cartItems);
     //cartItems수정사항 반영
     await currentUser.save();
 

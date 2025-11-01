@@ -85,7 +85,11 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <CartModal
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        products={products}
+      />
     </div>
   );
 };

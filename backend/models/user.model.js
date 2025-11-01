@@ -62,14 +62,23 @@ const userSchema = mongoose.Schema(
     //장바구니 담은 상품
     cartItems: [
       {
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+        },
+        productName: {
+          type: String,
+          required: true,
+        },
+        price: {
+          type: Number,
+          min: 0,
+          required: true,
+        },
         quantity: {
           type: Number,
           default: 1,
           min: 0,
-        },
-        productId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
         },
       },
     ],
