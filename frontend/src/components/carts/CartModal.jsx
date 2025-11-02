@@ -6,6 +6,7 @@ import LoadingSpinner from "../commons/LoadingSpinner";
 import toast from "react-hot-toast";
 import { TiPlus, TiMinus } from "react-icons/ti";
 import { useNavigate } from "react-router-dom";
+import CartItemDisplay from "./CartItemDisplay";
 
 const CartModal = ({ isOpen, onClose, products }) => {
   //장바구니 담을 상품의 수량
@@ -75,38 +76,12 @@ const CartModal = ({ isOpen, onClose, products }) => {
             </button>
           </div>
 
-          <div className="flex gap-2 mt-6 text-black bg-gray-200 rounded-md p-4">
-            <img src={products[0].image} alt={"img"} className="w-24" />
-            <div>
-              <p>{products[0].name}</p>
-              <p className="text-red-600 font-bold">
-                {products[0].price.toLocaleString("ko-Kr")}원{" "}
-              </p>
-              <div className="flex gap-1 pt-2">
-                <p>수량: {quantity}</p>
-                <button
-                  className="border rounded-sm p-1"
-                  onClick={() => {
-                    setQuantity((prev) => prev + 1);
-                  }}
-                >
-                  <TiPlus />
-                </button>
-                <button
-                  className="border rounded-sm p-1"
-                  onClick={() => {
-                    if (quantity === 1) {
-                      toast.error("최소 수량은 1개입니다.");
-                      return;
-                    }
-                    setQuantity((prev) => prev - 1);
-                  }}
-                >
-                  <TiMinus />
-                </button>
-              </div>
-            </div>
-          </div>
+          <CartItemDisplay
+            image={products[0].image}
+            name={products[0].name}
+            price={products[0].price}
+            quantity={quantity}
+          />
 
           <p className="text-red-600 font-bold p-4">
             총 가격: {(products[0].price * quantity).toLocaleString("ko-Kr")}원
