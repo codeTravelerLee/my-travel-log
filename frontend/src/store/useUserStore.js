@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import axiosInstance from "../utils/axios/axios";
+import toast from "react-hot-toast";
 
 export const useUserStore = create((set) => ({
   authUser: null, //현재 로그인한 유저 정보
@@ -16,7 +17,7 @@ export const useUserStore = create((set) => ({
     set({ loading: true });
     try {
       const response = await axiosInstance.get("/api/auth/getCurrentUser");
-      const userData = response.data;
+      const userData = response.data.userData;
 
       set({ authUser: userData });
 
@@ -37,12 +38,16 @@ export const useUserStore = create((set) => ({
       const response = await axiosInstance.post(`/api/v1/cart/${productId}`, {
         quantity: quantity,
       });
-      const addedProduct = response.data.cartItems;
+      const addedProduct = response.data.addedProduct;
+
+      console.log("장바구니에 담긴 상품:", addedProduct);
 
       //장바구니 아이템 스토어에 반영
       set({ cartIems: addedProduct });
 
-      toast.success(`${addedProduct.name}을 장바구니에 담았어요!`);
+      console.log("added product looks like:", addedProduct);
+
+      toast.success(`${addedProduct.productName}을 장바구니에 담았어요!`);
     } catch (error) {
       console.error(error.message);
       set({ error: error.response.data.error });

@@ -68,12 +68,10 @@ const userSchema = mongoose.Schema(
         },
         productName: {
           type: String,
-          required: true,
         },
         price: {
           type: Number,
           min: 0,
-          required: true,
         },
         quantity: {
           type: Number,

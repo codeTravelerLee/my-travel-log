@@ -14,7 +14,7 @@ export const getCurrentUser = async () => {
     //prettier-ignore
     if(!res.ok || response.error) throw new Error(response.error || "알 수 없는 에러가 발생했습니다.");
 
-    return response;
+    return response.userData;
   } catch (error) {
     console.log(`error getting current user data: ${error.message}`);
     throw error;

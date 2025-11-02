@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 import { useUserStore } from "../../store/useUserStore";
+import LoadingSpinner from "../commons/LoadingSpinner";
 
 import toast from "react-hot-toast";
 import { TiPlus, TiMinus } from "react-icons/ti";
@@ -12,7 +13,7 @@ const CartModal = ({ isOpen, onClose, products }) => {
 
   const navigate = useNavigate();
 
-  const { fetchAuthUser, addToCart, loading } = useUserStore();
+  const { fetchAuthUser, addToCart, loading, error, authUser } = useUserStore();
 
   //장바구니 담기 누르면
   const onAddToCart = async () => {
@@ -28,13 +29,23 @@ const CartModal = ({ isOpen, onClose, products }) => {
 
         //로그인된 유저라면
         await addToCart(products[0]._id, quantity);
+
+        navigate(`/carts/${authUser._id}`);
       } catch (error) {
         console.error(error);
       }
     }
   };
 
-  //TODO: 로딩, 에러시 UI처리
+  // 에러 발생시
+  if (error)
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-full">
+        <p className="font-bold text-5xl">
+          문제가 발생했어요. 다시 시도해주세요.
+        </p>
+      </div>
+    );
 
   return (
     <>
@@ -106,7 +117,7 @@ const CartModal = ({ isOpen, onClose, products }) => {
               className="w-full bg-blue-500 text-white py-3 rounded-lg"
               onClick={onAddToCart}
             >
-              장바구니에 추가
+              {loading ? <LoadingSpinner size="sm" /> : "장바구니에 추가"}
             </button>
           </div>
         </div>

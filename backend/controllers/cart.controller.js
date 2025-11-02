@@ -12,7 +12,7 @@ export const addToCart = async (req, res) => {
     //담을 상품 객체
     const product = await Product.findById(productId);
 
-    // console.log("상품데이터:", product);
+    console.log("상품데이터:", product);
 
     //해당 상품이 존재하지 않을 경우
     if (!product)
@@ -34,21 +34,29 @@ export const addToCart = async (req, res) => {
     } else {
       currentUser.cartItems.push({
         productId: productId,
-        productName: product.name,
-        price: product.price,
+        productName: String(product.name),
+        price: Number(product.price),
         quantity: quantity,
       });
     }
 
     //cartItems수정사항 반영
+    currentUser.markModified("cartItems");
+
     await currentUser.save();
+
+    //이번에 담은 장바구니 상품
+    const addedProduct = currentUser.cartItems.find(
+      (item) => item.productId.toString() === productId.toString()
+    );
 
     res.status(200).json({
       message: `${product.name}을 장바구니에 담았어요!`,
-      cartItems: currentUser.cartItems,
+      addedProduct: addedProduct,
     });
   } catch (error) {
     console.error(error.message);
+    console.error(error);
 
     res
       .status(500)

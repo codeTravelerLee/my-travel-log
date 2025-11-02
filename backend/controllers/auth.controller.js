@@ -43,11 +43,9 @@ export const signUp = async (req, res) => {
 
     //비밀번호랑 비밀번호 생성에 입력한 값이 다른 경우
     if (password !== passwordConfirm) {
-      return res
-        .status(400)
-        .json({
-          error: "처음 입력하신 비밀번호와 다시 입력하신 비밀번호가 달라요.",
-        });
+      return res.status(400).json({
+        error: "처음 입력하신 비밀번호와 다시 입력하신 비밀번호가 달라요.",
+      });
     }
 
     //비밀번호 해싱
@@ -165,7 +163,7 @@ export const getCurrentUser = async (req, res) => {
     //protectedRoute에서 req에 user데이터 추가
     //user는 password를 제외한 User데이터
     const user = await User.findById(req.user._id).select("-password");
-    res.status(200).json(user);
+    res.status(200).json({ userData: user });
   } catch (error) {
     console.error(`error while getting current user data.. ${error.messaage}`);
     res.status(500).json({ error: "internal server error" });
