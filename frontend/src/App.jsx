@@ -20,6 +20,7 @@ import { Toaster } from "react-hot-toast";
 
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUser } from "./utils/tanstack/getCurrentUser";
+import Payment from "./pages/payment/Payment";
 
 function App() {
   //프론트엔드에서 protected route를 위한 <현재 로그인된 유저 정보 받아오기>
@@ -114,8 +115,13 @@ function App() {
           />
           {/* 장바구니 담은 상품 페이지  */}
           <Route
-            path="/carts/:id"
+            path="/carts"
             element={authUser ? <CartHome /> : <Navigate to={"/logIn"} />}
+          />
+          {/* 결제 페이지 */}
+          <Route
+            path="/payment"
+            element={authUser ? <Payment /> : <Navigate to={"/logIn"} />}
           />
         </Routes>
       </main>
