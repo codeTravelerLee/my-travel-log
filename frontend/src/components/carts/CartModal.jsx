@@ -31,7 +31,7 @@ const CartModal = ({ isOpen, onClose, products }) => {
         //로그인된 유저라면
         await addToCart(products[0]._id, quantity);
 
-        navigate(`/carts/${authUser._id}`);
+        navigate(`/carts`);
       } catch (error) {
         console.error(error);
       }

@@ -21,6 +21,8 @@ import { Toaster } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUser } from "./utils/tanstack/getCurrentUser";
 import Payment from "./pages/payment/Payment";
+import { useUserStore } from "./store/useUserStore";
+import { useEffect } from "react";
 
 function App() {
   //프론트엔드에서 protected route를 위한 <현재 로그인된 유저 정보 받아오기>
@@ -29,6 +31,14 @@ function App() {
     queryFn: getCurrentUser,
     retry: false, //fetching 실패해도 재요청 안보냄
   });
+
+  const { setAuthUser } = useUserStore();
+
+  useEffect(() => {
+    if (authUser) {
+      setAuthUser(authUser);
+    }
+  }, [authUser, setAuthUser]);
 
   //rightPanel을 숨길 경로 지정
   const location = useLocation();

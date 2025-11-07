@@ -16,15 +16,18 @@ export const useUserStore = create((set) => ({
   fetchAuthUser: async () => {
     set({ loading: true });
     try {
+      console.log("fetchAuthUser함수 호출됨");
       const response = await axiosInstance.get("/api/auth/getCurrentUser");
       const userData = response.data.userData;
+
+      console.log("응답결과", response.data);
 
       set({ authUser: userData });
 
       return userData;
     } catch (error) {
       console.error(error);
-      set({ error: error.response.data.error });
+      set({ error: error?.response?.data?.error });
 
       return null;
     } finally {
@@ -43,14 +46,14 @@ export const useUserStore = create((set) => ({
       console.log("장바구니에 담긴 상품:", addedProduct);
 
       //장바구니 아이템 스토어에 반영
-      set({ cartIems: addedProduct });
+      set({ cartItems: addedProduct });
 
       console.log("added product looks like:", addedProduct);
 
       toast.success(`${addedProduct.productName}을 장바구니에 담았어요!`);
     } catch (error) {
       console.error(error.message);
-      set({ error: error.response.data.error });
+      set({ error: error?.response?.data?.error });
     } finally {
       set({ loading: false });
     }

@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import CartItemDisplay from "../../components/carts/CartItemDisplay";
 import { useUserStore } from "../../store/useUserStore";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const CartHome = () => {
   const { fetchAuthUser, authUser, error, loading } = useUserStore();
@@ -14,11 +14,10 @@ const CartHome = () => {
   useEffect(() => {
     const loadUserData = async () => {
       await fetchAuthUser();
-      console.log("authUser in CartHome:", authUser);
     };
 
     loadUserData();
-  }, [fetchAuthUser, authUser?._id, location.pathname]);
+  }, [fetchAuthUser]);
 
   if (error)
     return (
@@ -42,6 +41,7 @@ const CartHome = () => {
           quantity={item.quantity}
         />
       ))}
+      <Link to={"/products"}>더 많은 상품 담기</Link>
       <button
         className="w-full rounded-lg m-4 p-4 bg-blue-500 font-white text-bold text-center text-lg"
         onClick={() => {
