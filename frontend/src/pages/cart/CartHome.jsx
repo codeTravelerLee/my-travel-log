@@ -4,20 +4,22 @@ import React, { useEffect } from "react";
 import CartItemDisplay from "../../components/carts/CartItemDisplay";
 import { useUserStore } from "../../store/useUserStore";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { updateCartQuantity } from "../../utils/axios/carts";
 
 const CartHome = () => {
-  const { fetchAuthUser, authUser, error, loading } = useUserStore();
+  const { authUser, error, loading } = useUserStore();
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    const loadUserData = async () => {
-      await fetchAuthUser();
-    };
+  const [cartItems, setCartItems] = useState([]);
 
-    loadUserData();
-  }, [fetchAuthUser]);
+  useEffect(() => {
+    if (authUser?.cartItems) {
+      setCartItems(authUser.cartItems);
+    }
+  }, [authUser]);
 
   if (error)
     return (
@@ -26,21 +28,51 @@ const CartHome = () => {
       </div>
     );
 
+  //자식 컴포넌트인 CartItemDisplay에 전달할 수량변경 함수
+  const handleIncrease = async (productId) => {
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.productId === productId
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      )
+    );
+    //axios로 백엔드에 수량 변경 요청 보내기
+    await updateCartQuantity(productId, 1);
+  };
+
+  const handleDecrease = async (productId) => {
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.productId === productId && item.quantity > 1
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
+      )
+    );
+    //axios로 백엔드에 수량 변경 요청 보내기
+    await updateCartQuantity(productId, -1);
+  };
+
   return loading ? (
     <div className="flex flex-col items-center justify-center text-5xl font-bold">
       데이터를 불러오고 있어요. 조금만 기다려주세요!
     </div>
   ) : (
     <div className="flex flex-col gap-2 w-full h-full items-center justify-center">
-      {authUser?.cartItems?.map((item) => (
-        <CartItemDisplay
-          key={item._id}
-          image={item.image}
-          name={item.productName}
-          price={item.price}
-          quantity={item.quantity}
-        />
-      ))}
+      <div>
+        {cartItems.map((item) => (
+          <CartItemDisplay
+            key={item._id}
+            image={item.image}
+            name={item.productName}
+            price={item.price}
+            quantity={item.quantity}
+            onIncreaseQuantity={() => handleIncrease(item.productId)}
+            onDecreaseQuantity={() => handleDecrease(item.productId)}
+          />
+        ))}
+      </div>
+
       <Link to={"/products"}>더 많은 상품 담기</Link>
       <button
         className="w-full rounded-lg m-4 p-4 bg-blue-500 font-white text-bold text-center text-lg"

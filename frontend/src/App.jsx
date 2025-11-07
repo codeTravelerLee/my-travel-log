@@ -50,6 +50,7 @@ function App() {
     "/shops",
     "/admin",
     "/carts",
+    "/payment",
   ];
 
   const shouldHideRightPanel = hideRightPanelRoutes.some((path) => {
