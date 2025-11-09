@@ -6,6 +6,7 @@ import { useUserStore } from "../../store/useUserStore";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { updateCartQuantity } from "../../utils/axios/carts";
+import TotalPriceView from "../../components/payments/TotalPriceView";
 
 const CartHome = () => {
   const { authUser, error, loading } = useUserStore();
@@ -58,19 +59,23 @@ const CartHome = () => {
       데이터를 불러오고 있어요. 조금만 기다려주세요!
     </div>
   ) : (
-    <div className="flex flex-col gap-2 w-full h-full items-center justify-center">
-      <div>
-        {cartItems.map((item) => (
-          <CartItemDisplay
-            key={item._id}
-            image={item.image}
-            name={item.productName}
-            price={item.price}
-            quantity={item.quantity}
-            onIncreaseQuantity={() => handleIncrease(item.productId)}
-            onDecreaseQuantity={() => handleDecrease(item.productId)}
-          />
-        ))}
+    <div className="flex flex-col gap-2 w-full h-full items-center justify-center p-4">
+      <div className="flex gap-7 justify-between items-center w-full h-full">
+        <div className="flex flex-col gap-0.5">
+          {cartItems.map((item) => (
+            <CartItemDisplay
+              key={item._id}
+              image={item.image}
+              name={item.productName}
+              price={item.price}
+              quantity={item.quantity}
+              onIncreaseQuantity={() => handleIncrease(item.productId)}
+              onDecreaseQuantity={() => handleDecrease(item.productId)}
+            />
+          ))}
+        </div>
+        {/* 총 가격을 표시 */}
+        <TotalPriceView cartItems={cartItems} />
       </div>
 
       <Link to={"/products"}>더 많은 상품 담기</Link>
