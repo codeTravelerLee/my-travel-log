@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import PaymentMethodButton from "../../components/payments/PaymentMethodButton";
 
+import toast from "react-hot-toast";
+import { payWithStripe } from "../../utils/axios/payments";
+
 const Payment = () => {
   const [payMethod, setPayMethod] = useState(null);
 
@@ -9,16 +12,19 @@ const Payment = () => {
     switch (payMethod) {
       case "Stripe":
         console.log("Stripe 결제 선택");
-        
+        payWithStripe();
         break;
+
       case "Toss":
-        console.log("Toss 결제 요청 보내기");
+        //TODO: Toss 결제 요청 보내기
         break;
+
       case "Kakao Pay":
-        console.log("Kakao Pay 결제 요청 보내기");
+        //TODO: Kakao Pay 결제 요청 보내기
         break;
+
       default:
-        console.log("결제수단을 선택해주세요.");
+        toast.error("결제수단을 선택해주세요.");
     }
   };
 
