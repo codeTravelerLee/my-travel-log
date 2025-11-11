@@ -3,16 +3,18 @@ import PaymentMethodButton from "../../components/payments/PaymentMethodButton";
 
 import toast from "react-hot-toast";
 import { payWithStripe } from "../../utils/axios/payments";
+import { useUserStore } from "../../store/useUserStore";
 
 const Payment = () => {
-  const [payMethod, setPayMethod] = useState(null);
+  const { authUser } = useUserStore();
 
   //버튼 누르면 각 결제수단으로 결제요청 보내기
-  const onPayBtnClick = () => {
+  const onPayBtnClick = async (payMethod) => {
     switch (payMethod) {
       case "Stripe":
         console.log("Stripe 결제 선택");
-        payWithStripe();
+        console.log("장바구니에 담긴 상품 데이터:", authUser.cartItems);
+        await payWithStripe(authUser.cartItems);
         break;
 
       case "Toss":
@@ -36,19 +38,26 @@ const Payment = () => {
         name="Stripe"
         bgColor="#635BFF"
         fontColor={"white"}
-        onClick={() => setPayMethod("Stripe")}
+        onClick={() => {
+          console.log("버튼 클릭됨.");
+          onPayBtnClick("Stripe");
+        }}
       />
       <PaymentMethodButton
         name="Toss"
         bgColor="#0064FF"
         fontColor={"white"}
-        onClick={() => setPayMethod("Toss")}
+        onClick={() => {
+          onPayBtnClick("Toss");
+        }}
       />
       <PaymentMethodButton
         name="Kakao Pay"
         bgColor="#FFEB00"
         fontColor={"black"}
-        onClick={() => setPayMethod("Toss")}
+        onClick={() => {
+          onPayBtnClick("Kakao Pay");
+        }}
       />
     </div>
   );

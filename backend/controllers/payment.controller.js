@@ -132,6 +132,7 @@ export const createCheckoutSession = async (req, res) => {
     res.status(200).json({
       message: "결제 세션이 생성되었습니다.",
       id: session.id,
+      url: session.url,
       totalAmount: totalAmount,
     });
   } catch (error) {

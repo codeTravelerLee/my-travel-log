@@ -1,20 +1,17 @@
 //장바구니 담은 상품을 모아서 보여주는 페이지
 
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import CartItemDisplay from "../../components/carts/CartItemDisplay";
 import { useUserStore } from "../../store/useUserStore";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { updateCartQuantity } from "../../utils/axios/carts";
 import TotalPriceView from "../../components/payments/TotalPriceView";
 
 const CartHome = () => {
   const { authUser, error, loading } = useUserStore();
+  const [cartItems, setCartItems] = useState([]);
 
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
     if (authUser?.cartItems) {

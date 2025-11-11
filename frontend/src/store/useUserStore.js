@@ -6,11 +6,9 @@ export const useUserStore = create((set) => ({
   authUser: null, //현재 로그인한 유저 정보
   loading: false,
   error: "",
-  cartItems: [], //현재 유저의 장바구니 상품들
 
   //setters
   setAuthUser: (user) => set({ authUser: user }),
-  setCartItems: (items) => set({ cartItems: items }),
 
   //현재 로그인한 유저 정보 불러오기
   fetchAuthUser: async () => {
@@ -44,11 +42,6 @@ export const useUserStore = create((set) => ({
       const addedProduct = response.data.addedProduct;
 
       console.log("장바구니에 담긴 상품:", addedProduct);
-
-      //장바구니 아이템 스토어에 반영
-      set({ cartItems: addedProduct });
-
-      console.log("added product looks like:", addedProduct);
 
       toast.success(`${addedProduct.productName}을 장바구니에 담았어요!`);
     } catch (error) {

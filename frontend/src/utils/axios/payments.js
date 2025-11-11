@@ -1,12 +1,9 @@
 //결제 요청
 
-import { useUserStore } from "../../store/useUserStore";
 import { stripePromise } from "../stripe/stripe";
 import axiosInstance from "./axios";
 
-const { cartItems } = useUserStore();
-
-export const payWithStripe = async () => {
+export const payWithStripe = async (cartItems) => {
   try {
     const stripe = await stripePromise;
 
@@ -18,8 +15,8 @@ export const payWithStripe = async () => {
       }
     );
 
-    const sessionId = response.data.id;
-    console.log("stripe결제 세션 생성됨:", sessionId);
+    //실제 결제 가능한 url로 리다이렉트
+    window.location.href = response.data.url;
   } catch (error) {
     console.error(error);
   }

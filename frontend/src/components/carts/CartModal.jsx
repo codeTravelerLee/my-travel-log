@@ -14,16 +14,14 @@ const CartModal = ({ isOpen, onClose, products }) => {
 
   const navigate = useNavigate();
 
-  const { fetchAuthUser, addToCart, loading, error, authUser } = useUserStore();
+  const { addToCart, loading, error, authUser } = useUserStore();
 
   //장바구니 담기 누르면
   const onAddToCart = async () => {
     if (confirm("장바구니를 담으시겠습니까?")) {
       try {
-        const user = await fetchAuthUser();
-
         //로그인되지 않은 경우
-        if (!user) {
+        if (!authUser) {
           toast.error("먼저 로그인을 해주세요");
           navigate("/logIn");
         }
