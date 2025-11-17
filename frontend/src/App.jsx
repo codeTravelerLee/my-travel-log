@@ -23,6 +23,7 @@ import { getCurrentUser } from "./utils/tanstack/getCurrentUser";
 import Payment from "./pages/payment/Payment";
 import { useUserStore } from "./store/useUserStore";
 import { useEffect } from "react";
+import PaymentSuccess from "./pages/payment/PaymentSuccess";
 
 function App() {
   //프론트엔드에서 protected route를 위한 <현재 로그인된 유저 정보 받아오기>
@@ -133,6 +134,11 @@ function App() {
           <Route
             path="/payment"
             element={authUser ? <Payment /> : <Navigate to={"/logIn"} />}
+          />
+          {/* 결제 성공 페이지 */}
+          <Route
+            path={`/payment-success`}
+            element={authUser ? <PaymentSuccess /> : <Navigate to={"/logIn"} />}
           />
         </Routes>
       </main>

@@ -101,6 +101,7 @@ export const createCheckoutSession = async (req, res) => {
       line_items: lineItems,
       mode: "payment",
       payment_method_types: ["card"],
+      //TODO: 결제 성공, 실패 페이지 개발 
       success_url: `${process.env.CLIENT_URI}/payment-success?session_id={{CHECKOUT_SESSION_ID}}`,
       cancel_url: `${process.env.CLIENT_URI}/payment-cancel`,
       discounts: coupon
