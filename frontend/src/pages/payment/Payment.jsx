@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import PaymentMethodButton from "../../components/payments/PaymentMethodButton";
 
 import toast from "react-hot-toast";
-import { payWithStripe } from "../../utils/axios/payments";
+import {
+  payWithStripe,
+  saveOrderAfterStripePayment,
+} from "../../utils/axios/payments";
 import { useUserStore } from "../../store/useUserStore";
 
 const Payment = () => {
@@ -15,6 +18,7 @@ const Payment = () => {
         console.log("Stripe 결제 선택");
         console.log("장바구니에 담긴 상품 데이터:", authUser.cartItems);
         await payWithStripe(authUser.cartItems);
+
         break;
 
       case "Toss":

@@ -1,5 +1,6 @@
 //결제 요청
 
+import toast from "react-hot-toast";
 import { stripePromise } from "../stripe/stripe";
 import axiosInstance from "./axios";
 
@@ -17,6 +18,34 @@ export const payWithStripe = async (cartItems) => {
 
     //실제 결제 가능한 url로 리다이렉트
     window.location.href = response.data.url;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+//stripe주문내역 저장
+export const saveOrderAfterStripePayment = async (sessionId) => {
+  try {
+    const response = await axiosInstance.post(
+      `/api/v1/payment/checkout-success-save-order`,
+      {
+        sessionId: sessionId,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+//stripe주문내역 불러오기
+export const getStripeOrderBySessionId = async (sessionId) => {
+  try {
+    const response = await axiosInstance.get(
+      `/api/v1/order/stripe-order/${sessionId}`
+    );
+
+    return response.data;
   } catch (error) {
     console.error(error);
   }

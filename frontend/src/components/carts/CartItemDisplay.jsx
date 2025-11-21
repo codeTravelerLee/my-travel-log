@@ -1,3 +1,4 @@
+import React from "react";
 import toast from "react-hot-toast";
 import { TiPlus, TiMinus } from "react-icons/ti";
 

@@ -1,7 +1,33 @@
 import React from "react";
+import {
+  getStripeOrderBySessionId,
+  saveOrderAfterStripePayment,
+} from "../../utils/axios/payments";
+import { useLocation } from "react-router-dom";
+import toast from "react-hot-toast";
 
-const PaymentSuccess = () => {
-  return <div>결제 성공 페이지 입니다. </div>;
+const PaymentSuccess = async () => {
+  //쿼리스트링에서 session_id추출
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  const sessionId = params.get("session_id");
+
+  //주문내역 저장
+  await saveOrderAfterStripePayment(sessionId);
+
+  //주문내역 불러오기
+  const { message, orderData } = await getStripeOrderBySessionId(sessionId);
+  toast.success(message);
+
+  console.log("order data:", orderData);
+
+  return (
+    <div className="flex flex-col justify-center items-center">
+      <p>주문이 성공적으로 완료되었어요!</p>
+      <div>주문한 상품들: {orderData.cartItems.map()}</div>
+      <p>총 주문금액: {orderData.totalAmount.toLocaleString("ko-kr")}원</p>
+    </div>
+  );
 };
 
 export default PaymentSuccess;

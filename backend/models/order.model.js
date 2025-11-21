@@ -1,4 +1,4 @@
-//결제를 위한 주문서 스키마
+//주문내역
 
 import mongoose from "mongoose";
 
@@ -9,7 +9,7 @@ const orderSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
-    // 결제할 상품들
+    // 결제한 상품들
     cartItems: [
       {
         productId: {

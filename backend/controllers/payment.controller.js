@@ -229,3 +229,4 @@ async function convertToStripeCoupon(discountType, discountValue) {
   const coupon = await stripe.coupons.create(couponData);
   return coupon.id;
 }
+
