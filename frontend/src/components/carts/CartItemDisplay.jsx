@@ -1,6 +1,7 @@
 import React from "react";
 import toast from "react-hot-toast";
 import { TiPlus, TiMinus } from "react-icons/ti";
+import { MdDeleteOutline } from "react-icons/md";
 
 const CartItemDisplay = ({
   image,
@@ -9,6 +10,7 @@ const CartItemDisplay = ({
   quantity,
   onIncreaseQuantity,
   onDecreaseQuantity,
+  onDeleteBtnClick,
 }) => {
   return (
     <div>
@@ -34,6 +36,12 @@ const CartItemDisplay = ({
               <TiMinus />
             </button>
           </div>
+        </div>
+        {/* 장바구니 담기 취소 */}
+        <div>
+          <button className="border rounded-sm p-1" onClick={onDeleteBtnClick}>
+            <MdDeleteOutline />
+          </button>
         </div>
       </div>
     </div>

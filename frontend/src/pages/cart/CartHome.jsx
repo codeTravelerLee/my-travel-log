@@ -51,6 +51,10 @@ const CartHome = () => {
     await updateCartQuantity(productId, -1);
   };
 
+  //장바구니 담기 취소
+  const handleDelete = async (productId) => {
+    setCartItems((prev) => prev.filter((item) => item.productId !== productId));
+  };
   return loading ? (
     <div className="flex flex-col items-center justify-center text-5xl font-bold">
       데이터를 불러오고 있어요. 조금만 기다려주세요!
@@ -68,6 +72,7 @@ const CartHome = () => {
               quantity={item.quantity}
               onIncreaseQuantity={() => handleIncrease(item.productId)}
               onDecreaseQuantity={() => handleDecrease(item.productId)}
+              onDeleteBtnClick={() => handleDelete(item.productId)}
             />
           ))}
         </div>
