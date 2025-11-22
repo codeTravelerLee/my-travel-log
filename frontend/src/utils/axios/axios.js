@@ -10,4 +10,9 @@ const axiosInstance = axios.create({
   withCredentials: true, //cookie
 });
 
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error) => {}
+);
+
 export default axiosInstance;

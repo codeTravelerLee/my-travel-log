@@ -96,6 +96,10 @@ const userSchema = mongoose.Schema(
           type: Number,
           default: 0,
         },
+        maxUsage: {
+          type: Number,
+          min: 0,
+        },
         //언제 발급받았는지
         issuedAt: {
           type: Date,

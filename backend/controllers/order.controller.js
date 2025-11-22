@@ -1,6 +1,5 @@
 //주문내역과 관련된 API
 
-import CartItemDisplay from "../../frontend/src/components/carts/CartItemDisplay.jsx";
 import Order from "../models/order.model.js";
 
 //stripe결제내역을 sessionId로 불러오기

@@ -101,8 +101,8 @@ export const createCheckoutSession = async (req, res) => {
       line_items: lineItems,
       mode: "payment",
       payment_method_types: ["card"],
-      //TODO: 결제 성공, 실패 페이지 개발 
-      success_url: `${process.env.CLIENT_URI}/payment-success?session_id={{CHECKOUT_SESSION_ID}}`,
+      //TODO: 결제 성공, 실패 페이지 개발
+      success_url: `${process.env.CLIENT_URI}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.CLIENT_URI}/payment-cancel`,
       discounts: coupon
         ? [
@@ -149,6 +149,15 @@ export const createCheckoutSession = async (req, res) => {
 export const saveOrderAfterPaymentSuccess = async (req, res) => {
   try {
     const { sessionId } = req.body;
+
+    // console.log("sessionId:", sessionId);
+
+    //이미 저장된 주문이면 종료
+    const existingOrder = await Order.findOne({ stripeSessionId: sessionId });
+    if (existingOrder) {
+      return res.status(400).json({ error: "이미 저장 완료된 주문건입니다." });
+    }
+
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status === "paid") {
@@ -156,16 +165,24 @@ export const saveOrderAfterPaymentSuccess = async (req, res) => {
       const user = await User.findById(session.metadata.userId).select(
         "-password"
       );
-      const couponToUse = user.coupons.find(
-        (c) => c.couponId.toString() === coupon._id.toString()
-      );
 
-      //쿠폰 사용횟수를 1증가시킴
-      if (couponToUse) {
-        couponToUse.usedCount += 1;
+      //결제에 적용한 쿠폰이 있는 경우
+      if (session.metadata.couponCode) {
+        const couponId = session.metadata.couponCode;
 
-        if (couponToUse.usedCount >= coupon.maxUsage) {
-          couponToUse.available = false;
+        const couponToUse = user.coupons?.find(
+          (c) => c.couponId.toString() === couponId?.toString()
+        );
+
+        //쿠폰 사용횟수를 1증가시킴
+        if (couponToUse) {
+          couponToUse.usedCount += 1;
+
+          const max = couponToUse.maxUsage ?? Infinity;
+
+          if (couponToUse.usedCount >= max) {
+            couponToUse.available = false;
+          }
         }
       }
 
@@ -174,12 +191,8 @@ export const saveOrderAfterPaymentSuccess = async (req, res) => {
       //주문내역 저장을 위한 주문내역 데이터 생성
       const products = JSON.parse(session.metadata.products); //배열임
 
-      const buyer = await User.findById(session.metadata.userId).select(
-        "-password"
-      );
-
       const newOrder = new Order({
-        user: buyer._id,
+        user: user._id,
         cartItems: products.map((product) => ({
           productId: product.id,
           quantity: product.quantity,
@@ -194,14 +207,10 @@ export const saveOrderAfterPaymentSuccess = async (req, res) => {
       return res.status(400).json({ error: "아직 결제가 되지 않았습니다." });
     }
 
-    res
-      .status(200)
-      .json({ message: "주문내역 저장 성공!", orderId: newOrder._id });
+    res.status(200).json({ message: "주문내역 저장 성공!" });
 
-    console.log("결제가 되지 않은 상품입니다.");
-    console.log(session.payment_status);
   } catch (error) {
-    console.error(error);
+    console.error("🔥 axios error:", error.response?.data || error);
     res.status(500).json({
       error: "internal server error. progress: saveOrderAfterPaymentSuccess",
     });
@@ -229,4 +238,3 @@ async function convertToStripeCoupon(discountType, discountValue) {
   const coupon = await stripe.coupons.create(couponData);
   return coupon.id;
 }
-

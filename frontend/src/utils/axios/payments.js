@@ -32,9 +32,14 @@ export const saveOrderAfterStripePayment = async (sessionId) => {
         sessionId: sessionId,
       }
     );
+
     return response.data;
   } catch (error) {
     console.error(error);
+    if (error.response?.status === 400) {
+      toast.error(error.response.data.error);
+      window.location.href = "/";
+    }
   }
 };
 
