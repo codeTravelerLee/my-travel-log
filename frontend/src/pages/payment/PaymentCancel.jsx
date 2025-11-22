@@ -4,6 +4,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 //TODO: 결제 취소시 제품의 재고를 늘려줘야 함
+//TODO: 결제취소 로직에서 고려해야할 모든경우의 수를 생각해볼것
 const PaymentCancel = () => {
   return (
     <div className="flex flex-col justify-center items-center text-5xl">

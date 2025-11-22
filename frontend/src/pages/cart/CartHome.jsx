@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import CartItemDisplay from "../../components/carts/CartItemDisplay";
 import { useUserStore } from "../../store/useUserStore";
 import { Link, useNavigate } from "react-router-dom";
-import { updateCartQuantity } from "../../utils/axios/carts";
+import { deleteFromcart, updateCartQuantity } from "../../utils/axios/carts";
 import TotalPriceView from "../../components/payments/TotalPriceView";
 
 const CartHome = () => {
@@ -54,7 +54,11 @@ const CartHome = () => {
   //장바구니 담기 취소
   const handleDelete = async (productId) => {
     setCartItems((prev) => prev.filter((item) => item.productId !== productId));
+
+    //DB에서도 지우기 위한 axios요청
+    await deleteFromcart(productId);
   };
+
   return loading ? (
     <div className="flex flex-col items-center justify-center text-5xl font-bold">
       데이터를 불러오고 있어요. 조금만 기다려주세요!
