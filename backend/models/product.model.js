@@ -36,6 +36,11 @@ const productSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
+    //상품의 재고
+    stock: {
+      type: Number,
+      min: 0,
+    },
   },
   { timestamps: true }
 );

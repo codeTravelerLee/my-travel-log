@@ -1,5 +1,8 @@
 import "./App.css";
+import { useEffect } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+
+import { Toaster } from "react-hot-toast";
 
 import HomePage from "./pages/home/HomePage";
 import SignUpPage from "./pages/auth/signUp/SignUpPage";
@@ -11,19 +14,18 @@ import ProductMain from "./pages/product/ProductMain";
 import AdminHome from "./pages/admin/AdminHome";
 import CartHome from "./pages/cart/CartHome";
 import ProductDetail from "./pages/product/ProductDetail";
+import PaymentSuccess from "./pages/payment/PaymentSuccess";
+import PaymentCancel from "./pages/payment/PaymentCancel";
+import Payment from "./pages/payment/Payment";
 
 import Sidebar from "./components/commons/SideBar";
 import RightPanel from "./components/commons/RightPannel";
 import LoadingSpinner from "./components/commons/LoadingSpinner";
 
-import { Toaster } from "react-hot-toast";
-
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUser } from "./utils/tanstack/getCurrentUser";
-import Payment from "./pages/payment/Payment";
+
 import { useUserStore } from "./store/useUserStore";
-import { useEffect } from "react";
-import PaymentSuccess from "./pages/payment/PaymentSuccess";
 
 function App() {
   //프론트엔드에서 protected route를 위한 <현재 로그인된 유저 정보 받아오기>
@@ -139,6 +141,11 @@ function App() {
           <Route
             path={`/payment-success`}
             element={authUser ? <PaymentSuccess /> : <Navigate to={"/logIn"} />}
+          />
+          {/* 결제 취소 페이지 */}
+          <Route
+            path={`/payment-scancel`}
+            element={authUser ? <PaymentCancel /> : <Navigate to={"/logIn"} />}
           />
         </Routes>
       </main>
