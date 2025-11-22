@@ -3,7 +3,7 @@
 //TODO: 장바구니 담기 구현
 
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useProductStore } from "../../store/useProductStore";
 
 import LoadingSpinner from "../../components/commons/LoadingSpinner";
@@ -13,6 +13,8 @@ import CartModal from "../../components/carts/CartModal";
 const ProductDetail = () => {
   const { id } = useParams(); //상품id
   const { fetchProductById, products, loading, error } = useProductStore();
+
+  const navigate = useNavigate();
 
   //장바구니 모달창
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -24,6 +26,11 @@ const ProductDetail = () => {
 
   //dev
   console.log("products", products);
+
+  //결제버튼 클릭시
+  const handlePayBtnClick = () => {
+    navigate(`/payment?productId=${products[0]._id}`);
+  };
 
   //에러 발생시
   if (error)
@@ -81,7 +88,12 @@ const ProductDetail = () => {
           >
             장바구니 담기
           </button>
-          <button className="border rounded-lg p-2 font-bold">결제</button>
+          <button
+            className="border rounded-lg p-2 font-bold"
+            onClick={handlePayBtnClick}
+          >
+            결제
+          </button>
         </div>
       </div>
 
