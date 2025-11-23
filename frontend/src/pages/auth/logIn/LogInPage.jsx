@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import LogoSvg from "../../../components/svgs/LogoSvg";
 
@@ -8,6 +7,7 @@ import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
 
 import toast from "react-hot-toast";
+import { useUserStore } from "../../../store/useUserStore";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -17,56 +17,14 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
 
-  const queryClient = useQueryClient();
+  const { logIn, loading, error } = useUserStore();
 
-  const { mutate, isPending, isError, error } = useMutation({
-    mutationFn: async ({ email, password }) => {
-      try {
-        const res = await fetch(
-          `${import.meta.env.VITE_SERVER_URI}/api/auth/logIn`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email, password }),
-            credentials: "include",
-          }
-        );
-
-        const response = await res.json();
-
-        //prettier-ignore
-        if (!res.ok || response.error) throw new Error(response.error || "알 수 없는 에러가 발생했습니다.");
-
-        console.log(`logged in user data: ${JSON.stringify(response)}`);
-
-        return response;
-      } catch (error) {
-        console.log(`error happend!: ${error}`);
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      //로그인 등 인증이 새롭게 될때마다, authUser키를 가진 쿼리의 기존 값은 무효화되고, 재수행되어 컴포넌트들이 최신 인증 정보를 갱신
-      queryClient.invalidateQueries({ queryKey: ["authUser"] });
-
-      toast.success("로그인 성공!");
-
-      navigate("/");
-
-      toast("환영해요!", {
-        icon: "👏",
-      });
-    },
-    onError: () => {
-      toast.error("다시 시도해주세요");
-    },
-  });
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    mutate(formData);
+    const user = await logIn(formData.email, formData.password);
+
+    navigate("/");
+    toast.success(`${user.userName}님, 환영해요!`);
   };
 
   const handleInputChange = (e) => {
@@ -107,10 +65,13 @@ const LoginPage = () => {
               value={formData.password}
             />
           </label>
-          <button className="btn rounded-full btn-primary text-white">
-            {isPending ? "Loading..." : "로그인"}
+          <button
+            className="btn rounded-full btn-primary text-white"
+            disabled={loading}
+          >
+            {loading ? "Loading..." : "로그인"}
           </button>
-          {isError && <p className="text-red-500">{error.message}</p>}
+          {error && <p className="text-red-500">{error.message}</p>}
         </form>
         <div className="flex flex-col gap-2 mt-4">
           <p className="text-white text-lg">처음이신가요?</p>

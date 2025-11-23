@@ -120,18 +120,12 @@ export const logIn = async (req, res) => {
     //토큰 발급
     generateTokenAndSetCookie(user._id, res);
 
+    const userData = user.toObject();
+    delete userData.password;
+
     res.status(201).json({
       message: `${user.userName}님, 환영해요!`,
-      _id: user._id,
-      fullName: user.fullName,
-      userName: user.userName,
-      email: user.email,
-      followers: user.followers,
-      following: user.following,
-      profileImg: user.profileImg,
-      coverImg: user.coverImg,
-      role: user.role,
-      cartItems: user.cartItems,
+      user: userData,
     });
   } catch (error) {
     console.error(`error while logging in.. error: ${error.messaage}`);

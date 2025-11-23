@@ -22,26 +22,18 @@ import Sidebar from "./components/commons/SideBar";
 import RightPanel from "./components/commons/RightPannel";
 import LoadingSpinner from "./components/commons/LoadingSpinner";
 
-import { useQuery } from "@tanstack/react-query";
-import { getCurrentUser } from "./utils/tanstack/getCurrentUser";
-
 import { useUserStore } from "./store/useUserStore";
 
 function App() {
-  //프론트엔드에서 protected route를 위한 <현재 로그인된 유저 정보 받아오기>
-  const { data: authUser, isLoading } = useQuery({
-    queryKey: ["authUser"],
-    queryFn: getCurrentUser,
-    retry: false, //fetching 실패해도 재요청 안보냄
-  });
-
-  const { setAuthUser } = useUserStore();
+  const { fetchAuthUser, authUser, loading } = useUserStore();
 
   useEffect(() => {
-    if (authUser) {
-      setAuthUser(authUser);
-    }
-  }, [authUser, setAuthUser]);
+    const fetchUser = async () => {
+      await fetchAuthUser();
+    };
+    //zustand로 현재 로그인한 유저 정보를 불러옴
+    fetchUser();
+  }, [authUser, fetchAuthUser]);
 
   //rightPanel을 숨길 경로 지정
   const location = useLocation();
@@ -60,7 +52,7 @@ function App() {
     return pathname.includes(path);
   });
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="h-screen flex justify-center items-center">
         <LoadingSpinner size="lg" />
@@ -76,7 +68,7 @@ function App() {
           <Route
             path="/"
             element={
-              !isLoading && authUser ? <HomePage /> : <Navigate to={"/logIn"} />
+              !loading && authUser ? <HomePage /> : <Navigate to={"/logIn"} />
             }
           />
           <Route

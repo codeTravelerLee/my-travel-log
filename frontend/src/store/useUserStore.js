@@ -10,6 +10,27 @@ export const useUserStore = create((set) => ({
   //setters
   setAuthUser: (user) => set({ authUser: user }),
 
+  logIn: async (email, password) => {
+    set({ loading: true });
+    try {
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_SERVER_URI}/api/auth/logIn`,
+        { email, password }
+      );
+
+      const userData = response.data.user;
+
+      set({ authUser: userData });
+
+      return userData;
+    } catch (error) {
+      console.error(error);
+      set({ error: error?.response?.data?.error || error });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
   //현재 로그인한 유저 정보 불러오기
   fetchAuthUser: async () => {
     set({ loading: true });
