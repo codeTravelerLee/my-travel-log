@@ -144,7 +144,7 @@ function App() {
           />
           {/* 결제 취소 페이지 */}
           <Route
-            path={`/payment-scancel`}
+            path={`/payment-cancel`}
             element={authUser ? <PaymentCancel /> : <Navigate to={"/logIn"} />}
           />
         </Routes>

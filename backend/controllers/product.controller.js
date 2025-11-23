@@ -111,7 +111,7 @@ export const getFeaturedProducts = async (req, res) => {
 // 판매할 상품을 등록 (sellerRoute를 거침)
 export const createProduct = async (req, res) => {
   try {
-    const { name, description, price, category, isFeatured } = req.body;
+    const { name, description, price, category, isFeatured, stock } = req.body;
     let { image } = req.body;
 
     //필수속성들이 다 있는지 체크
@@ -133,6 +133,7 @@ export const createProduct = async (req, res) => {
       price: price,
       image: image,
       category: category,
+      stock: stock,
       isFeatured: isFeatured,
       seller: req.user._id, //판매자 -> 현재 사장님 회원의 id(해당 컨트롤러는 sellerRoute를 거치므로)
     };

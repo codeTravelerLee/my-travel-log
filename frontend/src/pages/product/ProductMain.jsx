@@ -179,6 +179,7 @@ const ProductMain = () => {
                 price={product.price}
                 image={product.image}
                 category={product.category}
+                stock={product.stock}
                 id={product._id}
               />
             ))}

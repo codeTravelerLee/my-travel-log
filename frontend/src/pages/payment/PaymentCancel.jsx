@@ -7,10 +7,16 @@ import { Link } from "react-router-dom";
 //TODO: 결제취소 로직에서 고려해야할 모든경우의 수를 생각해볼것
 const PaymentCancel = () => {
   return (
-    <div className="flex flex-col justify-center items-center text-5xl">
+    <div className="flex flex-col gap-10 justify-center items-center text-5xl h-full">
       <p>결제가 취소되었습니다.</p>
-      <Link to={"/carts"}>장바구니 보기</Link>
-      <Link to={"/"}>홈으로</Link>
+      <div className="flex gap-2">
+        <Link to={"/carts"}>
+          <p className="border rounded-lg p-3 text-2xl hover:cursor-pointer hover:bg-white hover:text-black">장바구니 보기</p>
+        </Link>
+        <Link to={"/"}>
+          <p className="border rounded-lg p-3 text-2xl hover:cursor-pointer hover:bg-white hover:text-black">홈으로 </p>
+        </Link>
+      </div>
     </div>
   );
 };

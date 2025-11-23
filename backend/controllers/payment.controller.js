@@ -166,6 +166,15 @@ export const saveOrderAfterPaymentSuccess = async (req, res) => {
         "-password"
       );
 
+      //TODO: 상품 재고를 구입량만큼 차감
+      for (const item of session.metadata.products) {
+        await Product.findByIdAndUpdate(
+          { productId: item.id },
+          { $inc: { stock: -item.quantity } },
+          { new: true }
+        );
+      }
+
       //결제에 적용한 쿠폰이 있는 경우
       if (session.metadata.couponCode) {
         const couponId = session.metadata.couponCode;
@@ -208,7 +217,6 @@ export const saveOrderAfterPaymentSuccess = async (req, res) => {
     }
 
     res.status(200).json({ message: "주문내역 저장 성공!" });
-
   } catch (error) {
     console.error("🔥 axios error:", error.response?.data || error);
     res.status(500).json({

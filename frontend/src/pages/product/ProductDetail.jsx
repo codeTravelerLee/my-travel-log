@@ -84,15 +84,16 @@ const ProductDetail = () => {
         <div className="flex flex-row gap-2 justify-center items-center hover:cursor-pointer">
           <button
             onClick={() => setIsCartOpen(true)}
-            className="border rounded-lg p-2 font-bold"
+            className="border rounded-lg p-2 font-bold  hover:bg-black hover:text-white"
           >
             장바구니 담기
           </button>
           <button
-            className="border rounded-lg p-2 font-bold"
+            className="border rounded-lg p-2 font-bold hover:bg-black hover:text-white"
             onClick={handlePayBtnClick}
+            disabled={products[0].stock === 0}
           >
-            결제
+            {products[0].stock === 0 ? "품절" : "결제"}
           </button>
         </div>
       </div>
