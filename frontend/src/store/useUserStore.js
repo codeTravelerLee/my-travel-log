@@ -6,6 +6,7 @@ export const useUserStore = create((set) => ({
   authUser: null, //현재 로그인한 유저 정보
   loading: false,
   error: "",
+  orders: [], //주문내역
 
   //setters
   setAuthUser: (user) => set({ authUser: user }),
@@ -68,6 +69,24 @@ export const useUserStore = create((set) => ({
     } catch (error) {
       console.error(error.message);
       set({ error: error?.response?.data?.error });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  //주문내역 불러오기
+  fetchOrderHistory: async () => {
+    set({ loading: true });
+    try {
+      const response = await axiosInstance.get("/api/v1/order/order-history");
+      const orderHistoryData = response.data.orderData;
+
+      set({ orders: orderHistoryData });
+
+      return orderHistoryData;
+    } catch (error) {
+      console.error("주문내역 불러오는 도중 에러 발생:", error.message);
+      set({ error: error?.response?.data?.error || error });
     } finally {
       set({ loading: false });
     }

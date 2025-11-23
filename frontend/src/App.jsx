@@ -17,6 +17,7 @@ import ProductDetail from "./pages/product/ProductDetail";
 import PaymentSuccess from "./pages/payment/PaymentSuccess";
 import PaymentCancel from "./pages/payment/PaymentCancel";
 import Payment from "./pages/payment/Payment";
+import OrderHistoryPage from "./pages/order/OrderHistoryPage";
 
 import Sidebar from "./components/commons/SideBar";
 import RightPanel from "./components/commons/RightPannel";
@@ -138,6 +139,13 @@ function App() {
           <Route
             path={`/payment-cancel`}
             element={authUser ? <PaymentCancel /> : <Navigate to={"/logIn"} />}
+          />
+          {/* 주문내역 목록 페이지 */}
+          <Route
+            path={"/order-history"}
+            element={
+              authUser ? <OrderHistoryPage /> : <Navigate to={"/logIn"} />
+            }
           />
         </Routes>
       </main>

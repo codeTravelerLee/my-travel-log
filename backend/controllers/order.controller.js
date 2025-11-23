@@ -20,3 +20,20 @@ export const getOrderByStripeSessionId = async (req, res) => {
     res.status(500).json({ error: "internal server error" });
   }
 };
+
+//사용자의 주문내역을 사용자 id로 불러오기
+export const getOrderHistoryByUserId = async () => {
+  try {
+    const orderHistoryArray = await Order.find({ user: req.user._id }).populate(
+      { path: "cartItems.productId", select: "name image" }
+    );
+
+    res.status(200).json({
+      message: "주문내역을 불러왔어요!",
+      orderData: orderHistoryArray,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "internal server error" });
+  }
+};
