@@ -10,7 +10,7 @@ const axiosInstance = axios.create({
   withCredentials: true, //cookie
 });
 
-//액세스 토큰 갱신 
+//액세스 토큰 갱신
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -20,12 +20,10 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        await axios.post(
-          `${import.meta.env.VITE_SERVER_URI}/api/auth/refreshToken`,
-          {},
-          { withCredentials: true }
-        );
+        // AxiosInstance 사용
+        await axiosInstance.post("/api/auth/refreshToken");
 
+        // 재요청
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         return Promise.reject(refreshError);

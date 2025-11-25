@@ -5,39 +5,43 @@ import { useUserStore } from "../../store/useUserStore";
 import OrderItemDisplay from "../../components/orders/OrderItemDisplay";
 
 const OrderHistoryPage = () => {
-  const { fetchOrderHistory, loading, error, authUser } = useUserStore();
-
-  //zustand로 받아온 데이터를 local-state로 받아옴
-  const [orderHistoryDataArray, setOrderHistoryDataArray] = useState([]);
+  const fetchOrderHistory = useUserStore((state) => state.fetchOrderHistory);
+  const orders = useUserStore((state) => state.orders);
 
   //결제내역을 불러옴
+  //FIXME:  orders가 빈 배열임, 무한로딩 뜸
   useEffect(() => {
     const fetchOrder = async () => {
       await fetchOrderHistory();
+      console.log("결제내역을 불러오고 있어요.");
     };
-
-    const orders = fetchOrder();
-    setOrderHistoryDataArray(orders);
-  }, [fetchOrderHistory, authUser]);
+    fetchOrder();
+    console.log("orders array:", orders);
+  }, []);
 
   return (
     //결제내역을 카드 형태로 display.
-    //FIXME: 각각의 결제 안에는 여러 상품이 있을 수 있음. 고로 배열을 다루도록 변경 필요
     <div>
-      {orderHistoryDataArray.map((order) =>
-        order.cartItems.map((item, idx) => (
-          <OrderItemDisplay
-            key={idx}
-            name={item.name}
-            image={item.image}
-            quantity={item.quantity}
-            price={item.price}
-            totalAmount={order.totalAmount}
-            createdAt={order.createdAt}
-          />
-        ))
-      )}
-      ))
+      <div>
+        {orders.length === 0 && (
+          <p className="flex justify-center items-center text-2xl text-center font-bold">
+            주문내역이 없습니다.
+          </p>
+        )}
+        {orders.map((order) =>
+          order.cartItems?.map((item, idx) => (
+            <OrderItemDisplay
+              key={idx}
+              name={item.name}
+              image={item.image}
+              quantity={item.quantity}
+              price={item.price}
+              totalAmount={order.totalAmount}
+              createdAt={order.createdAt}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 };

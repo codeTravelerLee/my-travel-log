@@ -4,6 +4,7 @@ import { protectedRoute } from "../middleware/protectedRoute.js";
 import {
   getOrderByStripeSessionId,
   getOrderHistoryByUserId,
+  deleteOrderHistory
 } from "../controllers/order.controller.js";
 
 const router = express.Router();
@@ -18,4 +19,7 @@ router.get(
 //사용자id로 주문내역 불러오기
 router.get("/order-history", protectedRoute, getOrderHistoryByUserId);
 
+
+//주문내역 삭제(soft-delete)
+router.delete(`/order-history`, protectedRoute, deleteOrderHistory)
 export default router;

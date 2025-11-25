@@ -26,7 +26,7 @@ export const generateTokenAndSetCookie = (userId, res) => {
   res.cookie("access_token", accessToken, {
     maxAge: 15 * 60 * 1000, //밀리초이므로 15분
     httpOnly: true, //XSS방지
-    sameSite: "strict", //CSRF방지
+    sameSite: process.env.NODE_ENV === "development" ? "lax" : "strict", //CSRF방지
     secure: process.env.NODE_ENV !== "development", //프로덕션 환경에서만 https
   });
 
@@ -34,7 +34,7 @@ export const generateTokenAndSetCookie = (userId, res) => {
   res.cookie("refresh_token", refreshToken, {
     maxAge: 7 * 24 * 60 * 60 * 1000, //7일
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: process.env.NODE_ENV === "development" ? "lax" : "strict",
     secure: process.env.NODE_ENV !== "development",
   });
 };
