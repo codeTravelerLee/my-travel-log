@@ -31,6 +31,7 @@ const OrderHistoryPage = () => {
         {orders.map((order) =>
           order.cartItems?.map((item, idx) => (
             <OrderItemDisplay
+              id={order._id}
               key={idx}
               name={item.name}
               image={item.image}

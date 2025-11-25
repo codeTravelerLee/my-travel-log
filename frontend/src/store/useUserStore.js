@@ -126,4 +126,22 @@ export const useUserStore = create((set) => ({
       set({ loading: false });
     }
   },
+
+  //주문내역 삭제(soft delete)
+  deleteOrderHistory: async (id) => {
+    set({ loading: true });
+    try {
+      const response = await axiosInstance.patch(
+        `/api/v1/order/order-history`,
+        { id }
+      );
+
+      return response.data.result;
+    } catch (error) {
+      console.error(error);
+      set({ error: error?.response?.data?.error || error });
+    } finally {
+      set({ loading: false });
+    }
+  },
 }));

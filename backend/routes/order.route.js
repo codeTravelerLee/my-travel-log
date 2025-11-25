@@ -21,5 +21,5 @@ router.get("/order-history", protectedRoute, getOrderHistoryByUserId);
 
 
 //주문내역 삭제(soft-delete)
-router.delete(`/order-history`, protectedRoute, deleteOrderHistory)
+router.patch(`/order-history`, protectedRoute, deleteOrderHistory)
 export default router;

@@ -42,5 +42,20 @@ export const getOrderHistoryByUserId = async (req, res) => {
   }
 };
 
-//주문내역 삭제
-export const deleteOrderHistory = async (req, res) => {};
+//주문내역 삭제 - flag를 이용한 soft delete
+export const deleteOrderHistory = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    const updatedOrderStatus = await Order.findByIdAndUpdate(
+      id,
+      { isDeleted: true },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "삭제 성공", result: updatedOrderStatus });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "internal server error" });
+  }
+};
