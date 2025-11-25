@@ -10,6 +10,7 @@ import { FaUser } from "react-icons/fa";
 import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
 import toast from "react-hot-toast";
+import { useUserStore } from "../../../store/useUserStore";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -22,61 +23,19 @@ const SignUpPage = () => {
 
   const navigate = useNavigate();
 
-  // const queryClient = new QueryClient();
+  const { signUp } = useUserStore();
 
-  const { mutate, isError, isPending, error } = useMutation({
-    mutationFn: async ({
-      email,
-      userName,
-      fullName,
-      password,
-      passwordConfirm,
-    }) => {
-      try {
-        const res = await fetch(
-          `${import.meta.env.VITE_SERVER_URI}/api/auth/signUp`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email,
-              userName,
-              fullName,
-              password,
-              passwordConfirm,
-            }),
-            credentials: "include", //토큰이 담긴 쿠키를 받아오기 위함
-          }
-        );
-
-        const response = await res.json();
-
-        if (!res.ok || response.error) {
-          throw new Error(response.error || "에러 발생");
-        }
-
-        //에러 없다면
-        console.log(`data looks like: ${JSON.stringify(response)}`);
-
-        return response;
-      } catch (error) {
-        console.log(error);
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      toast.success("회원가입 성공!");
-      navigate("/");
-      toast("환영해요!", {
-        icon: "👏",
-      });
-    },
-  });
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    mutate(formData);
-    console.log(formData);
+    try {
+      await signUp(formData);
+      console.log(formData);
+      toast.success("회원가입이 완료되었어요");
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+      toast.error("다시 시도해주세요!");
+    }
   };
 
   const handleInputChange = (e) => {

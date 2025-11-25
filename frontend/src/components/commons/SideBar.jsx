@@ -1,13 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
-
-import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
-
+import { Link } from "react-router-dom";
+import { useUserStore } from "../../store/useUserStore";
 import toast from "react-hot-toast";
-
-import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
 
 import { MdHomeFilled } from "react-icons/md";
 import { IoNotifications } from "react-icons/io5";
+import { FaHistory } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { BiLogOut } from "react-icons/bi";
 import { FaShoppingBag } from "react-icons/fa";
@@ -17,45 +14,19 @@ import { RiAdminLine } from "react-icons/ri";
 const Sidebar = () => {
   // const navigate = useNavigate(); //app.jsx의 조건부 렌더링으로 대체
 
-  const queryClient = useQueryClient();
+  const { authUser, logOut } = useUserStore();
 
-  const { mutate: logOutMutate } = useMutation({
-    //로그아웃
-    mutationFn: async () => {
+  //로그아웃 아이콘 클릭시
+  const onLogOutBtnClick = async () => {
+    if (confirm("정말 로그아웃 하실건가요?")) {
       try {
-        const res = await fetch(
-          `${import.meta.env.VITE_SERVER_URI}/api/auth/logOut`,
-          {
-            method: "POST",
-            credentials: "include", //쿠키를 주고받기 때문(로그아웃은 쿠키의 유효기간을 0으로 하는 것)
-          }
-        );
-
-        //prettier-ignore
-        if(!res.ok) throw new Error("알 수 없는 에러가 발생하였습니다.")
+        await logOut();
+        toast.success("로그아웃 되었어요");
       } catch (error) {
-        console.log(`error logging out: ${error}`);
-        throw error;
+        toast.error("다시 시도해주세요!");
       }
-    },
-    onSuccess: () => {
-      //로그아웃 했으니 인증정보 무효화(authUser키를 가진 query를 재수행함)
-      queryClient.invalidateQueries({ queryKey: ["authUser"] });
-
-      toast.success("로그아웃 되었습니다.");
-
-      // navigate("/signUp"); //어차피 App.jsx에서 자동이동되도록 설정
-    },
-    onError: () => {
-      toast.error("다시 시도해 주세요.");
-    },
-  });
-
-  //전역 상태에서 데이터 가져오기
-  const { data: authUser } = useQuery({
-    queryKey: ["authUser"],
-    queryFn: getCurrentUser,
-  });
+    }
+  };
 
   return (
     // 고정 너비로 설정하고 플렉스에서 줄어들지 않도록 설정
@@ -113,6 +84,15 @@ const Sidebar = () => {
               <span className="text-lg hidden md:block">프로필</span>
             </Link>
           </li>
+          <li className="flex justify-center md:justify-start">
+            <Link
+              to={`/order-history`}
+              className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer"
+            >
+              <FaHistory className="w-6 h-6" />
+              <span className="text-lg hidden md:block">주문내역</span>
+            </Link>
+          </li>
           {/* 판매자 권한일 경우에만 가게 관리 탭 노출  */}
           {authUser.role === "seller" ? (
             <li className="flex justify-center md:justify-start">
@@ -164,9 +144,7 @@ const Sidebar = () => {
             </Link>
             <BiLogOut
               className="w-5 h-5 cursor-pointer"
-              onClick={() => {
-                if (confirm("정말 로그아웃 하실건가요?")) logOutMutate();
-              }}
+              onClick={onLogOutBtnClick}
             />
           </>
         )}

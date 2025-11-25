@@ -7,19 +7,16 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
+
 import { formatDateForPost } from "../../utils/date/formatDateForPost.js";
 import LoadingSpinner from "../commons/LoadingSpinner.jsx";
+import { useUserStore } from "../../store/useUserStore.js";
 
 const Post = ({ post, feedType }) => {
   const [comment, setComment] = useState("");
   const postOwner = post.writer;
 
-  //현재 로그인된 계정 정보 가져옴
-  const { data: currentUser } = useQuery({
-    queryKey: ["authUser"],
-    queryFn: getCurrentUser,
-  });
+  const { authUser: currentUser } = useUserStore();
 
   //내가 이 글에 좋아요를 눌렀는지 체크
   const isLiked = currentUser ? post.likes.includes(currentUser._id) : false;

@@ -1,10 +1,11 @@
 import { CiImageOn } from "react-icons/ci";
-import { BsEmojiSmileFill } from "react-icons/bs";
+
 import { useRef, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { getCurrentUser } from "../../utils/tanstack/getCurrentUser";
+
+import { useUserStore } from "../../store/useUserStore";
 
 const CreatePost = () => {
   const [text, setText] = useState("");
@@ -15,10 +16,7 @@ const CreatePost = () => {
   const queryClient = useQueryClient();
 
   //현재 로그인된 유저의 정보 -> 프로필 사진을 표시하기 위함.
-  const { data: currentUser } = useQuery({
-    queryKey: ["authUser"],
-    queryFn: getCurrentUser,
-  });
+  const { authUser: currentUser } = useUserStore();
 
   const {
     mutate: createPost,

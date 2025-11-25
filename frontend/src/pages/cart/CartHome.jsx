@@ -53,10 +53,14 @@ const CartHome = () => {
 
   //장바구니 담기 취소
   const handleDelete = async (productId) => {
-    setCartItems((prev) => prev.filter((item) => item.productId !== productId));
+    if (confirm("장바구니 담기를 취소할까요?")) {
+      setCartItems((prev) =>
+        prev.filter((item) => item.productId !== productId)
+      );
 
-    //DB에서도 지우기 위한 axios요청
-    await deleteFromcart(productId);
+      //DB에서도 지우기 위한 axios요청
+      await deleteFromcart(productId);
+    }
   };
 
   return loading ? (

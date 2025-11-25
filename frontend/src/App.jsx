@@ -34,7 +34,7 @@ function App() {
     };
     //zustand로 현재 로그인한 유저 정보를 불러옴
     fetchUser();
-  }, [authUser, fetchAuthUser]);
+  }, []);
 
   //rightPanel을 숨길 경로 지정
   const location = useLocation();

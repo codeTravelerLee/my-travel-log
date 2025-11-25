@@ -11,6 +11,23 @@ export const useUserStore = create((set) => ({
   //setters
   setAuthUser: (user) => set({ authUser: user }),
 
+  signUp: async (userName, fullName, email, password, passwordConfirm) => {
+    set({ loading: true });
+    try {
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_SERVER_URI}/api/auth/signUp`,
+        { userName, fullName, email, password, passwordConfirm }
+      );
+
+      return response.data.data;
+    } catch (error) {
+      console.error(error);
+      set({ error: error?.response?.data?.error || error });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
   logIn: async (email, password) => {
     set({ loading: true });
     try {
@@ -24,6 +41,24 @@ export const useUserStore = create((set) => ({
       set({ authUser: userData });
 
       return userData;
+    } catch (error) {
+      console.error(error);
+      set({ error: error?.response?.data?.error || error });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  logOut: async () => {
+    set({ loading: true });
+    try {
+      const response = await axiosInstance.post(
+        `${import.meta.env.VITE_SERVER_URI}/api/auth/logOut`,
+        {}
+      );
+      set({ authUser: null });
+
+      return response.data.message;
     } catch (error) {
       console.error(error);
       set({ error: error?.response?.data?.error || error });
