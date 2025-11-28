@@ -30,7 +30,9 @@ export const getOrderHistoryByUserId = async (req, res) => {
     const orderHistoryArray = await Order.find({
       user: req.user._id,
       isDeleted: false,
-    }).populate({ path: "cartItems.productId", select: "name image" });
+    })
+      .populate({ path: "cartItems.productId", select: "name image" })
+      .lean();
 
     res.status(200).json({
       message: "주문내역을 불러왔어요!",

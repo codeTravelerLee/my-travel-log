@@ -111,19 +111,14 @@ export const useUserStore = create((set) => ({
 
   //주문내역 불러오기
   fetchOrderHistory: async () => {
-    set({ loading: true });
     try {
-      const response = await axiosInstance.get("/api/v1/order/order-history");
-      const orderHistoryData = response.data.orderData;
+      const res = await axiosInstance.get("/api/v1/order/order-history");
+      const data = res.data.orderData;
 
-      set({ orders: orderHistoryData });
-
-      return orderHistoryData;
-    } catch (error) {
-      console.error("주문내역 불러오는 도중 에러 발생:", error.message);
-      set({ error: error?.response?.data?.error || error });
-    } finally {
-      set({ loading: false });
+      set({ orders: data });
+    } catch (err) {
+      console.error(err);
+      set({ error: err.message });
     }
   },
 

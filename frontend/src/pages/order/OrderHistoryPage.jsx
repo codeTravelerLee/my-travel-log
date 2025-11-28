@@ -3,27 +3,30 @@
 import React, { useEffect, useState } from "react";
 import { useUserStore } from "../../store/useUserStore";
 import OrderItemDisplay from "../../components/orders/OrderItemDisplay";
+import { useShallow } from "zustand/react/shallow";
 
 const OrderHistoryPage = () => {
-  const fetchOrderHistory = useUserStore((state) => state.fetchOrderHistory);
-  const orders = useUserStore((state) => state.orders);
+  const { fetchOrderHistory, orders } = useUserStore(
+    useShallow((state) => ({
+      fetchOrderHistory: state.fetchOrderHistory,
+      orders: state.orders,
+    }))
+  );
 
   //결제내역을 불러옴
-  //FIXME:  orders가 빈 배열임, 무한로딩 뜸
   useEffect(() => {
-    const fetchOrder = async () => {
-      await fetchOrderHistory();
-      console.log("결제내역을 불러오고 있어요.");
-    };
-    fetchOrder();
-    console.log("orders array:", orders);
+    fetchOrderHistory();
   }, []);
+
+  useEffect(() => {
+    console.log("orders array:", orders);
+  }, [orders]);
 
   return (
     //결제내역을 카드 형태로 display.
     <div>
-      <div>
-        {orders.length === 0 && (
+      <div className="h-full">
+        {orders?.length === 0 && (
           <p className="flex justify-center items-center text-2xl text-center font-bold">
             주문내역이 없습니다.
           </p>
