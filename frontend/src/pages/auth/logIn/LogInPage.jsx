@@ -73,13 +73,22 @@ const LoginPage = () => {
           </button>
           {error && <p className="text-red-500">{error.message}</p>}
         </form>
-        <div className="flex flex-col gap-2 mt-4">
-          <p className="text-white text-lg">처음이신가요?</p>
-          <Link to="/signUp">
-            <button className="btn rounded-full btn-primary text-white btn-outline w-full">
-              회원가입 하기
-            </button>
-          </Link>
+
+        <div className="flex flex-col">
+          <div className="flex justify-center items-center gap-2 mt-4">
+            <Link to="/signUp">
+              <p className="text-white text-lg underline hover:cursor-pointer hover:text-yellow-200">
+                처음이신가요?
+              </p>
+            </Link>
+          </div>
+          <div className="flex justify-center items-center gap-2 mt-4">
+            <Link to="/reset-password">
+              <p className="text-white text-lg underline hover:cursor-pointer hover:text-yellow-200">
+                비밀번호를 잊으셨나요?
+              </p>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

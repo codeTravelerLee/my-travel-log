@@ -24,6 +24,7 @@ import RightPanel from "./components/commons/RightPannel";
 import LoadingSpinner from "./components/commons/LoadingSpinner";
 
 import { useUserStore } from "./store/useUserStore";
+import ResetPasswordPage from "./pages/auth/logIn/ResetPasswordPage";
 
 function App() {
   const { fetchAuthUser, authUser, loading } = useUserStore();
@@ -47,6 +48,8 @@ function App() {
     "/admin",
     "/carts",
     "/payment",
+    "/order",
+    "/reset",
   ];
 
   const shouldHideRightPanel = hideRightPanelRoutes.some((path) => {
@@ -79,6 +82,10 @@ function App() {
           <Route
             path="/logIn"
             element={!authUser ? <LogInPage /> : <Navigate to={"/"} />}
+          />
+          <Route
+            path="/reset-password"
+            element={!authUser ? <ResetPasswordPage /> : <Navigate to={"/"} />}
           />
           <Route
             path="/profile/:userName"
