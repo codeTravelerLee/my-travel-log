@@ -15,7 +15,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     try {
       const result = await forgotPassword(email);
-      toast.success(result.message);
+      toast.success("회원님의 이메일로 재설정 링크를 보냈어요!");
     } catch (error) {
       toast.error("다시 시도해주세요.");
     }

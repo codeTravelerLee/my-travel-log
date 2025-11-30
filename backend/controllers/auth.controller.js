@@ -3,6 +3,7 @@ import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 import User from "../models/user.model.js";
 
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 
 //회원가입
 export const signUp = async (req, res) => {
@@ -278,7 +279,7 @@ export const resetPassword = async (req, res) => {
       resetToken,
       process.env.RESET_PASSWORD_TOKEN_SECRET
     );
-    
+
     const userId = decoded.userId;
 
     //레디스에서 토큰 존재 여부 확인
