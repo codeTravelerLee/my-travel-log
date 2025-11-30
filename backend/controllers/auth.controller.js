@@ -200,3 +200,111 @@ export const refreshAccessToken = async (req, res) => {
     res.status(500).json({ error: `internal server error: ${error.message}` });
   }
 };
+
+//비밀번호 재설정을 위한 유저 검증 및 이메일 전송
+export const forgotPassword = async (req, res) => {
+  const TOKEN_EXPIRATION_SECONDS = 3600; //reset token 만료시간 1시간
+
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email: email });
+
+    if (!user)
+      return res
+        .status(400)
+        .json({ error: "해당 이메일로 가입된 사용자가 없어요." });
+
+    //해당 이메일로 가입된 사용자가 존재하는 경우
+    //비밀번호 재설정 토큰 생성
+    const resetToken = jwt.sign(
+      { userId: user._id },
+      process.env.RESET_PASSWORD_TOKEN_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    //redis에 refresh token저장
+    await redis.set(resetToken, user._id, { EX: TOKEN_EXPIRATION_SECONDS });
+
+    console.log(`Generated token for ${user.email}: ${token}`);
+
+    //비밀번호 재설정 링크 생성
+    const resetLink = `${process.env.CLIENT_URI}/reset-password?token=${resetToken}`;
+
+    //nodemailer로 이메일 전송
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: `"마이트래블로그" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "[마이트래블로그]비밀번호 재설정 안내",
+      html: `
+                <h2>비밀번호 재설정 요청</h2>
+                <p>안녕하세요. 귀하의 비밀번호 재설정을 위해 이 이메일을 보냅니다.</p>
+                <p>아래 링크를 클릭하여 비밀번호를 재설정하십시오. 이 링크는 1시간 동안만 유효합니다.</p>
+                <a href="${resetLink}" style="background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                    비밀번호 재설정
+                </a>
+                <p>만약 본인이 요청하지 않았다면 이 이메일을 무시하십시오.</p>
+                <p>링크: ${resetLink}</p>
+            `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({
+      message: "비밀번호 재설정 링크가 이메일로 전송되었어요.",
+      resetLink: resetLink, //개발 편의를 위해 응답에 포함. 실제 서비스에서는 제외
+    });
+  } catch (error) {
+    console.error(`error while processing forgot password.. ${error.message}`);
+    res.status(500).json({ error: "internal server error" });
+  }
+};
+
+//비밀번호 재설정
+export const resetPassword = async (req, res) => {
+  try {
+    const { resetToken, newPassword } = req.body;
+
+    //토큰 검증
+    const decoded = jwt.verify(
+      resetToken,
+      process.env.RESET_PASSWORD_TOKEN_SECRET
+    );
+    
+    const userId = decoded.userId;
+
+    //레디스에서 토큰 존재 여부 확인
+    const storedUserId = await redis.get(resetToken);
+
+    if (!storedUserId || storedUserId !== userId) {
+      return res
+        .status(400)
+        .json({ error: "유효하지 않거나 만료된 토큰입니다." });
+    }
+
+    //비밀번호 해싱 및 업데이트
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({ error: "사용자를 찾을 수 없습니다." });
+    }
+
+    user.password = newPassword; //model의 pre메소드에서 해시처리됨
+    await user.save();
+
+    //레디스에서 토큰 삭제
+    await redis.del(resetToken);
+
+    res.status(200).json({ message: "비밀번호가 성공적으로 변경되었어요." });
+  } catch (error) {
+    console.error(`error while resetting password.. ${error.message}`);
+    res.status(500).json({ error: "internal server error" });
+  }
+};

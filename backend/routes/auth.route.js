@@ -1,9 +1,11 @@
 import express from "express";
 import {
+  forgotPassword,
   getCurrentUser,
   logIn,
   logOut,
   refreshAccessToken,
+  resetPassword,
   signUp,
 } from "../controllers/auth.controller.js";
 import { protectedRoute } from "../middleware/protectedRoute.js";
@@ -24,5 +26,10 @@ router.post("/refreshToken", protectedRoute, refreshAccessToken);
 //먼저 protectedRoute함수 수행되고, 내부의 next()로직으로 인해 다음 인자인 getCurrentUser컨트롤러 수행
 //요청을 보내는 클라이언트가 유효한 토큰을 가지고 있는지 먼저 확인해주고, 토큰 정보와 일치하는 user객체를 password제외하고 전달(protectedRoute함수의 역할)
 router.get("/getCurrentUser", protectedRoute, getCurrentUser);
+
+//비밀번호 재설정을 위한 사용자 검증 및 이메일 전송
+router.post(`/forgotPassword`, forgotPassword);
+//비밀번호 재설정
+router.patch(`/resetPassword`, resetPassword);
 
 export default router;

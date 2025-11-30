@@ -18,13 +18,13 @@ import PaymentSuccess from "./pages/payment/PaymentSuccess";
 import PaymentCancel from "./pages/payment/PaymentCancel";
 import Payment from "./pages/payment/Payment";
 import OrderHistoryPage from "./pages/order/OrderHistoryPage";
+import ForgotPassword from "./pages/auth/logIn/ForgotPassword";
 
 import Sidebar from "./components/commons/SideBar";
 import RightPanel from "./components/commons/RightPannel";
 import LoadingSpinner from "./components/commons/LoadingSpinner";
 
 import { useUserStore } from "./store/useUserStore";
-import ResetPasswordPage from "./pages/auth/logIn/ResetPasswordPage";
 
 function App() {
   const { fetchAuthUser, authUser, loading } = useUserStore();
@@ -83,10 +83,13 @@ function App() {
             path="/logIn"
             element={!authUser ? <LogInPage /> : <Navigate to={"/"} />}
           />
+          {/* 비밀번호 재설정에 사용할 이메일을 입력하기 위한 페이지 */}
           <Route
-            path="/reset-password"
-            element={!authUser ? <ResetPasswordPage /> : <Navigate to={"/"} />}
+            path="/forgot-password"
+            element={!authUser ? <ForgotPassword /> : <Navigate to={"/"} />}
           />
+          {/* 이메일로 전달된 링크를 통해 접속 가능한 실제 비밀번호 재설정 페이지 */}
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             path="/profile/:userName"
             element={authUser ? <ProfilePage /> : <Navigate to={"/logIn"} />}
