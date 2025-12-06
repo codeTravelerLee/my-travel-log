@@ -314,13 +314,25 @@ export const getProductsBySeller = async (req, res) => {
         .json({ message: "이 사용자는 상품 판매자가 아닙니다!" });
     }
 
+    // 유효성 검사: sellerId가 유효한 ObjectId 형식인지 확인
+    if (!mongoose.Types.ObjectId.isValid(sellerId)) {
+      console.log(`[Validation Error] 유효하지 않은 sellerId: ${sellerId}`);
+      return res
+        .status(400)
+        .json({ message: "요청된 판매자 ID 형식이 유효하지 않습니다." });
+    }
+
     //사장님으로 등록된 경우
     //사장님으로 등록됐으나 등록한 상품이 없는 경우는 빈 배열 반환
     const products = await Product.find({ seller: sellerId });
 
+    const productsData = products ?? [];
+
+    //FIXME: products가 계속 null임...
+    console.log("반환된 products data: ", productsData);
     res.status(200).json({
       message: "해당 가게의 상품들을 불러왔어요.",
-      products: products,
+      products: productsData,
     });
   } catch (error) {
     console.error(error);

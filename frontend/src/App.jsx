@@ -19,6 +19,7 @@ import PaymentCancel from "./pages/payment/PaymentCancel";
 import Payment from "./pages/payment/Payment";
 import OrderHistoryPage from "./pages/order/OrderHistoryPage";
 import ForgotPassword from "./pages/auth/logIn/ForgotPassword";
+import ResetPassword from "./pages/auth/logIn/ResetPassword";
 
 import Sidebar from "./components/commons/SideBar";
 import RightPanel from "./components/commons/RightPannel";
@@ -44,6 +45,7 @@ function App() {
   const hideRightPanelRoutes = [
     "/products",
     "/product",
+    "/shop",
     "/shops",
     "/admin",
     "/carts",
