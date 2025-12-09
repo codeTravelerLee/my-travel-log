@@ -3,6 +3,9 @@
 import React, { useState } from "react";
 import { addNewProduct } from "../../utils/axios/shop";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { useUserStore } from "../../store/useUserStore";
+import LoadingSpinner from "../../components/commons/LoadingSpinner";
 
 const AddProduct = () => {
   const [productData, setProductData] = useState({
@@ -16,14 +19,27 @@ const AddProduct = () => {
 
   const [axiosError, setAxiosError] = useState("");
   const [fileName, setFileName] = useState("선택된 파일 없음");
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const { authUser } = useUserStore();
 
   const onChange = (e) => {
     const { name, value, files } = e.target;
 
     if (name === "image" && files && files[0]) {
-      // 파일 입력 처리
-      setProductData({ ...productData, [name]: files[0] });
-      setFileName(files[0].name); // 파일 이름 업데이트
+      const file = files[0]; // 1. 사용할 파일 변수 정의
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        // 2. reader.result (Base64 문자열)를 productData에 저장
+        setProductData({ ...productData, [name]: reader.result });
+        setFileName(file.name);
+      };
+
+      // 3. 정의된 'file' 변수를 인수로 전달하여 읽기 시작
+      reader.readAsDataURL(file);
     } else {
       // 일반 입력 처리
       setProductData({ ...productData, [name]: value });
@@ -36,8 +52,12 @@ const AddProduct = () => {
 
     if (ok) {
       try {
+        setLoading(true);
         await addNewProduct(productData);
+        setLoading(false);
         toast.success("상품을 성공적으로 등록했어요. 🎉");
+
+        navigate(`/shop/${authUser?._id}`);
       } catch (error) {
         const errorMessage = error.response?.data?.message || error.message;
         console.error(errorMessage);
@@ -145,7 +165,7 @@ const AddProduct = () => {
                 name={field.name}
                 value={field.value}
                 onChange={onChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 text-black"
                 required
                 {...(field.min !== undefined && { min: field.min })} // min 속성 조건부 추가
               />
@@ -164,7 +184,7 @@ const AddProduct = () => {
             type="submit"
             className="w-full py-3 mt-4 bg-green-500 text-white font-extrabold rounded-lg shadow-lg hover:bg-green-600 transition duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-green-300"
           >
-            상품 등록하기
+            {loading ? <LoadingSpinner size={"md"} /> : "상품 등록하기"}
           </button>
         </form>
       </div>

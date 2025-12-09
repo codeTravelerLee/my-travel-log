@@ -176,7 +176,7 @@ const EditProduct = () => {
                 name={field.name}
                 value={field.value}
                 onChange={onChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 text-black"
                 required
                 {...(field.min !== undefined && { min: field.min })} // min 속성 조건부 추가
               />
