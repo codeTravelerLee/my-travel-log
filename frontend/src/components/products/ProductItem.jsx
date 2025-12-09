@@ -1,9 +1,32 @@
 //개별 상품 각각을 표시하는 컴포넌트
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { MdEdit, MdDelete } from "react-icons/md";
+
+import { useUserStore } from "../../store/useUserStore";
+import { deleteProduct, editProductInfo } from "../../utils/axios/shop";
 
 const ProductItem = ({ name, price, image, category, stock, id }) => {
+  const { authUser } = useUserStore(); //사용자의 role이 seller일 경우에만 상품정보 수정, 삭제버튼을 노출시키기 위함임.
+
+  const navigate = useNavigate();
+
+  //seller계정이 상품정보 수정 버튼을 클릭한 경우
+  const onProductEditBtnClick = async () => {
+    navigate(`/shop/edit-product/${id}`);
+  };
+
+  //seller계정이 상품정보 삭제 버튼을 클릭한 경우
+  const onProductDeleteBtnClick = async () => {
+    const ok = confirm("정말 상품을 삭제하시겠습니까?");
+
+    if (ok) {
+      await deleteProduct(id);
+      toast.success("상품이 성공적으로 삭제되었어요. 🎉");
+    }
+  };
+
   return (
     <Link to={`/product/${id}`}>
       <div
@@ -43,6 +66,18 @@ const ProductItem = ({ name, price, image, category, stock, id }) => {
                   구매가능
                 </span>
               ))}
+            {/* 가게 주인 계정한테만 보이는 상품정보 수정 및 상품 삭제 버튼 */}
+            {/* TODO: 상품정보 수정, 삭제버튼 클릭시 로직 연결  */}
+            <div className="flex gap-2">
+              {authUser?.role === "seller" && (
+                <MdEdit onClick={onProductEditBtnClick} />
+              )}{" "}
+              {/* 상품정보수정 */}
+              {authUser?.role === "seller" && (
+                <MdDelete onClick={onProductDeleteBtnClick} />
+              )}{" "}
+              {/* 상품삭제 */}
+            </div>
           </div>
         </div>
       </div>

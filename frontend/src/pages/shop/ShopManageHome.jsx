@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getProductsBySeller, getShopOverview } from "../../utils/axios/shop";
 import ProductItem from "../../components/products/ProductItem";
 
 const ShopManageHome = () => {
   const { id: shopId } = useParams();
+
+  const navigate = useNavigate();
 
   const [shopOverviewData, setShopOverviewData] = useState({
     shopProductCount: 0,
@@ -35,6 +37,10 @@ const ShopManageHome = () => {
 
     fetchShopProducts();
   }, [shopId]);
+
+  const onAddProductbtnClick = () => {
+    navigate(`/shop/${shopId}/add-product`);
+  };
 
   return (
     <div className="w-full h-full p-5">
@@ -78,7 +84,15 @@ const ShopManageHome = () => {
             key={idx}
           />
         ))}
-        {/* //TODO: 상품 추가하는 기능 추가 */}
+      </div>
+      {/* //TODO: 상품 추가하는 기능 추가 */}
+      <div className="flex justify-center items-center">
+        <button
+          className=" border rounded-lg p-4 w-1/3 font-extrabold text-lg bg-blue-300 text-black hover:bg-white hover:cursor-pointer"
+          onClick={onAddProductbtnClick}
+        >
+          상품 등록하기
+        </button>
       </div>
     </div>
   );

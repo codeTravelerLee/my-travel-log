@@ -26,6 +26,8 @@ import RightPanel from "./components/commons/RightPannel";
 import LoadingSpinner from "./components/commons/LoadingSpinner";
 
 import { useUserStore } from "./store/useUserStore";
+import AddProduct from "./pages/shop/AddProduct";
+import EditProduct from "./pages/shop/EditProduct";
 
 function App() {
   const { fetchAuthUser, authUser, loading } = useUserStore();
@@ -116,6 +118,28 @@ function App() {
             element={
               authUser && authUser.role === "seller" ? (
                 <ShopManageHome />
+              ) : (
+                <Navigate to={"/"} />
+              )
+            }
+          />
+          {/* 판매상품 등록 페이지 */}
+          <Route
+            path="/shop/:shopId/add-product"
+            element={
+              authUser && authUser.role === "seller" ? (
+                <AddProduct />
+              ) : (
+                <Navigate to={"/"} />
+              )
+            }
+          />
+          {/* 상품정보 수정페이지 */}
+          <Route
+            path="/shop/edit-product/:id"
+            element={
+              authUser && authUser.role === "seller" ? (
+                <EditProduct />
               ) : (
                 <Navigate to={"/"} />
               )
