@@ -17,10 +17,14 @@ export const getShopOverview = async () => {
 export const getProductsBySeller = async (sellerId) => {
   try {
     const response = await axiosInstance.get(`/api/v1/products/${sellerId}`);
+
     console.log("axios응답데이터 구조:", response.data);
+    console.log("가게 상품 정보:", response.data.products);
+
     return response.data.products;
   } catch (error) {
     console.error("가게 상품 정보를 불러오는 중 오류가 발생했습니다:", error);
+
     throw error;
   }
 };

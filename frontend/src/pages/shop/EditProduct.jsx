@@ -1,6 +1,4 @@
 // 상품정보 수정 페이지
-//TODO: 수정이기 때문에, 해당 id에 맞는 기존 상품 정보를 불러와서 form의 초기값으로 넣어야 함.
-
 import React, { useState } from "react";
 
 import toast from "react-hot-toast";

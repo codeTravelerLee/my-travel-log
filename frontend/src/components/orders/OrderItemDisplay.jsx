@@ -1,5 +1,4 @@
 //주문내역 페이지에서 각각의 상품을 보여줄 박스
-//TODO: 무한루프 해결되면 직접 보면서 UI개선 필요
 import React from "react";
 
 import { MdDelete } from "react-icons/md";
@@ -38,7 +37,6 @@ const OrderItemDisplay = ({
       <div className="flex flex-col gap-1 justify-between items-end">
         <p>{totalAmount.toLocaleString("ko-kr")}원</p>
         <p>구매일시: {createdAt}</p>
-        {/* TODO: 환불로직 */}
         <button className="border rounded-lg p-2 bg-blue-500 hover:bg-amber-50 hover:text-black">
           환불하기
         </button>

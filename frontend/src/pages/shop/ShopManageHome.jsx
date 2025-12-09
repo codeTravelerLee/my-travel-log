@@ -85,7 +85,7 @@ const ShopManageHome = () => {
           />
         ))}
       </div>
-      {/* //TODO: 상품 추가하는 기능 추가 */}
+
       <div className="flex justify-center items-center">
         <button
           className=" border rounded-lg p-4 w-1/3 font-extrabold text-lg bg-blue-300 text-black hover:bg-white hover:cursor-pointer"

@@ -17,6 +17,8 @@ import adminRoutes from "./routes/admin.route.js";
 import sellerRoutes from "./routes/seller.route.js";
 import orderRoutes from "./routes/order.route.js";
 
+import logger from "../logger.js";
+
 dotenv.config();
 
 cloudinary.config({
@@ -53,6 +55,7 @@ app.use("/api/v1/order", orderRoutes); //주문내역 관련
 
 app.listen(PORT, () => {
   console.log(`server is running on port: ${PORT}`);
+  logger.info("Server listening on port 3000");
   //DB연결
   connectMongoDB();
 });

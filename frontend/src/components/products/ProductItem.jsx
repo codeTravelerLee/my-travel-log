@@ -67,7 +67,6 @@ const ProductItem = ({ name, price, image, category, stock, id }) => {
                 </span>
               ))}
             {/* 가게 주인 계정한테만 보이는 상품정보 수정 및 상품 삭제 버튼 */}
-            {/* TODO: 상품정보 수정, 삭제버튼 클릭시 로직 연결  */}
             <div className="flex gap-2">
               {authUser?.role === "seller" && (
                 <MdEdit onClick={onProductEditBtnClick} />

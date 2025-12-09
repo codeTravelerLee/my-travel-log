@@ -5,6 +5,10 @@ import mongoose from "mongoose";
 import Product from "../models/product.model.js";
 import Order from "../models/order.model.js";
 
+import { v2 as cloudinary } from "cloudinary";
+import redis from "../lib/db/redis.js";
+import logger from "../../logger.js";
+
 //해당 가게의 overview정보제공
 export const getShopOverview = async (req, res) => {
   try {
@@ -102,6 +106,7 @@ export const createProduct = async (req, res) => {
     res.status(200).json({ message: "상품 등록 성공!", data: newProduct });
   } catch (error) {
     console.log(`상품 등록 과정에서 에러가 발생했어요.: ${error.message}`);
+    logger.error(`상품 등록 과정에서 에러가 발생했어요.: ${error.message}`);
     res.status(500).json({ error: "intetnal server error" });
   }
 };

@@ -35,7 +35,6 @@ const AddProduct = () => {
     const ok = confirm("정말 상품을 등록하시겠습니까?");
 
     if (ok) {
-      // TODO: 상품등록 api 요청보낼 것!
       try {
         await addNewProduct(productData);
         toast.success("상품을 성공적으로 등록했어요. 🎉");

@@ -2,8 +2,9 @@
 
 import Product from "../models/product.model.js";
 import redis from "../lib/db/redis.js";
-import { v2 as cloudinary } from "cloudinary";
 import User from "../models/user.model.js";
+import mongoose from "mongoose";
+import logger from "../../logger.js";
 
 //모든 상품을 조회
 export const getAllProducts = async (req, res) => {
@@ -130,7 +131,11 @@ export const getProductsByCategory = async (req, res) => {
 // 가게별 전체상품 조회
 export const getProductsBySeller = async (req, res) => {
   try {
-    const { sellerId } = req.params; //조회할 가게(사장님)의 _id
+    const { id } = req.params; //조회할 가게(사장님)의 _id
+    const sellerId = new mongoose.Types.ObjectId(id);
+
+    logger.info("요청된 sellerId의 타입:", typeof sellerId);
+    console.log("요청된 sellerId:", sellerId);
 
     //사장님으로 등록되지 않은 사용자인지 체크
     const userRole = await User.findById(sellerId).select("role");
@@ -157,7 +162,9 @@ export const getProductsBySeller = async (req, res) => {
     const productsData = products ?? [];
 
     //FIXME: products가 계속 null임...
+    console.log("db탐색결과 products: ", products);
     console.log("반환된 products data: ", productsData);
+
     res.status(200).json({
       message: "해당 가게의 상품들을 불러왔어요.",
       products: productsData,
